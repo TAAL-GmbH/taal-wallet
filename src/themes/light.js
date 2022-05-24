@@ -85,15 +85,17 @@ const button = {
     sm: {
       height: spacing.lg,
       fontSize: '14px',
+      borderRadius: '2px',
     },
     md: {
       height: spacing.xl,
       fontSize: '16px',
-      borderRadius: borderRadius.xl,
+      borderRadius: '4px',
     },
     lg: {
       height: spacing.xxl,
       fontSize: '18px',
+      borderRadius: '6px',
     },
   },
   variant: {
@@ -124,9 +126,9 @@ const button = {
 };
 
 const fontFamily = {
-  primary: 'Work Sans, sans-serif',
-  secondary: 'Rokkitt, serif',
-  heading: 'Rokkitt, serif',
+  primary: 'Roboto, sans-serif',
+  secondary: 'Roboto, serif',
+  heading: 'Roboto, serif',
 };
 
 const sharedComponents = {

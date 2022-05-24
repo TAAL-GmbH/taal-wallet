@@ -1,4 +1,23 @@
-const request = async (url, options = {}) => {
+const basePath = 'https://taalnet.whatsonchain.com';
+
+const parseJson = async (response: Response) => {
+  const text = await response.text();
+  try {
+    const data = JSON.parse(text);
+    return {
+      status: response.status,
+      ok: response.ok,
+      data,
+    };
+  } catch (err) {
+    if (response.ok) {
+      return { ok: response.ok, data: { status: response.status, text } };
+    }
+    throw err;
+  }
+};
+
+const request = async (url: string, options = {}) => {
   let response;
   try {
     response = await fetch(url, options); // eslint-disable-line
@@ -13,8 +32,8 @@ const request = async (url, options = {}) => {
   }
 };
 
-export class WOC {
-  async tx(hash) {
+class WOC {
+  async tx(hash: string) {
     const endpoint =
       'https://taalnet.whatsonchain.com/v1/bsv/taalnet/tx/hash/' + hash;
     try {
@@ -25,7 +44,7 @@ export class WOC {
     }
   }
 
-  async unspent(address) {
+  async unspent(address: string) {
     const endpoint =
       'https://taalnet.whatsonchain.com/v1/bsv/taalnet/address/' +
       address +
@@ -39,7 +58,7 @@ export class WOC {
     }
   }
 
-  async unspentTokens(address) {
+  async unspentTokens(address: string) {
     const tokenEndpoint =
       'https://taalnet.whatsonchain.com/v1/bsv/taalnet/address/' +
       address +
@@ -53,7 +72,7 @@ export class WOC {
     }
   }
 
-  async balanceAsync(source, address) {
+  async balanceAsync(source: string, address: string) {
     const endpoint =
       'https://taalnet.whatsonchain.com/v1/bsv/taalnet/address/' +
       address +
@@ -91,23 +110,14 @@ export class WOC {
     }
   }
 
-  async balance(address) {
-    const endpoint =
-      'https://taalnet.whatsonchain.com/v1/bsv/taalnet/address/' +
-      address +
-      '/balance';
-    let satoshis;
-
-    try {
-      const balance = await request(endpoint);
-      satoshis = balance.confirmed + balance.unconfirmed;
-      return satoshis;
-    } catch (err) {
-      throw err;
-    }
+  async getBalance(address: string): Promise<number> {
+    const endpoint = `${basePath}/v1/bsv/taalnet/address/${address}/balance`;
+    const { confirmed, unconfirmed } = await request(endpoint);
+    // TODO: validate response
+    return confirmed + unconfirmed;
   }
 
-  async tokens(address) {
+  async tokens(address: string) {
     const tokenEndpoint =
       'https://taalnet.whatsonchain.com/v1/bsv/taalnet/address/' +
       address +
@@ -129,4 +139,25 @@ export class WOC {
       return null;
     }
   }
+
+  async airdrop(address: string) {
+    const endpoint = `${basePath}/faucet/send/${address}`;
+
+    const { text: txid } = await request(endpoint, {
+      headers: {
+        Authorization: `Basic ${btoa('taal_private:dotheT@@l007')}`,
+      },
+    });
+
+    // Check this is a valid hex string
+    if (!txid.match(/^[0-9a-fA-F]{64}$/)) {
+      throw new Error(`Failed to get funds: ${txid}`);
+    }
+
+    // store.dispatch(refreshBalance({ address }));
+
+    return true;
+  }
 }
+
+export const woc = new WOC();

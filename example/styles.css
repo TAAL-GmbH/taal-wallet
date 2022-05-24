@@ -1,0 +1,43 @@
+body {
+  font-family: 'Roboto', sans-serif;
+
+  --color-primary: #232d7c;
+  --color-danger: #b80357;
+}
+
+body:not(.connected) .c-only,
+body.connected .d-only {
+  display: none;
+}
+
+button {
+  background-color: #e1e1e1;
+  border: none;
+  padding: 0.5rem 1.5rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+
+button.primary {
+  background-color: var(--color-primary);
+  color: #fff;
+}
+
+button.danger {
+  background-color: var(--color-danger);
+  color: #fff;
+}
+
+button:hover {
+  filter: brightness(80%) contrast(150%);
+}
+
+
+dl {
+  display: flex;
+  gap: 1rem;
+}
+
+dt {
+  font-weight: bold;
+}

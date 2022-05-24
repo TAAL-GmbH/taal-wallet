@@ -1,10 +1,12 @@
 {
   "watch": [
-    "src", "utils", "vite.config.ts"
+    "src",
+    "utils",
+    "vite.config.ts"
   ],
-  "ext": "tsx,css,html,ts",
+  "ext": "tsx,js,html,ts",
   "ignore": [
     "src/**/*.spec.ts"
   ],
-  "exec": "node_modules/.bin/vite build"
+  "exec": "node_modules/.bin/vite build -c vite.config.ts & node_modules/.bin/vite build -c vite.background.config.ts"
 }

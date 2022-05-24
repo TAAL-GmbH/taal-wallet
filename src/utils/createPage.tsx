@@ -1,12 +1,36 @@
 import React, { ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { ThemeProvider, createGlobalStyle } from 'styled-components';
+import { Provider as ReduxProvider } from 'react-redux';
+import { store } from '@/src/store';
 // @ts-expect-error convert to ts
 import light from '@/themes/light';
 
 const GlobalStyle = createGlobalStyle`
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+  body, html {
+    padding: 0;
+    margin: 0;
+    min-height: 100vh;
+  }
   body {
     background-color: #fdfdfd;
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    line-height: 1.25;
+    color: ${light.color.grey[400]};
+
+    * {
+      box-sizing: border-box;
+    }
+
+    > div {
+      min-height: 100vh;
+    }
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: ${light.color.grey[700]};
   }
 `;
 
@@ -22,9 +46,11 @@ export const createPage = ({ domElement, component }: Props) => {
   }
   const root = createRoot(domElement);
   root.render(
-    <ThemeProvider theme={light}>
-      <GlobalStyle />
-      {component}
-    </ThemeProvider>
+    <ReduxProvider store={store}>
+      <ThemeProvider theme={light}>
+        <GlobalStyle />
+        {component}
+      </ThemeProvider>
+    </ReduxProvider>
   );
 };

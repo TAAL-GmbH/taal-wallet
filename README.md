@@ -59,3 +59,57 @@ This TAAL Web3 Wallet Chrome extensions using React and Typescript.
 - [Rollup-plugin-chrome-extension](https://www.extend-chrome.dev/rollup-plugin)
 
 ---
+
+
+# Communication
+
+## Long lived connection
+
+### On background.js
+```js
+chrome.runtime.onConnectExternal.addListener(port => {
+  console.log('Client connected', port);
+  port.onMessage.addListener(msg => {
+    console.log('onExternalMessage', msg);
+  });
+});
+```
+
+### On web page
+```js
+const port = chrome.runtime.connect(extensionId, { name: 'some-name' });
+port.onMessage.addListener(console.log);
+port.postMessage({ payload: 'anything' })
+```
+
+### On content script
+```js
+const port = chrome.runtime.connect({ name: 'some-name' });
+port.postMessage({ payload: 'anything' });
+port.onMessage.addListener(msg => {
+  console.log('onMessage', msg);
+});
+```
+
+## One time communication (web -> background.js)
+### On background.js
+```js
+chrome.runtime.onMessageExternal.addListener((payload, data, cb) => {
+  console.log('onMessageExternal', { payload, data });
+  if (typeof cb === 'function') {
+    cb('response from background.js');
+  }
+  return true;
+});
+```
+
+### On web page
+```js
+chrome.runtime.sendMessage(extensionId, { payload: 'anything' }, console.log)
+```
+
+
+### On content script
+```js
+chrome.runtime.sendMessage({ payload: 'anything' }, console.log);
+```

@@ -1,4 +1,4 @@
-import { WOC } from './WOCLib';
+import { WOC } from '../../libs/WOC';
 
 export class Token {
   async sendToken(pk, symbol, amount, destination) {
