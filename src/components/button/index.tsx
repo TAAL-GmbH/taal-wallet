@@ -28,6 +28,7 @@ export type ButtonStyleProps = {
 };
 
 export type ButtonProps = {
+  className?: string;
   onClick?: () => void;
   children: ReactNode;
   type?: 'button' | 'submit' | 'reset';
@@ -39,6 +40,7 @@ export type ButtonProps = {
 } & ButtonStyleProps;
 
 export const Button: FC<ButtonProps> = ({
+  className,
   onClick,
   children,
   type = 'button',
@@ -68,6 +70,7 @@ export const Button: FC<ButtonProps> = ({
 
   return (
     <ButtonStyled
+      className={className}
       type={type}
       onClick={_onClick}
       isDisabled={isDisabled}
@@ -92,7 +95,7 @@ export const sharedButtonStyles = css<
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Rokkitt', serif;
+  font-family: 'Roboto', serif;
   font-weight: bold;
   text-transform: uppercase;
   position: relative;

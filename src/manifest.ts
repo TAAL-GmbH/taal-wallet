@@ -9,7 +9,7 @@ const manifest: ManifestType = {
   description: packageJson.description,
   options_page: 'src/pages/options/index.html',
   background: { service_worker: 'src/pages/background/index.js' },
-  permissions: ['storage', 'activeTab', 'scripting'],
+  permissions: ['storage', 'activeTab', 'scripting', 'notifications'],
   host_permissions: ['*://localhost/*'],
   externally_connectable: {
     matches: ['*://localhost/*'],
@@ -35,7 +35,7 @@ const manifest: ManifestType = {
   web_accessible_resources: [
     {
       resources: [
-        'contentStyle.css',
+        // 'contentStyle.css',
         'taal-round-128x128.png',
         'taal-round-34x34.png',
       ],

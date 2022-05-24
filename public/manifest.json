@@ -10,7 +10,8 @@
   "permissions": [
     "storage",
     "activeTab",
-    "scripting"
+    "scripting",
+    "notifications"
   ],
   "host_permissions": [
     "*://localhost/*"
@@ -45,7 +46,6 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "contentStyle.css",
         "taal-round-128x128.png",
         "taal-round-34x34.png"
       ],

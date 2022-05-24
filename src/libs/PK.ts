@@ -1,21 +1,105 @@
-import { WOC } from './WOCLib';
+import { PK_CURRENT_KEY, PK_LIST_KEY } from '@/src/constants';
+import { replacePKList, appendPK, setActivePk } from '@/src/features/pkSlice';
+import { store } from '@/src/store';
+import isEqual from 'react-fast-compare';
+import { HDPrivateKey, Mnemonic, PKType } from '../types';
 
-export class PK {
-  pk: { privateKey: HDPK } | undefined;
-  address: string | undefined;
+const storageSyncKeys = [PK_LIST_KEY, PK_CURRENT_KEY];
 
-  async unspent(address: string) {
+class PK {
+  public async init() {
+    /**
+     * The following code it to keep in sync redux state -> chrome.storage.pk
+     */
+    store.subscribe(async () => {
+      const { list, current } = store.getState().pk;
+
+      const storageData = await chrome.storage.local.get(storageSyncKeys);
+
+      const newStorageData: {
+        [PK_LIST_KEY]?: PKType[];
+        [PK_CURRENT_KEY]?: PKType | null;
+      } = {};
+
+      if (!isEqual(storageData[PK_LIST_KEY], list)) {
+        newStorageData[PK_LIST_KEY] = list;
+      }
+
+      if (current && storageData[PK_CURRENT_KEY] !== current) {
+        newStorageData[PK_CURRENT_KEY] = current;
+      }
+
+      if (Object.keys(newStorageData).length) {
+        chrome.storage.local.set(newStorageData);
+      }
+    });
+
+    /**
+     * The following code it to keep in sync chrome.storage.pk -> redux state
+     */
+    chrome.storage.onChanged.addListener(
+      async (changes: { [key: string]: chrome.storage.StorageChange }) => {
+        for (let [key, { newValue }] of Object.entries(changes)) {
+          if (key === PK_LIST_KEY) {
+            store.dispatch(replacePKList(newValue as PKType[]));
+          }
+          if (key === PK_CURRENT_KEY) {
+            store.dispatch(setActivePk(newValue));
+          }
+        }
+      }
+    );
+
+    /**
+     * The following code it to restore data from chrome.storage.pk -> redux state
+     */
+    const localStorageData = await chrome.storage.local.get(storageSyncKeys);
+
+    if (localStorageData[PK_LIST_KEY]?.length) {
+      store.dispatch(replacePKList(localStorageData[PK_LIST_KEY]));
+    }
+    if (localStorageData[PK_CURRENT_KEY]) {
+      store.dispatch(setActivePk(localStorageData[PK_CURRENT_KEY]));
+    }
+  }
+
+  public generateMnemonic() {
+    return bsvMnemonic.fromRandom();
+  }
+
+  public createPK({
+    mnemonic,
+    network = 'testnet',
+  }: {
+    mnemonic: Mnemonic;
+    network?: string;
+  }) {
+    console.log('creating PK', { mnemonic, network });
+    const privateKey: HDPrivateKey = mnemonic.toHDPrivateKey();
+    const address = privateKey.publicKey.toAddress(network).toString();
+    store.dispatch(
+      appendPK({
+        address,
+        pk: privateKey.toString(),
+        name: Date.now().toString(),
+        balance: null,
+      })
+    );
+  }
+}
+
+export const pk = new PK();
+
+class PK_org {
+  pk;
+  address;
+
+  async unspent(address) {
     let woc = new WOC();
     return await woc.unspent(address || this.address);
   }
 
-  async sendBSV(amount: string, destination: string) {
-    if (!this.address) {
-      throw new Error('address not set');
-    }
-    if (!this.pk?.privateKey) {
-      throw new Error('address not set');
-    }
+  async sendBSV(amount, destination) {
     try {
       bsv.Address.fromString(destination);
     } catch (e) {
@@ -41,12 +125,11 @@ export class PK {
         script: unspentTX.vout[unspentVOutIndex].scriptPubKey.hex,
         satoshis: unspentValue,
       });
-
       let tx = new bsv.Transaction()
         .from(utxo)
         .to(destination, parseInt(amount))
         .change(this.address)
-        .sign(this.pk?.privateKey);
+        .sign(this.pk.privateKey);
       let chain = new Chain();
       return await chain.broadcast(tx);
     } catch (err) {

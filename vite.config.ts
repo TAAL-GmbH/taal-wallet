@@ -27,16 +27,19 @@ export default defineConfig({
   ],
   publicDir,
   build: {
+    emptyOutDir: false,
     outDir,
     rollupOptions: {
       input: {
         devtools: resolve(pagesDir, 'devtools', 'index.html'),
         panel: resolve(pagesDir, 'panel', 'index.html'),
         content: resolve(pagesDir, 'content', 'index.ts'),
-        background: resolve(pagesDir, 'background', 'index.ts'),
         popup: resolve(pagesDir, 'popup', 'index.html'),
         newtab: resolve(pagesDir, 'newtab', 'index.html'),
         options: resolve(pagesDir, 'options', 'index.html'),
+        connection: resolve(pagesDir, 'connection', 'index.html'),
+        auth: resolve(pagesDir, 'auth', 'index.html'),
+        dialog: resolve(pagesDir, 'dialog', 'index.html'),
       },
       output: {
         entryFileNames: chunk => `src/pages/${chunk.name}/index.js`,

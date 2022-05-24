@@ -1,99 +1,55 @@
-import React, { useEffect, useState } from 'react';
-import logo from '@/assets/img/logo.svg';
+import React, { useEffect } from 'react';
+import { Router, Route } from 'wouter';
 import styled from 'styled-components';
-import { Button } from '@/src/components/button';
-import { init } from './popup-init';
-import { WOC } from './WOCLib';
-import { Token } from './Token';
-
-const woc = new WOC();
-
-type TokenType = {
-  balance: number;
-  symbol: string;
-};
+import { pk } from '@/src/libs/PK';
+import { PKList } from '@/src/components/pkList';
+import { useHashLocation } from '@/src/hooks/useHashLocation';
+import { NewPk } from '@/src/components/newPK';
+import { Home } from '@/src/components/home';
+import { PageHead } from '@/src/components/pageHead';
+import { routes } from '@/src/constants/routes';
 
 const Popup = () => {
-  const [pk, setPk] = useState<unknown>(null);
-  const [satoshis, setSatoshis] = useState<number | null>(null);
-  const [tokens, setTokens] = useState<TokenType[]>([]);
-
   useEffect(() => {
-    init(setPk);
+    (async () => {
+      await pk.init();
+    })();
   }, []);
 
-  const refreshBalanceListener = resp => {
-    setSatoshis(resp.satoshis);
-    setTokens(resp.tokenBalances);
-  };
+  // const refreshBalanceListener = resp => {
+  //   setSatoshis(resp.satoshis);
+  //   setTokens(resp.tokenBalances);
+  // };
 
-  const refreshBalance = () => {
-    woc.balanceAsync({ refreshBalanceListener }, pk.address);
-  };
-
-  useEffect(() => {
-    if (!pk) return;
-    refreshBalance();
-  }, [pk]);
-
-  const mintToken = async () => {
-    let token = new Token();
-    try {
-      let symbol = await token.mint(pk);
-      alert('Token ' + symbol + ' minted.');
-      refreshBalance();
-    } catch (err) {
-      alert(err);
-    }
-  };
+  // const refreshBalance = () => {
+  //   woc.balanceAsync({ refreshBalanceListener }, pk.address);
+  // };
 
   return (
     <Wrapper>
-      <header className="App-header">
-        <Logo src={logo} alt="logo" />
-        <h1>hello</h1>
-        <h3>Balance: {satoshis} satoshis</h3>
-        <Ul>
-          {tokens.map(({ balance, symbol }, idx) => (
-            <li key={idx}>
-              <span>{symbol}</span>
-              <span>{balance} satoshis</span>
-            </li>
-          ))}
-        </Ul>
-        <Button variant="primary" onClick={mintToken}>
-          Mint
-        </Button>
-      </header>
+      <PageHead margin="0 0 md" />
+
+      <Router hook={useHashLocation}>
+        <Route path="/">
+          <Home />
+        </Route>
+        <Route path={`${routes.PK_LIST}`}>
+          <PKList />
+        </Route>
+        <Route path={routes.CREATE_PK}>
+          <NewPk />
+        </Route>
+      </Router>
     </Wrapper>
   );
 };
 
 const Wrapper = styled.div`
-  padding: 2rem;
+  padding: 1rem;
+  width: 350px;
+  height: 500px;
+  overflow-y: auto;
+  overflow-x: hidden;
 `;
-
-const Logo = styled.img`
-  width: 200px;
-  margin-bottom: 2rem;
-`;
-
-const Ul = styled.ul`
-  list-style: none;
-  font-size: 1.2rem;
-  padding: 0;
-
-  li {
-    display: flex;
-    gap: 1rem;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #ccc;
-    white-space: nowrap;
-  }
-`;
-
-// const Heading = styled.h1`
-//   color: ${({ theme }) => theme.color.primary[200]};
-// `;
 
 export default Popup;
