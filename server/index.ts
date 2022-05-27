@@ -11,19 +11,6 @@ initializeApp({
   credential: credential.cert(serviceAccount as ServiceAccount),
 });
 
-// const registrationToken =
-//   'fA_sBWEufRosL9HJ-PqRVQ:APA91bECw9eqP-AiSuXgEe18zBmAEdopC9-gG32BLxQ3JR4AAKKX8GCZmLuMEEZA_8jJ-KYJ-EFeHjOF0ThBS9oLJFYT9U2lu0x5LMNzx7i9QLnNjU9S3cVjaTkFiLOk11eM0fgDUb1H';
-
-// getMessaging()
-//   .send(message)
-//   .then(response => {
-//     // Response is a message ID string.
-//     console.log('Successfully sent message:', response);
-//   })
-//   .catch(error => {
-//     console.log('Error sending message:', error);
-//   });
-
 app.get('/', async (req, res) => {
   res.json({ message: 'Hello World!' });
 });

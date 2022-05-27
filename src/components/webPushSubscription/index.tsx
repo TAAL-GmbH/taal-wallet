@@ -1,5 +1,5 @@
 import { useAppSelector } from '@/src/hooks';
-import { FC, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { FC, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { getWebPushToken } from '../../utils/firebase';
 import { Button } from '../button';
@@ -17,9 +17,6 @@ type Message = {
   payload: string;
 };
 
-// const token = await getWebPushToken();
-// const token = 'disable';
-
 export const WebPushSubscription: FC<Props> = ({ className }) => {
   const { current, list } = useAppSelector(state => state.pk);
 
@@ -35,18 +32,11 @@ export const WebPushSubscription: FC<Props> = ({ className }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    (async () => {
-      const token = await getWebPushToken();
-      setToken(token);
-    })();
+    (async () => setToken(await getWebPushToken()))();
   }, []);
 
   const onInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(state => ({ ...state, [e.target.name]: e.target.value }));
-    console.log({
-      name: e.target.name,
-      value: e.target.value,
-    });
   };
 
   const parsePayload = () => {
