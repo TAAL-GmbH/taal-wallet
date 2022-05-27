@@ -1,6 +1,6 @@
 const basePath = 'https://taalnet.whatsonchain.com';
 
-const parseJson = async (response: Response) => {
+const parseJsonLocal = async (response: Response) => {
   const text = await response.text();
   try {
     const data = JSON.parse(text);
@@ -17,11 +17,11 @@ const parseJson = async (response: Response) => {
   }
 };
 
-const request = async (url: string, options = {}) => {
+const requestLocal = async (url: string, options = {}) => {
   let response;
   try {
     response = await fetch(url, options); // eslint-disable-line
-    response = await parseJson(response);
+    response = await parseJsonLocal(response);
 
     if (response.ok) {
       return response.data;
@@ -37,7 +37,7 @@ class WOC {
     const endpoint =
       'https://taalnet.whatsonchain.com/v1/bsv/taalnet/tx/hash/' + hash;
     try {
-      const data = await request(endpoint);
+      const data = await requestLocal(endpoint);
       return data;
     } catch (err) {
       throw err;
@@ -51,7 +51,7 @@ class WOC {
       '/unspent';
 
     try {
-      const data = await request(endpoint);
+      const data = await requestLocal(endpoint);
       return data;
     } catch (err) {
       throw err;
@@ -65,7 +65,7 @@ class WOC {
       '/tokens/unspent';
 
     try {
-      const data = await request(tokenEndpoint);
+      const data = await requestLocal(tokenEndpoint);
       return data;
     } catch (err) {
       throw err;
@@ -80,7 +80,7 @@ class WOC {
     let satoshis;
 
     try {
-      const balance = await request(endpoint);
+      const balance = await requestLocal(endpoint);
       satoshis = balance.confirmed + balance.unconfirmed;
 
       const tokenEndpoint =
@@ -89,7 +89,7 @@ class WOC {
         '/tokens';
       let tokenBalances = [];
       try {
-        const tokenBalancesResponse = await request(tokenEndpoint);
+        const tokenBalancesResponse = await requestLocal(tokenEndpoint);
         if (tokenBalancesResponse.tokens) {
           for (let i = 0; i < tokenBalancesResponse.tokens.length; i++) {
             let tokenBalance = new TokenBalance();
@@ -112,7 +112,7 @@ class WOC {
 
   async getBalance(address: string): Promise<number> {
     const endpoint = `${basePath}/v1/bsv/taalnet/address/${address}/balance`;
-    const { confirmed, unconfirmed } = await request(endpoint);
+    const { confirmed, unconfirmed } = await requestLocal(endpoint);
     // TODO: validate response
     return confirmed + unconfirmed;
   }
@@ -125,7 +125,7 @@ class WOC {
     let tokenBalances = [];
 
     try {
-      const tokenBalancesResponse = await request(tokenEndpoint);
+      const tokenBalancesResponse = await requestLocal(tokenEndpoint);
       if (tokenBalancesResponse.tokens) {
         for (let i = 0; i < tokenBalancesResponse.tokens.length; i++) {
           let tokenBalance = new TokenBalance();
@@ -143,7 +143,7 @@ class WOC {
   async airdrop(address: string) {
     const endpoint = `${basePath}/faucet/send/${address}`;
 
-    const { text: txid } = await request(endpoint, {
+    const { text: txid } = await requestLocal(endpoint, {
       headers: {
         Authorization: `Basic ${btoa('taal_private:dotheT@@l007')}`,
       },

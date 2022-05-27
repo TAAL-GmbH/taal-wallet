@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "esnext",
     "types": ["vite/client", "node"],
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": ["esnext", "WebWorker"],
     "allowJs": false,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -10,7 +10,7 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
-    "module": "esnext",
+    "module": "commonjs",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "noEmit": true,

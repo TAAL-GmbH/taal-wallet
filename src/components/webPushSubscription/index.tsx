@@ -1,0 +1,149 @@
+import { useAppSelector } from '@/src/hooks';
+import { FC, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import styled from 'styled-components';
+import { getWebPushToken } from '../../utils/firebase';
+import { Button } from '../button';
+import { CurrentPk } from '../currentPk';
+
+type Props = {
+  className?: string;
+};
+
+type Message = {
+  title: string;
+  body: string;
+  action: string;
+  address: string;
+  payload: string;
+};
+
+// const token = await getWebPushToken();
+// const token = 'disable';
+
+export const WebPushSubscription: FC<Props> = ({ className }) => {
+  const { current, list } = useAppSelector(state => state.pk);
+
+  const [formData, setFormData] = useState<Message>({
+    title: 'Title',
+    body: 'Message Body',
+    action: 'balance',
+    address: current?.address || '',
+    payload: '{ "amount": 123456789 }',
+  });
+  const [result, setResult] = useState<unknown>({});
+  const [token, setToken] = useState<string>('Loading...');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    (async () => {
+      const token = await getWebPushToken();
+      setToken(token);
+    })();
+  }, []);
+
+  const onInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData(state => ({ ...state, [e.target.name]: e.target.value }));
+    console.log({
+      name: e.target.name,
+      value: e.target.value,
+    });
+  };
+
+  const parsePayload = () => {
+    try {
+      const payload = JSON.parse(formData.payload);
+      return payload;
+    } catch (e) {
+      return {};
+    }
+  };
+
+  const pushMessage = async () => {
+    const body = {
+      token,
+      title: formData.title,
+      body: formData.body,
+      data: {
+        action: 'balance',
+        payload: {
+          address: formData.address || current?.address,
+          ...parsePayload(),
+        },
+      },
+    };
+
+    const resp = await fetch('http://localhost:3001/', {
+      method: 'POST',
+      headers: new Headers({
+        'Content-Type': 'application/json',
+      }),
+      body: JSON.stringify(body),
+    });
+
+    const result = await resp.json();
+    setResult(result);
+  };
+
+  return (
+    <Wrapper className={className}>
+      <h1>WebPush Subscription</h1>
+      <CurrentPk />
+      <fieldset>
+        <legend>WebPush Token</legend>
+        <textarea ref={textareaRef} rows={5} readOnly value={token} />
+      </fieldset>
+
+      <InputFieldsWrapper>
+        <input
+          type="text"
+          name="title"
+          value={formData.title}
+          onInput={onInput}
+        />
+        <input
+          type="text"
+          name="body"
+          value={formData.body}
+          onInput={onInput}
+        />
+        <select name="address" onChange={onInput}>
+          {list.map(pk => (
+            <option value={pk.address} key={pk.address}>
+              {pk.address}
+            </option>
+          ))}
+        </select>
+        <input
+          type="text"
+          name="action"
+          value={formData.action}
+          onInput={onInput}
+        />
+        <textarea name="payload" value={formData.payload} onInput={onInput} />
+        <Button onClick={pushMessage}>Push Message</Button>
+      </InputFieldsWrapper>
+      <pre>{JSON.stringify(result, null, 2)}</pre>
+    </Wrapper>
+  );
+};
+
+const Wrapper = styled.div`
+  fieldset {
+    margin: 2rem 0;
+    border: 1px solid #ccc;
+
+    textarea {
+      width: 100%;
+      border: none;
+      :focus {
+        outline: none;
+      }
+    }
+  }
+`;
+
+const InputFieldsWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+`;

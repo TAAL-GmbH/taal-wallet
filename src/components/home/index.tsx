@@ -61,7 +61,7 @@ export const Home: FC<Props> = ({ className }) => {
       <h3>
         Balance:{' '}
         {Number.isInteger(current?.balance)
-          ? `${current?.balance} satoshis`
+          ? `${current?.balance?.toLocaleString()} satoshis`
           : 'unknown'}
       </h3>
       <Ul>

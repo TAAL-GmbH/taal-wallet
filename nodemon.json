@@ -8,5 +8,5 @@
   "ignore": [
     "src/**/*.spec.ts"
   ],
-  "exec": "node_modules/.bin/vite build -c vite.config.ts & node_modules/.bin/vite build -c vite.background.config.ts"
+  "exec": "node_modules/.bin/vite build -c vite.config.ts & node_modules/.bin/vite build -c vite.background.config.ts & node_modules/.bin/vite build -c vite.sw.config.ts"
 }

@@ -29,6 +29,7 @@ export default defineConfig({
   build: {
     emptyOutDir: false,
     outDir,
+    target: 'esnext',
     rollupOptions: {
       input: {
         devtools: resolve(pagesDir, 'devtools', 'index.html'),
