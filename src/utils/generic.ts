@@ -24,3 +24,11 @@ export const slugify = (text: string) =>
     .replace(/--+/g, '-')
     .replace(/^-+/, '')
     .replace(/-+$/, '');
+
+export const createHugeString = (length = 1000000) => {
+  let string = '';
+  for (let i = 0; i < length; i++) {
+    string += '1';
+  }
+  return string;
+};

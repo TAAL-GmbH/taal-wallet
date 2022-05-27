@@ -1,5 +1,6 @@
 # dependencies
 /node_modules
+*/node_modules
 
 # testing
 /coverage
@@ -17,3 +18,4 @@ public/manifest.json
 
 #copied contentStyle
 public/contentStyle.css
+

@@ -16,6 +16,7 @@
   "dependencies": {
     "@reduxjs/toolkit": "^1.8.1",
     "bsv": "1.4.0",
+    "firebase": "^9.8.1",
     "polished": "^4.2.2",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
@@ -30,6 +31,7 @@
     "@types/node": "^17.0.23",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
+    "@types/serviceworker": "^0.0.46",
     "@types/styled-components": "^5.1.25",
     "@typescript-eslint/eslint-plugin": "^5.18.0",
     "@typescript-eslint/parser": "^5.18.0",

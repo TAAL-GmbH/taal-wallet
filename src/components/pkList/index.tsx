@@ -1,12 +1,12 @@
+import { FC } from 'react';
+import styled from 'styled-components';
 import { routes } from '@/src/constants/routes';
 import { setActivePk } from '@/src/features/pkSlice';
 import { useAppSelector } from '@/src/hooks';
+import { navigateTo } from '@/src/utils/navigation';
+import { Button } from '@/src/components/button';
 import { store } from '@/src/store';
 import { PKType } from '@/src/types';
-import { navigateTo } from '@/src/utils/navigation';
-import { FC } from 'react';
-import styled from 'styled-components';
-import { Button } from '../button';
 
 type Props = {
   className?: string;
@@ -45,7 +45,9 @@ export const PKList: FC<Props> = ({ className }) => {
                 <dd>{item.pk.slice(0, 15)}...</dd>
                 <dt>Balance:</dt>
                 <dd>
-                  {Number.isInteger(item.balance) ? item.balance : 'unknown'}
+                  {Number.isInteger(item.balance)
+                    ? item.balance?.toLocaleString()
+                    : 'unknown'}
                 </dd>
               </Dl>
             </Li>

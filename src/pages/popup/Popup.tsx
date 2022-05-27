@@ -8,6 +8,7 @@ import { NewPk } from '@/src/components/newPK';
 import { Home } from '@/src/components/home';
 import { PageHead } from '@/src/components/pageHead';
 import { routes } from '@/src/constants/routes';
+import { WebPushSubscription } from '@/src/components/webPushSubscription';
 
 const Popup = () => {
   useEffect(() => {
@@ -38,6 +39,9 @@ const Popup = () => {
         </Route>
         <Route path={routes.CREATE_PK}>
           <NewPk />
+        </Route>
+        <Route path={routes.WEB_PUSH}>
+          <WebPushSubscription />
         </Route>
       </Router>
     </Wrapper>

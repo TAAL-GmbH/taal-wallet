@@ -1,7 +1,5 @@
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
-import makeManifest from './src/utils/make-manifest';
 import tsconfig from './tsconfig.json';
 
 const alias: Record<string, string> = {};
@@ -20,23 +18,18 @@ export default defineConfig({
   resolve: {
     alias, // alias defined in tsconfig.json/compilerOptions.paths
   },
-  // plugins: [
-  //   react(),
-  //   makeManifest(),
-  //   // copyContentStyle()
-  // ],
   publicDir,
   build: {
     emptyOutDir: false,
     sourcemap: true,
     minify: false,
-    // outDir,
+    outDir,
     rollupOptions: {
       input: {
-        background: resolve(pagesDir, 'background', 'index.ts'),
+        sw: resolve(pagesDir, 'sw', 'firebase-messaging-sw.js'),
       },
       output: {
-        entryFileNames: chunk => `src/pages/${chunk.name}/index.js`,
+        entryFileNames: () => `firebase-messaging-sw.js`,
       },
     },
   },

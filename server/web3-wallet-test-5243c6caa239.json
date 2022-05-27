@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "web3-wallet-test",
+  "private_key_id": "5243c6caa2397e46a91d7e312deed4ffe1200251",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCmoXae3GM16DGM\nmCpXcKhZkPa4w2ZGFXZ284hk7wRITKrqAoiSNWC7we9e8C+K5hgr9E8+LXct8SK/\nxhbS5Ng6/S7f4IekEqzRGBldINKdIO8HH/u6xBUuU1S/hbr4+CDdAGFygy4m9z8X\nWvf5f1EUlfWWsTJWkxTg7IdkpZvhAIy/6YY2ZSqUf2BTtauvR4V85RTOTZzHlhW5\n8DXqLr5Y3MJUdHnSph/o6ep9qlhmELREsfzeUVkd8yQAVQBtFPphbGWghJtC1t1S\nBsLTLAWtGg0XwhsgPCtc7g6Q0SB7EjwyaueWAiigwANn2rxuJWSP522DR3azJj7E\n8XJzumy3AgMBAAECggEAEqSpFXAaB4uBk7XostzPcSn3eMef90JqfTeVMJnPdFlj\nnAgJiLZBKvCxXAFqiFNjK/PLM+05UuISXbuHjTP+f2cZagIAmxpdzI0yNUm5Vsw7\nAiSRcR2EMykup7kKKNX2M1PaE0pbDRAHtpC+guM8Sp3WmvQbajVNljbQlTG0RZGw\nOqImYGw1h7gWDZpC1yyH3YiW4tZY4nN7QvMjYqHQ1AyKcLfw7t2pvuBK1K4dgF0Z\n7p2P71pfDi/UT7KITjAff6diZdkIDoVVshFEcFl10sOc+pP4naXb62kG7VXGuo9y\nyNXMUPw6J3+fExNSV26p7QYZN5nbFFdDf7oF68EABQKBgQDkVljF1JSmy9Y0EH1/\n97VyNJI7mGX8mweC1RnOXq2zBZlmsj9bQjX8xCWjmxohhVr0n3vcxfIcb4Hsa1H2\nbdH7rW5FrKqrbxkOdWhU9trKL/2jbAA5lMznaAjBK9edpyPGU5gxy+d5+qYw+Hvc\nKiZuJesD9mR3aj3cJGsHJDFjNQKBgQC60VlGOADNGpAUD61A8kyCenXaBCDJvr4Z\nuwPibfFyvhEVYSax6+gqG373naoPp1gecbcBUoJPdm2jet4Q5vb3GY8Qh8NRBfNA\nnKjQyF42yPqyG91rsQT4ZTZ/kb5ZQIoyDzE259BQAlTf+XST0InMndS+HsksNgZ3\n7KKAZ+zBuwKBgQDMZB6Ct4943u2XHUu5yNo6qKRdhEWGoJ9QlcDL4iRKI7D1JIlh\n/xqkcE/g622wo9aPMlOFhAr9OTNrlYWAuT1FtDEJXU5ItuIO9zm1FGM0qVC5gGuT\nH4drfMyZXc1b6ck0No/9wzApGBy7qTH2GiTcZETC/0NfQVKuREsp0VQEIQKBgFz6\nHi1VaAisRLLHTpn5PVze59KWpV7jAKe7rOY/g6Bwuf3i+Sgp2cVDJADGxkG+LpwQ\nSl1tHA/CSDTJzMWqvZUjclFu0CV+CZ/JmDc40bMAecy1E5Eqa+fYL7Rz68Ft3pml\nd//0hXecgXNrKrr6WeqtTplEpyjKxpNfAU1Y67tLAoGBAJu6GhFdYfKR2wNYfO9Z\n1vDUZRHWMcWrkdQupGqEEc6roiesMzsSUkwZTgAaQpBJYBV0N6VoBVJ9awucXl5S\nKYGpVsyIa+gf10Lyk9Ib6w4s2MYtKGrbBtn+AKk1HdoIXVW/M0cYlP3ZOgFkXcqE\nuOpOsjM046qCJC8AkMQQLn9a\n-----END PRIVATE KEY-----\n",
+  "client_email": "web3-wallet@web3-wallet-test.iam.gserviceaccount.com",
+  "client_id": "117713789889380069046",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/web3-wallet%40web3-wallet-test.iam.gserviceaccount.com"
+}

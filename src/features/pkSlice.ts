@@ -2,7 +2,6 @@ import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { PK_CURRENT_KEY } from '../constants';
 import { woc } from '../libs/WOC';
 import { PKType } from '../types';
-import { isNull } from '../utils/generic';
 
 type State = {
   current: PKType | null;
@@ -37,10 +36,14 @@ const pkSlice = createSlice({
       state,
       action: PayloadAction<{ address: string; balance: number }>
     ) {
+      console.log('setBalance!!!!!!!!!!!!!!!', action.payload);
       const { address, balance } = action.payload;
       const pk = state.list.find(pk => pk.address === address);
       if (pk) {
         pk.balance = balance;
+        if (state.current?.address === pk.address) {
+          state.current.balance = balance;
+        }
       }
     },
   },
