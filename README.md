@@ -41,6 +41,8 @@ This TAAL Web3 Wallet Chrome extensions using React and Typescript.
    4. Find - Load unpacked extension
    5. Select - `dist` folder in this project (after dev or build)
 5. If you want to build in production, Just run `yarn build`
+6. To start a demo web client run `yarn demo`
+7. To enable push messages run `yarn server`
 
 ## Screenshots <a name="screenshots"></a>
 
