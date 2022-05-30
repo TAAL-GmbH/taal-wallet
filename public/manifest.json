@@ -38,9 +38,6 @@
       ],
       "js": [
         "src/pages/content/index.js"
-      ],
-      "css": [
-        "contentStyle.css"
       ]
     }
   ],
