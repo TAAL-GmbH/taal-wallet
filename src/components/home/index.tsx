@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Button } from '../button';
 import { pk } from '@/src/libs/PK';
@@ -7,7 +7,6 @@ import { CurrentPk } from '../currentPk';
 import { useAppSelector } from '@/src/hooks';
 import { store } from '@/src/store';
 import { fetchBalance } from '@/src/features/pkSlice';
-import { isNull } from '@/src/utils/generic';
 
 type Props = {
   className?: string;
@@ -20,7 +19,6 @@ type TokenType = {
 
 export const Home: FC<Props> = ({ className }) => {
   const { current } = useAppSelector(state => state.pk);
-  const [satoshis, setSatoshis] = useState<number | null>(0);
   const [tokens, setTokens] = useState<TokenType[]>([]);
 
   const mintToken = async () => {
@@ -54,6 +52,10 @@ export const Home: FC<Props> = ({ className }) => {
     }
     store.dispatch(fetchBalance(current.address));
   };
+
+  useEffect(() => {
+    pk.restorePK();
+  }, [current]);
 
   return (
     <Wrapper className={className}>

@@ -19,8 +19,12 @@ export const NewPk: FC<Props> = ({ className }) => {
     })();
   }, []);
 
-  const createPK = () => {
-    pk.createPK({
+  const createHDPK = () => {
+    if (!mnemonic.current) {
+      alert('mnemonic is empty');
+      return;
+    }
+    pk.createHDPK({
       mnemonic: mnemonic.current,
     });
     window.location.hash = '#';
@@ -33,7 +37,7 @@ export const NewPk: FC<Props> = ({ className }) => {
         These are your 12 words, copy them and store them in a secure place:
       </p>
       <Textarea value={mnemonicPhrase} />
-      <Button onClick={createPK}>Next</Button>
+      <Button onClick={createHDPK}>Next</Button>
     </Wrapper>
   );
 };

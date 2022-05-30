@@ -67,14 +67,13 @@ class PK {
     return bsvMnemonic.fromRandom();
   }
 
-  public createPK({
+  public createHDPK({
     mnemonic,
     network = 'testnet',
   }: {
     mnemonic: Mnemonic;
     network?: string;
   }) {
-    console.log('creating PK', { mnemonic, network });
     const privateKey: HDPrivateKey = mnemonic.toHDPrivateKey();
     const address = privateKey.publicKey.toAddress(network).toString();
     store.dispatch(
@@ -86,10 +85,20 @@ class PK {
       })
     );
   }
+
+  public restorePK() {
+    const pkString = store.getState().pk.current?.pk;
+    if (pkString) {
+      const pk = bsv.HDPrivateKey.fromString(pkString);
+      console.log({ pk });
+      return pk;
+    }
+  }
 }
 
 export const pk = new PK();
 
+/*
 class PK_org {
   pk;
   address;
@@ -225,3 +234,4 @@ class PK_org {
     return mnem.toString();
   }
 }
+*/
