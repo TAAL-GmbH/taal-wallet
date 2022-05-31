@@ -130,7 +130,7 @@ export class Client {
       },
     });
     console.log({ result });
-    if (result === 0) {
+    if (result === 'yes') {
       const key = `origin: ${this._origin}`;
       const originData = (await chrome.storage.local.get(key))[key];
       chrome.storage.local.set({
