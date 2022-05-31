@@ -13,10 +13,10 @@ export const state = new Proxy(
     set: (target, key, value) => {
       const el = document.querySelector(`#${String(key)}`);
       if (el) {
-        el.innerHTML = String(value);
+        el.innerHTML =
+          typeof value === 'number' ? value.toLocaleString() : String(value);
       }
-      // console.log('watch', { target, key, value });
-      target[key] = value;
+      target[key as string] = value;
 
       document.querySelector('#state').innerHTML = JSON.stringify(
         state,

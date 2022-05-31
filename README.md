@@ -22,8 +22,7 @@ This TAAL Web3 Wallet Chrome extensions using React and Typescript.
 ## Features <a name="features"></a>
 - [React 18](https://reactjs.org/)
 - [TypeScript](https://www.typescriptlang.org/)
-- [Vite](https://vitejs.dev/)
-- [SASS](https://sass-lang.com/)
+- [Webpack](https://webpack.js.org/)
 - [ESLint](https://eslint.org/)
 - [Prettier](https://prettier.io/)
 - [Chrome Extension Manifest Version 3](https://developer.chrome.com/docs/extensions/mv3/intro/)
@@ -55,10 +54,7 @@ This TAAL Web3 Wallet Chrome extensions using React and Typescript.
 
 
 ## Documents <a name="documents"></a>
-- [Vite Plugin](https://vitejs.dev/guide/api-plugin.html)
 - [ChromeExtension](https://developer.chrome.com/docs/extensions/mv3/)
-- [Rollup](https://rollupjs.org/guide/en/)
-- [Rollup-plugin-chrome-extension](https://www.extend-chrome.dev/rollup-plugin)
 
 ---
 

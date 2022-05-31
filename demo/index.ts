@@ -68,4 +68,5 @@ btnInvalidAction.addEventListener('click', async () => {
   }
 });
 
-window['wallet'] = wallet;
+// @ts-ignore
+window.wallet = wallet;

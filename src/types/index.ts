@@ -8,8 +8,6 @@ export type TrackEventOptions = {
 
 export enum ErrorCodeEnum {
   UNAUTHORIZED = 'unauthorized',
-  NO_REFRESH_TOKEN = 'noRefreshToken',
-  REFRESH_TOKEN_FAILED = 'refreshTokenFailed',
   UNKNOWN_ERROR = 'unknownError',
 }
 
@@ -93,12 +91,6 @@ export type HDPrivateKey = {
     xprivkey: number[];
   };
   _hdPublicKey: null;
-};
-
-export type Mnemonic = {
-  phrase: string;
-  wordlist: string[];
-  toHDPrivateKey: () => HDPrivateKey;
 };
 
 export type DialogData = {

@@ -13,7 +13,7 @@ import { WebPushSubscription } from '@/src/components/webPushSubscription';
 const Popup = () => {
   useEffect(() => {
     (async () => {
-      await pk.init();
+      await pk.init('popup');
     })();
   }, []);
 

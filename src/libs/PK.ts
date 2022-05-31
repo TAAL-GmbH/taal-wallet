@@ -2,12 +2,23 @@ import { PK_CURRENT_KEY, PK_LIST_KEY } from '@/src/constants';
 import { replacePKList, appendPK, setActivePk } from '@/src/features/pkSlice';
 import { store } from '@/src/store';
 import isEqual from 'react-fast-compare';
-import { HDPrivateKey, Mnemonic, PKType } from '../types';
+import { PKType } from '../types';
+import bsv, { Mnemonic } from 'bsv';
+import 'bsv/mnemonic';
+// import cryptoBrowserify from 'crypto-browserify';
+import crypto from 'crypto';
 
 const storageSyncKeys = [PK_LIST_KEY, PK_CURRENT_KEY];
 
 class PK {
-  public async init() {
+  private _isInitialized = false;
+
+  public async init(callerName: string) {
+    console.log(`pk.init`, { callerName });
+    if (this._isInitialized) {
+      return;
+    }
+
     /**
      * The following code it to keep in sync redux state -> chrome.storage.pk
      */
@@ -61,10 +72,22 @@ class PK {
     if (localStorageData[PK_CURRENT_KEY]) {
       store.dispatch(setActivePk(localStorageData[PK_CURRENT_KEY]));
     }
+
+    this._isInitialized = true;
+    console.log({
+      bsv,
+      caller: callerName,
+      crypto,
+      createHmac: crypto.createHmac,
+    });
   }
 
   public generateMnemonic() {
-    return bsvMnemonic.fromRandom();
+    const m = bsv.Mnemonic.fromRandom();
+    console.log({ m });
+    return m;
+    // return bsv.Mnemonic.fromRandom();
+    // return bsvMnemonic.fromRandom();
   }
 
   public createHDPK({
@@ -74,12 +97,14 @@ class PK {
     mnemonic: Mnemonic;
     network?: string;
   }) {
-    const privateKey: HDPrivateKey = mnemonic.toHDPrivateKey();
-    const address = privateKey.publicKey.toAddress(network).toString();
+    // const privateKey: HDPrivateKey = mnemonic.toHDPrivateKey();
+    const masterPrivateKey = mnemonic.toHDPrivateKey('abc123', network);
+    const address = masterPrivateKey.publicKey.toAddress(network).toString();
+
     store.dispatch(
       appendPK({
         address,
-        pk: privateKey.toString(),
+        pk: masterPrivateKey.toString(),
         name: Date.now().toString(),
         balance: null,
       })

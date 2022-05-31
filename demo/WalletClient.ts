@@ -1,5 +1,3 @@
-// this.port.postMessage({ payload: 'anything' });
-
 type Options = {
   name: string;
   extensionId: string;

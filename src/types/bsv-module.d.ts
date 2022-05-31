@@ -9,7 +9,7 @@
 
 /// <reference types="node" />
 
-declare namespace bsv {
+declare module 'bsv' {
   export namespace crypto {
     class BN {}
 

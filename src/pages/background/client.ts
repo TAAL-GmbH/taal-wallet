@@ -1,4 +1,4 @@
-import { fetchBalance, setBalance } from '@/src/features/pkSlice';
+import { setBalance } from '@/src/features/pkSlice';
 import { woc } from '@/src/libs/WOC';
 import { store } from '@/src/store';
 import { createDialog } from '@/src/utils/createDialog';
@@ -38,14 +38,12 @@ export class Client {
     return store.subscribe(async () => {
       const state = store.getState();
       if (state.pk.current?.address !== storeCache?.pk.current?.address) {
-        console.log('posting message to (disconnected?) client');
         this._postMessage({
           action: 'address',
           payload: state.pk.current?.address,
         });
       }
       if (state.pk.current?.balance !== storeCache?.pk.current?.balance) {
-        console.log('posting message to (disconnected?) client');
         this._postMessage({
           action: 'balance',
           payload: state.pk.current?.balance,
@@ -129,7 +127,7 @@ export class Client {
         origin: this._origin,
       },
     });
-    console.log({ result });
+
     if (result === 'yes') {
       const key = `origin: ${this._origin}`;
       const originData = (await chrome.storage.local.get(key))[key];

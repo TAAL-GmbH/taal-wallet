@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { WOC } from '../../libs/WOC';
 
 export class Token {

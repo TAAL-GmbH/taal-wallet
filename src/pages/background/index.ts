@@ -6,13 +6,13 @@ import { onPushMessage } from './pushMessageHandler';
 // @ ts-expect-error
 // importScripts('/scripts/bitcoin-components.js');
 // @ ts-expect-error
-importScripts('/scripts/wallet-connect.js');
+// importScripts('/scripts/wallet-connect.js');
 // @ ts-expect-error
-importScripts('/scripts/bsv-min.js');
+// importScripts('/scripts/bsv-min.js');
 // @ ts-expect-error
-importScripts('/scripts/bsv-message.min.js');
+// importScripts('/scripts/bsv-message.min.js');
 
-pk.init();
+pk.init('background');
 // @ts-expect-error ignore this
 globalThis['pk'] = pk;
 // @ts-expect-error ignore this
@@ -22,16 +22,6 @@ globalThis['store'] = store;
 //   bsv.crypto.Signature.SIGHASH_ALL | bsv.crypto.Signature.SIGHASH_FORKID;
 
 self.addEventListener('push', onPushMessage);
-
-globalThis.onerror = (message, source, lineno, colno, error) => {
-  console.log('globalThis.onerror', { message, source, lineno, colno, error });
-};
-
-// @ts-expect-error ignore this
-globalThis.onactivate = async ({ target }) => {
-  // @ts-expect-error ignore this
-  globalThis['sw'] = target;
-};
 
 chrome.runtime.onInstalled.addListener(({ previousVersion, reason }) =>
   console.log('onInstalled', { previousVersion, reason })

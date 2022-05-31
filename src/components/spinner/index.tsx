@@ -29,7 +29,7 @@ export const Spinner: FC<Props> = ({
 };
 
 const Wrapper = styled.div<Props>`
-  ${({ size: sizeEnum, color }) => {
+  ${({ size: sizeEnum = 'lg', color }) => {
     const size = sizes[sizeEnum];
     const borderSize = size / 10;
 
