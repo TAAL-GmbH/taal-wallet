@@ -1,3 +1,6 @@
+import { ErrorCodeEnum } from '../types';
+import { ApiError } from '../utils/errors/apiError';
+
 const basePath = 'https://taalnet.whatsonchain.com';
 
 const parseJsonLocal = async (response: Response) => {
@@ -28,7 +31,10 @@ const requestLocal = async (url: string, options = {}) => {
     }
     throw response;
   } catch (error) {
-    throw new ApiError(response.status, error?.data, url);
+    throw new ApiError({
+      statusCode: response?.status || 500,
+      errorCode: ErrorCodeEnum.UNKNOWN_ERROR,
+    });
   }
 };
 
@@ -72,43 +78,43 @@ class WOC {
     }
   }
 
-  async balanceAsync(source: string, address: string) {
-    const endpoint =
-      'https://taalnet.whatsonchain.com/v1/bsv/taalnet/address/' +
-      address +
-      '/balance';
-    let satoshis;
+  // async balanceAsync(source: string, address: string) {
+  //   const endpoint =
+  //     'https://taalnet.whatsonchain.com/v1/bsv/taalnet/address/' +
+  //     address +
+  //     '/balance';
+  //   let satoshis;
 
-    try {
-      const balance = await requestLocal(endpoint);
-      satoshis = balance.confirmed + balance.unconfirmed;
+  //   try {
+  //     const balance = await requestLocal(endpoint);
+  //     satoshis = balance.confirmed + balance.unconfirmed;
 
-      const tokenEndpoint =
-        'https://taalnet.whatsonchain.com/v1/bsv/taalnet/address/' +
-        address +
-        '/tokens';
-      let tokenBalances = [];
-      try {
-        const tokenBalancesResponse = await requestLocal(tokenEndpoint);
-        if (tokenBalancesResponse.tokens) {
-          for (let i = 0; i < tokenBalancesResponse.tokens.length; i++) {
-            let tokenBalance = new TokenBalance();
-            tokenBalance.symbol = tokenBalancesResponse.tokens[i].symbol;
-            tokenBalance.balance = tokenBalancesResponse.tokens[i].tokenBalance;
-            tokenBalances.push(tokenBalance);
-          }
-        }
-        let totalBalance = new Balance();
-        totalBalance.satoshis = satoshis;
-        totalBalance.tokenBalances = tokenBalances;
-        source.refreshBalanceListener(totalBalance);
-      } catch (err) {
-        throw err;
-      }
-    } catch (err) {
-      throw err;
-    }
-  }
+  //     const tokenEndpoint =
+  //       'https://taalnet.whatsonchain.com/v1/bsv/taalnet/address/' +
+  //       address +
+  //       '/tokens';
+  //     let tokenBalances = [];
+  //     try {
+  //       const tokenBalancesResponse = await requestLocal(tokenEndpoint);
+  //       if (tokenBalancesResponse.tokens) {
+  //         for (let i = 0; i < tokenBalancesResponse.tokens.length; i++) {
+  //           let tokenBalance = new TokenBalance();
+  //           tokenBalance.symbol = tokenBalancesResponse.tokens[i].symbol;
+  //           tokenBalance.balance = tokenBalancesResponse.tokens[i].tokenBalance;
+  //           tokenBalances.push(tokenBalance);
+  //         }
+  //       }
+  //       let totalBalance = new Balance();
+  //       totalBalance.satoshis = satoshis;
+  //       totalBalance.tokenBalances = tokenBalances;
+  //       source.refreshBalanceListener(totalBalance);
+  //     } catch (err) {
+  //       throw err;
+  //     }
+  //   } catch (err) {
+  //     throw err;
+  //   }
+  // }
 
   async getBalance(address: string): Promise<number> {
     const endpoint = `${basePath}/v1/bsv/taalnet/address/${address}/balance`;
@@ -117,28 +123,28 @@ class WOC {
     return confirmed + unconfirmed;
   }
 
-  async tokens(address: string) {
-    const tokenEndpoint =
-      'https://taalnet.whatsonchain.com/v1/bsv/taalnet/address/' +
-      address +
-      '/tokens';
-    let tokenBalances = [];
+  // async tokens(address: string) {
+  //   const tokenEndpoint =
+  //     'https://taalnet.whatsonchain.com/v1/bsv/taalnet/address/' +
+  //     address +
+  //     '/tokens';
+  //   let tokenBalances = [];
 
-    try {
-      const tokenBalancesResponse = await requestLocal(tokenEndpoint);
-      if (tokenBalancesResponse.tokens) {
-        for (let i = 0; i < tokenBalancesResponse.tokens.length; i++) {
-          let tokenBalance = new TokenBalance();
-          tokenBalance.symbol = tokenBalancesResponse.tokens[i].symbol;
-          tokenBalance.balance = tokenBalancesResponse.tokens[i].tokenBalance;
-          tokenBalances.push(tokenBalance);
-        }
-      }
-      return tokenBalances;
-    } catch (err) {
-      return null;
-    }
-  }
+  //   try {
+  //     const tokenBalancesResponse = await requestLocal(tokenEndpoint);
+  //     if (tokenBalancesResponse.tokens) {
+  //       for (let i = 0; i < tokenBalancesResponse.tokens.length; i++) {
+  //         let tokenBalance = new TokenBalance();
+  //         tokenBalance.symbol = tokenBalancesResponse.tokens[i].symbol;
+  //         tokenBalance.balance = tokenBalancesResponse.tokens[i].tokenBalance;
+  //         tokenBalances.push(tokenBalance);
+  //       }
+  //     }
+  //     return tokenBalances;
+  //   } catch (err) {
+  //     return null;
+  //   }
+  // }
 
   async airdrop(address: string) {
     const endpoint = `${basePath}/faucet/send/${address}`;

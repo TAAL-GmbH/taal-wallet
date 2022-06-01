@@ -2,7 +2,7 @@ import { FC, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { pk } from '@/src/libs/PK';
 import { Button } from '../button';
-import { Mnemonic } from '@/src/types';
+import { Mnemonic } from 'bsv';
 
 type Props = {
   className?: string;
@@ -13,10 +13,8 @@ export const NewPk: FC<Props> = ({ className }) => {
   const [mnemonicPhrase, setMnemonicPhrase] = useState<string>('');
 
   useEffect(() => {
-    (async () => {
-      mnemonic.current = await pk.generateMnemonic();
-      setMnemonicPhrase(mnemonic?.current?.phrase || '');
-    })();
+    mnemonic.current = pk.generateMnemonic();
+    setMnemonicPhrase(mnemonic?.current?.phrase || '');
   }, []);
 
   const createHDPK = () => {
@@ -36,7 +34,7 @@ export const NewPk: FC<Props> = ({ className }) => {
       <p>
         These are your 12 words, copy them and store them in a secure place:
       </p>
-      <Textarea value={mnemonicPhrase} />
+      <Textarea value={mnemonicPhrase} readOnly />
       <Button onClick={createHDPK}>Next</Button>
     </Wrapper>
   );

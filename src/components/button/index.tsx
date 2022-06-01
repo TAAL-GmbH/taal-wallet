@@ -118,7 +118,12 @@ export const sharedButtonStyles = css<
   }};
 
   // Button variant;
-  ${({ theme: { button }, variant = 'default', outline, hasDarkBg }) => {
+  ${({
+    theme: { button },
+    variant = 'default',
+    outline,
+    hasDarkBg = false,
+  }) => {
     // get variant color or default color
     const color =
       button.variant[variant]?.color || button.variant.default.color;
@@ -195,7 +200,7 @@ const ButtonStyled = styled.button<ButtonStyleProps & { isLoading: boolean }>`
       ? css`
           background: transparent;
           border: none;
-          ${sharedAnchorStyles}
+          // $ { sharedAnchorStyles}
         `
       : sharedButtonStyles}
 `;

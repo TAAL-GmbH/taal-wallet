@@ -1,5 +1,5 @@
-import { errorMessages } from '@/constants/errorCodes';
-import { ErrorCodeEnum } from 'src/types';
+import { errorMessages } from '@/src/constants/errorCodes';
+import { ErrorCodeEnum } from '@/src/types';
 
 type Info = Record<string, string | number | boolean>;
 

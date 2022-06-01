@@ -4,7 +4,7 @@ import { ManifestType } from '@/src/manifest-type';
 const manifest: ManifestType = {
   manifest_version: 3,
   // name: packageJson.name,
-  name: 'TAAL Web3 Wallet',
+  name: 'TAAL Web3 Wallet (webpack)',
   version: packageJson.version,
   description: packageJson.description,
   options_page: 'src/pages/options/index.html',

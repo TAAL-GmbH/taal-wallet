@@ -60,7 +60,7 @@ export const Dialog: FC = () => {
 
       <ButtonWrapper>
         {dialogData.options.map(({ label, variant }, index) => (
-          <Button onClick={() => respond(index)} variant={variant}>
+          <Button key={index} onClick={() => respond(index)} variant={variant}>
             {label}
           </Button>
         ))}

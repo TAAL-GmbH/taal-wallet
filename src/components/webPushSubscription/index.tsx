@@ -1,5 +1,12 @@
 import { useAppSelector } from '@/src/hooks';
-import { FC, useEffect, useRef, useState } from 'react';
+import {
+  ChangeEvent,
+  ChangeEventHandler,
+  FC,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import styled from 'styled-components';
 import { getWebPushToken } from '../../utils/firebase';
 import { Button } from '../button';
@@ -35,8 +42,8 @@ export const WebPushSubscription: FC<Props> = ({ className }) => {
     (async () => setToken(await getWebPushToken()))();
   }, []);
 
-  const onInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(state => ({ ...state, [e.target.name]: e.target.value }));
+  const onInput = (name: string, value: string) => {
+    setFormData(state => ({ ...state, [name]: value }));
   };
 
   const parsePayload = () => {
@@ -88,15 +95,24 @@ export const WebPushSubscription: FC<Props> = ({ className }) => {
           type="text"
           name="title"
           value={formData.title}
-          onInput={onInput}
+          onInput={(e: ChangeEvent<HTMLInputElement>) =>
+            onInput(e.target.name, e.target.value)
+          }
         />
         <input
           type="text"
           name="body"
           value={formData.body}
-          onInput={onInput}
+          onInput={(e: ChangeEvent<HTMLInputElement>) =>
+            onInput(e.target.name, e.target.value)
+          }
         />
-        <select name="address" onChange={onInput}>
+        <select
+          name="address"
+          onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+            onInput(e.target.name, e.target.value)
+          }
+        >
           {list.map(pk => (
             <option value={pk.address} key={pk.address}>
               {pk.address}
@@ -107,9 +123,17 @@ export const WebPushSubscription: FC<Props> = ({ className }) => {
           type="text"
           name="action"
           value={formData.action}
-          onInput={onInput}
+          onInput={(e: ChangeEvent<HTMLInputElement>) =>
+            onInput(e.target.name, e.target.value)
+          }
         />
-        <textarea name="payload" value={formData.payload} onInput={onInput} />
+        <textarea
+          name="payload"
+          value={formData.payload}
+          onInput={(e: ChangeEvent<HTMLTextAreaElement>) =>
+            onInput(e.target.name, e.target.value)
+          }
+        />
         <Button onClick={pushMessage}>Push Message</Button>
       </InputFieldsWrapper>
       <pre>{JSON.stringify(result, null, 2)}</pre>
