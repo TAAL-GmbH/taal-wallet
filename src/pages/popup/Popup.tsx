@@ -9,22 +9,13 @@ import { Home } from '@/src/components/home';
 import { PageHead } from '@/src/components/pageHead';
 import { routes } from '@/src/constants/routes';
 import { WebPushSubscription } from '@/src/components/webPushSubscription';
+import { store } from '@/src/store';
 
 const Popup = () => {
   useEffect(() => {
-    (async () => {
-      await pk.init('popup');
-    })();
+    // @ts-ignore
+    window.store = store;
   }, []);
-
-  // const refreshBalanceListener = resp => {
-  //   setSatoshis(resp.satoshis);
-  //   setTokens(resp.tokenBalances);
-  // };
-
-  // const refreshBalance = () => {
-  //   woc.balanceAsync({ refreshBalanceListener }, pk.address);
-  // };
 
   return (
     <Wrapper>

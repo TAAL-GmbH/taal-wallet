@@ -1,7 +1,9 @@
 import { Client } from './client';
 import { store } from '@/src/store';
-import { pk } from '@/src/libs/PK';
+// import { pk } from '@/src/libs/PK';
 import { onPushMessage } from './pushMessageHandler';
+import { initStoreSync } from '@/src/utils/storeSync';
+import { TAAL_ICON_URL } from '@/src/constants';
 
 // @ ts-expect-error
 // importScripts('/scripts/bitcoin-components.js');
@@ -12,11 +14,13 @@ import { onPushMessage } from './pushMessageHandler';
 // @ ts-expect-error
 // importScripts('/scripts/bsv-message.min.js');
 
-pk.init('background');
-// @ts-expect-error ignore this
-globalThis['pk'] = pk;
+// pk.init('background');
+// @ ts-expect-error ignore this
+// globalThis['pk'] = pk;
 // @ts-expect-error ignore this
 globalThis['store'] = store;
+
+initStoreSync();
 
 // const sighash =
 //   bsv.crypto.Signature.SIGHASH_ALL | bsv.crypto.Signature.SIGHASH_FORKID;
@@ -38,8 +42,7 @@ chrome.runtime.onConnectExternal.addListener(port => {
   );
   chrome.notifications.create({
     type: 'basic',
-    iconUrl:
-      'https://www.taal.com/wp-content/uploads/2021/04/cropped-taal_favicon-32x32.jpg',
+    iconUrl: TAAL_ICON_URL,
     title: 'TAAL Web3 Wallet',
     message: `Webpage with origin ${port.sender?.origin} connected to TAAL's Web3 Wallet`,
   });

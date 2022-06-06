@@ -7,7 +7,6 @@ import { store } from '@/src/store';
 import light from '@/themes/light';
 
 const GlobalStyle = createGlobalStyle`
-  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
   body, html {
     padding: 0;
     margin: 0;

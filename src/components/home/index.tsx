@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from 'react';
+import { FC, useState } from 'react';
 import styled from 'styled-components';
 import { Button } from '../button';
 import { pk } from '@/src/libs/PK';
@@ -53,17 +53,13 @@ export const Home: FC<Props> = ({ className }) => {
     store.dispatch(fetchBalance(current.address));
   };
 
-  useEffect(() => {
-    pk.restorePK();
-  }, [current]);
-
   return (
     <Wrapper className={className}>
       <CurrentPk />
       <h3>
         Balance:{' '}
-        {Number.isInteger(current?.balance)
-          ? `${current?.balance?.toLocaleString()} satoshis`
+        {Number.isInteger(current?.balance?.amount)
+          ? `${current?.balance?.amount?.toLocaleString()} satoshis`
           : 'unknown'}
       </h3>
       <Ul>

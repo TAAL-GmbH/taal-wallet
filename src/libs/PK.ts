@@ -2,122 +2,109 @@ import { PK_CURRENT_KEY, PK_LIST_KEY } from '@/src/constants';
 import { replacePKList, appendPK, setActivePk } from '@/src/features/pkSlice';
 import { store } from '@/src/store';
 import isEqual from 'react-fast-compare';
-import { PKType } from '../types';
+import { BStorePKType, PKType } from '../types';
 import bsv, { Mnemonic } from 'bsv';
 import 'bsv/mnemonic';
 // import cryptoBrowserify from 'crypto-browserify';
 import crypto from 'crypto';
-
-const storageSyncKeys = [PK_LIST_KEY, PK_CURRENT_KEY];
+import { decryptPK, encryptPK } from '../utils/crypt';
 
 class PK {
   private _isInitialized = false;
 
   public async init(callerName: string) {
-    console.log(`pk.init`, { callerName });
+    // console.log(`pk.init`, { callerName });
     if (this._isInitialized) {
       return;
     }
 
-    /**
-     * The following code it to keep in sync redux state -> chrome.storage.pk
-     */
-    store.subscribe(async () => {
-      const { list, current } = store.getState().pk;
-
-      const storageData = await chrome.storage.local.get(storageSyncKeys);
-
-      const newStorageData: {
-        [PK_LIST_KEY]?: PKType[];
-        [PK_CURRENT_KEY]?: PKType | null;
-      } = {};
-
-      if (!isEqual(storageData[PK_LIST_KEY], list)) {
-        newStorageData[PK_LIST_KEY] = list;
-      }
-
-      if (current && storageData[PK_CURRENT_KEY] !== current) {
-        newStorageData[PK_CURRENT_KEY] = current;
-      }
-
-      if (Object.keys(newStorageData).length) {
-        chrome.storage.local.set(newStorageData);
-      }
-    });
-
-    /**
-     * The following code it to keep in sync chrome.storage.pk -> redux state
-     */
-    chrome.storage.onChanged.addListener(
-      async (changes: { [key: string]: chrome.storage.StorageChange }) => {
-        for (let [key, { newValue }] of Object.entries(changes)) {
-          if (key === PK_LIST_KEY) {
-            store.dispatch(replacePKList(newValue as PKType[]));
-          }
-          if (key === PK_CURRENT_KEY) {
-            store.dispatch(setActivePk(newValue));
-          }
-        }
-      }
-    );
-
-    /**
-     * The following code it to restore data from chrome.storage.pk -> redux state
-     */
-    const localStorageData = await chrome.storage.local.get(storageSyncKeys);
-
-    if (localStorageData[PK_LIST_KEY]?.length) {
-      store.dispatch(replacePKList(localStorageData[PK_LIST_KEY]));
-    }
-    if (localStorageData[PK_CURRENT_KEY]) {
-      store.dispatch(setActivePk(localStorageData[PK_CURRENT_KEY]));
-    }
-
     this._isInitialized = true;
-    console.log({
-      bsv,
-      caller: callerName,
-      crypto,
-      createHmac: crypto.createHmac,
-    });
   }
 
   public generateMnemonic() {
-    const m = bsv.Mnemonic.fromRandom();
-    console.log({ m });
-    return m;
-    // return bsv.Mnemonic.fromRandom();
-    // return bsvMnemonic.fromRandom();
+    return bsv.Mnemonic.fromRandom();
   }
 
-  public createHDPK({
+  public createHDPrivateKey({
     mnemonic,
     network = 'testnet',
+    password = '',
   }: {
     mnemonic: Mnemonic;
     network?: string;
+    password?: string;
   }) {
-    // const privateKey: HDPrivateKey = mnemonic.toHDPrivateKey();
-    const masterPrivateKey = mnemonic.toHDPrivateKey('abc123', network);
+    // @ts-ignore
+    window.bsv = bsv;
+
+    const mSeed = mnemonic.toSeed(password);
+    const masterPrivateKey = bsv.HDPrivateKey.fromSeed(mSeed, network);
     const address = masterPrivateKey.publicKey.toAddress(network).toString();
+
+    // another way of doing the same thing
+    // const hDPrivateKey2 = mnemonic.toHDPrivateKey(password, network);
+    // var copy_of_child_0_1_2h = hDPrivateKey2.deriveChild("m/0/1/2'");
+
+    // const child_0_1_2h = masterPrivateKey
+    //   .deriveChild(0)
+    //   .deriveChild(1)
+    //   .deriveChild(2, true);
+
+    console.log('createHDPrivateKey', {
+      address,
+      path: 'm',
+      network,
+      privateKey: masterPrivateKey.toString(),
+      name: Date.now().toString(),
+      balance: {
+        updatedAt: null,
+        amount: null,
+      },
+    });
 
     store.dispatch(
       appendPK({
         address,
-        pk: masterPrivateKey.toString(),
-        name: Date.now().toString(),
-        balance: null,
+        path: 'm',
+        network,
+        privateKey: masterPrivateKey.toString(),
+        name: 'Master Key',
+        balance: {
+          updatedAt: null,
+          amount: null,
+        },
       })
     );
   }
 
-  public restorePK() {
-    const pkString = store.getState().pk.current?.pk;
-    if (pkString) {
-      const pk = bsv.HDPrivateKey.fromString(pkString);
-      console.log({ pk });
-      return pk;
-    }
+  /**
+   * This function is used to convert PK data structure from browser storage to redux
+   * @param bStoreData
+   * @returns
+   */
+  public bStorePK2PKType(bStoreData: BStorePKType): PKType {
+    const { name, network, path, balance, privateKeyEncrypted } = bStoreData;
+    const privateKey = decryptPK(privateKeyEncrypted);
+    const hdPk = bsv.HDPrivateKey.fromString(privateKey);
+    return {
+      name,
+      network,
+      address: hdPk.publicKey.toAddress(network).toString(),
+      balance,
+      path,
+      privateKey,
+    };
+  }
+
+  public pkType2BStore(pkData: PKType): BStorePKType {
+    const { name, path, network, privateKey, balance } = pkData;
+    return {
+      name,
+      path,
+      network,
+      balance,
+      privateKeyEncrypted: encryptPK(privateKey),
+    };
   }
 }
 

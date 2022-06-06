@@ -160,11 +160,11 @@ export class Client {
         const address = state.pk.current?.address;
 
         if (address) {
-          const balance = await woc.getBalance(address);
-          store.dispatch(setBalance({ address, balance }));
+          const amount = await woc.getBalance(address);
+          store.dispatch(setBalance({ address, amount }));
           return {
             action: 'balance',
-            payload: balance,
+            payload: amount,
           };
         } else {
           return {

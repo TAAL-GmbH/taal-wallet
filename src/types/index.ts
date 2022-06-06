@@ -23,75 +23,87 @@ export type OriginData = {
   isPersistent: boolean;
 };
 
-export type PKType = {
+export type BStorePKType = {
   name: string;
+  path: string;
+  network: string;
+  privateKeyEncrypted: string;
+  balance: {
+    updatedAt: number | null;
+    amount: number | null;
+  };
+};
+
+export type PKType = Pick<
+  BStorePKType,
+  'name' | 'path' | 'network' | 'balance'
+> & {
   address: string;
-  pk: string;
-  balance: number | null;
+  privateKey: string;
 };
 
-export type hdKeyNetwork = {
-  alias: string;
-  cashAddrPrefix: string;
-  cashAddrPrefixArray: number[];
-  dnsSeeds: string[];
-  name: string;
-  networkMagic: number[];
-  port: number;
-  privatekey: number;
-  pubkeyhash: number;
-  scripthash: number;
-  xprivkey: number;
-  xpubkey: number;
-};
+// export type hdKeyNetwork = {
+//   alias: string;
+//   cashAddrPrefix: string;
+//   cashAddrPrefixArray: number[];
+//   dnsSeeds: string[];
+//   name: string;
+//   networkMagic: number[];
+//   port: number;
+//   privatekey: number;
+//   pubkeyhash: number;
+//   scripthash: number;
+//   xprivkey: number;
+//   xpubkey: number;
+// };
 
-export type hdPublicKey = {
-  depth: number;
-  fingerPrint: number[];
-  network: hdKeyNetwork;
-  publicKey: {
-    compressed: boolean;
-    network: hdKeyNetwork;
-    point: unknown;
-  };
-  xpubkey: string;
-  _buffers: unknown;
-};
+// export type hdPublicKey = {
+//   depth: number;
+//   fingerPrint: number[];
+//   network: hdKeyNetwork;
+//   publicKey: {
+//     compressed: boolean;
+//     network: hdKeyNetwork;
+//     point: unknown;
+//   };
+//   xpubkey: string;
+//   _buffers: unknown;
+// };
 
-export type HDPrivateKey = {
-  depth: number;
-  fingerPrint: number[];
-  hdPublicKey: hdPublicKey;
-  network: hdKeyNetwork;
-  privateKey: {
-    bn: unknown;
-    compressed: boolean;
-    network: hdKeyNetwork;
-    publicKey: {
-      compressed: boolean;
-      network: hdKeyNetwork;
-      point: unknown;
-    };
-  };
-  publicKey: {
-    compressed: boolean;
-    network: hdKeyNetwork;
-    point: unknown;
-  };
-  xprivkey: string;
-  xpubkey: string;
-  _buffers: {
-    chainCode: number[];
-    checksum: number[];
-    childIndex: number[];
-    depth: number[];
-    parentFingerPrint: number[];
-    privateKey: number[];
-    version: number[];
-    xprivkey: number[];
-  };
-  _hdPublicKey: null;
-};
+// export type HDPrivateKey = {
+//   depth: number;
+//   fingerPrint: number[];
+//   hdPublicKey: hdPublicKey;
+//   network: hdKeyNetwork;
+//   privateKey: {
+//     bn: unknown;
+//     compressed: boolean;
+//     network: hdKeyNetwork;
+//     publicKey: {
+//       compressed: boolean;
+//       network: hdKeyNetwork;
+//       point: unknown;
+//     };
+//   };
+//   publicKey: {
+//     compressed: boolean;
+//     network: hdKeyNetwork;
+//     point: unknown;
+//   };
+//   xprivkey: string;
+//   xpubkey: string;
+//   _buffers: {
+//     chainCode: number[];
+//     checksum: number[];
+//     childIndex: number[];
+//     depth: number[];
+//     parentFingerPrint: number[];
+//     privateKey: number[];
+//     version: number[];
+//     xprivkey: number[];
+//   };
+//   _hdPublicKey: null;
+// };
 
 export type DialogData = {
   id: number;

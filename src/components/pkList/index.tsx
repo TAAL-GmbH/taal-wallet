@@ -20,6 +20,15 @@ export const PKList: FC<Props> = ({ className }) => {
     navigateTo(routes.HOME);
   };
 
+  if (!list) {
+    return (
+      <div>
+        <h3>No PK list</h3>
+        {list}
+      </div>
+    );
+  }
+
   return (
     <Wrapper className={className}>
       <h2>Private keys</h2>
@@ -42,7 +51,7 @@ export const PKList: FC<Props> = ({ className }) => {
                 <dt>Address:</dt>
                 <dd>{item.address}</dd>
                 <dt>PK:</dt>
-                <dd>{item.pk.slice(0, 15)}...</dd>
+                <dd>{item.privateKey?.slice(0, 15)}...</dd>
                 <dt>Balance:</dt>
                 <dd>
                   {Number.isInteger(item.balance)

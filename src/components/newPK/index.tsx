@@ -22,10 +22,10 @@ export const NewPk: FC<Props> = ({ className }) => {
       alert('mnemonic is empty');
       return;
     }
-    pk.createHDPK({
+    pk.createHDPrivateKey({
       mnemonic: mnemonic.current,
     });
-    window.location.hash = '#';
+    // window.location.hash = '#';
   };
 
   return (

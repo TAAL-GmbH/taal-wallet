@@ -1,8 +1,6 @@
 type Options = {
   name: string;
   extensionId: string;
-  onConnect?: (port: chrome.runtime.Port) => void;
-  onDisconnect?: (port: chrome.runtime.Port) => void;
 };
 
 type MessagePayload = {
@@ -26,7 +24,7 @@ class WalletCommunicator {
   private _requestMap: Record<number, RequestObject<any>> = {};
   private _subscriptions: Record<string, ((payload: unknown) => void)[]> = {};
 
-  constructor({ name, extensionId, onConnect, onDisconnect }: Options) {
+  constructor({ name, extensionId }: Options) {
     if (!name) {
       throw new Error('name is required');
     }

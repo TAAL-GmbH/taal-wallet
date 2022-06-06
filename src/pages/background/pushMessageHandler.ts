@@ -59,7 +59,7 @@ const handlePushAction = async ({ action, payload }: PushAction) => {
         console.error('handlePushAction', { action, payload });
         return false;
       }
-      store.dispatch(setBalance({ address, balance: amount }));
+      store.dispatch(setBalance({ address, amount }));
       return true;
     }
     default: {
