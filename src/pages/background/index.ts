@@ -4,6 +4,7 @@ import { store } from '@/src/store';
 import { onPushMessage } from './pushMessageHandler';
 import { initStoreSync } from '@/src/utils/storeSync';
 import { TAAL_ICON_URL } from '@/src/constants';
+import '@/src/utils/crypt';
 
 // @ ts-expect-error
 // importScripts('/scripts/bitcoin-components.js');
@@ -17,7 +18,7 @@ import { TAAL_ICON_URL } from '@/src/constants';
 // pk.init('background');
 // @ ts-expect-error ignore this
 // globalThis['pk'] = pk;
-// @ts-expect-error ignore this
+// @ ts-expect-error ignore this
 globalThis['store'] = store;
 
 initStoreSync();
@@ -27,9 +28,9 @@ initStoreSync();
 
 self.addEventListener('push', onPushMessage);
 
-chrome.runtime.onInstalled.addListener(({ previousVersion, reason }) =>
-  console.log('onInstalled', { previousVersion, reason })
-);
+chrome.runtime.onInstalled.addListener(({ previousVersion, reason }) => {
+  // console.log('onInstalled', { previousVersion, reason })
+});
 chrome.runtime.onUpdateAvailable.addListener((...args) =>
   console.log('onUpdateAvailable', args)
 );

@@ -17,7 +17,7 @@ type Keys =
   | 'A700';
 
 export const buildColor = (
-  c: { 400: string; A400: string } & Record<Keys, string>
+  c: Partial<Record<Keys, string>>
 ): Record<Keys, string> => {
   const A400 = c.A400 || setSaturation(0.5, c[400]);
   return {

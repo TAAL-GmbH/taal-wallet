@@ -13,6 +13,25 @@ export const state = new Proxy(
     set: (target, key, value) => {
       const el = document.querySelector(`#${String(key)}`);
       if (el) {
+        switch (typeof value) {
+          case 'number': {
+            el.innerHTML = value.toLocaleString();
+            break;
+          }
+
+          case 'string': {
+            el.innerHTML = value;
+            break;
+          }
+
+          default:
+            try {
+              el.innerHTML = JSON.stringify(value);
+            } catch (e) {
+              el.innerHTML = e.message;
+            }
+            break;
+        }
         el.innerHTML =
           typeof value === 'number' ? value.toLocaleString() : String(value);
       }

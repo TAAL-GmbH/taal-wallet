@@ -7,35 +7,38 @@ import { navigateTo } from '@/src/utils/navigation';
 import { Button } from '@/src/components/button';
 import { store } from '@/src/store';
 import { PKType } from '@/src/types';
+import dayjs from 'dayjs';
+import { WalletPlusIcon } from '../svg/walletPlusIcon';
 
 type Props = {
   className?: string;
 };
 
 export const PKList: FC<Props> = ({ className }) => {
-  const { list } = useAppSelector(state => state.pk);
+  const { map } = useAppSelector(state => state.pk);
 
   const setCurrentPK = (pk: PKType) => {
-    store.dispatch(setActivePk(pk));
-    navigateTo(routes.HOME);
+    store.dispatch(setActivePk(pk.address));
+    history.back();
   };
 
-  if (!list) {
+  const list = Object.values(map).filter(item => item.path !== 'm');
+
+  if (!list || !list.length) {
     return (
       <div>
-        <h3>No PK list</h3>
-        {list}
+        <h3>No Wallets found</h3>
       </div>
     );
   }
 
   return (
     <Wrapper className={className}>
-      <h2>Private keys</h2>
+      <h1>Wallets</h1>
 
       {!list.length && (
         <div>
-          <p>No Private keys found.</p>
+          <p>No Wallets found.</p>
         </div>
       )}
 
@@ -48,24 +51,37 @@ export const PKList: FC<Props> = ({ className }) => {
               onClick={() => setCurrentPK(item)}
             >
               <Dl>
+                <dt>Name:</dt>
+                <dd>{item.name}</dd>
                 <dt>Address:</dt>
                 <dd>{item.address}</dd>
-                <dt>PK:</dt>
-                <dd>{item.privateKey?.slice(0, 15)}...</dd>
+                <dt>Path:</dt>
+                <dd>{item.path}</dd>
                 <dt>Balance:</dt>
                 <dd>
-                  {Number.isInteger(item.balance)
-                    ? item.balance?.toLocaleString()
+                  {Number.isInteger(item.balance.amount)
+                    ? `${item.balance.amount?.toLocaleString()} satoshis`
                     : 'unknown'}
                 </dd>
+                {item.balance.updatedAt && (
+                  <>
+                    <dt>Updated:</dt>
+                    <dd>
+                      {dayjs(item.balance.updatedAt).format(
+                        'YYYY-MM-DD HH:mm:ss'
+                      )}
+                    </dd>
+                  </>
+                )}
               </Dl>
             </Li>
           ))}
         </Ul>
       )}
 
-      <ButtonStyled onClick={() => navigateTo(routes.CREATE_PK)}>
-        Create new Private key
+      <ButtonStyled onClick={() => navigateTo(routes.DERIVE_PK)}>
+        <WalletPlusIcon />
+        Create a new Wallet
       </ButtonStyled>
     </Wrapper>
   );
@@ -113,10 +129,12 @@ const Dl = styled.dl`
 
   dt {
     font-weight: bold;
+    white-space: nowrap;
   }
 
   dd {
-    overflow: auto;
+    overflow-x: auto;
+    overflow-y: hidden;
     margin: 0;
   }
 `;

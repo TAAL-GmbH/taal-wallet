@@ -73,7 +73,7 @@ export const reduxSyncMiddleWare: Middleware = store => {
 
   return next => (reduxAction: AnyAction) => {
     if (shouldForward(reduxAction)) {
-      console.log('broadcast', reduxAction);
+      // console.log('broadcast', reduxAction);
       bc.postMessage({
         action: 'dispatch',
         reduxAction: {

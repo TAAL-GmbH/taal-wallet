@@ -25,18 +25,20 @@ type Message = {
 };
 
 export const WebPushSubscription: FC<Props> = ({ className }) => {
-  const { current, list } = useAppSelector(state => state.pk);
+  const { activePk, map } = useAppSelector(state => state.pk);
 
   const [formData, setFormData] = useState<Message>({
     title: 'Title',
     body: 'Message Body',
     action: 'balance',
-    address: current?.address || '',
+    address: activePk?.address || '',
     payload: '{ "amount": 123456789 }',
   });
   const [result, setResult] = useState<unknown>({});
   const [token, setToken] = useState<string>('Loading...');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const list = Object.values(map);
 
   useEffect(() => {
     (async () => setToken(await getWebPushToken()))();
@@ -63,7 +65,7 @@ export const WebPushSubscription: FC<Props> = ({ className }) => {
       data: {
         action: 'balance',
         payload: {
-          address: formData.address || current?.address,
+          address: formData.address || activePk?.address,
           ...parsePayload(),
         },
       },

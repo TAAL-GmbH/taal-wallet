@@ -1,15 +1,33 @@
 import { ButtonStyleProps } from '../components/button';
 
+export enum ErrorCodeEnum {
+  UNAUTHORIZED = 'unauthorized',
+  UNKNOWN_ERROR = 'unknownError',
+  BAD_TXNS_IN_BELOWOUT = 'bad-txns-in-belowout',
+}
+
+export type ApiResponse<T = null> =
+  | {
+      success: false;
+      data?: undefined | null;
+      error: {
+        errorCode: ErrorCodeEnum;
+        message: string;
+      };
+    }
+  | {
+      success: true;
+      data: T;
+      error?: undefined | null;
+    };
+
 export type TrackEventOptions = {
   category?: string;
   label: string;
   action?: string;
 };
 
-export enum ErrorCodeEnum {
-  UNAUTHORIZED = 'unauthorized',
-  UNKNOWN_ERROR = 'unknownError',
-}
+export type ValueOf<T> = T[keyof T];
 
 export type ParametersExceptFirst<F> = F extends (
   arg0: unknown,
@@ -18,13 +36,19 @@ export type ParametersExceptFirst<F> = F extends (
   ? R
   : never;
 
-export type OriginData = {
+export type OriginType = {
+  origin: string;
   isAuthorized: boolean;
   isPersistent: boolean;
 };
+// export type OriginData = {
+//   isAuthorized: boolean;
+//   isPersistent: boolean;
+// };
 
-export type BStorePKType = {
+export type DbPKType = {
   name: string;
+  address: string;
   path: string;
   network: string;
   privateKeyEncrypted: string;
@@ -34,13 +58,18 @@ export type BStorePKType = {
   };
 };
 
+export type RootPKType = {
+  privateKeyHash: string;
+};
+
 export type PKType = Pick<
-  BStorePKType,
-  'name' | 'path' | 'network' | 'balance'
+  DbPKType,
+  'name' | 'address' | 'path' | 'network' | 'balance'
 > & {
-  address: string;
   privateKey: string;
 };
+
+export type PKMap = Record<string, PKType>;
 
 // export type hdKeyNetwork = {
 //   alias: string;

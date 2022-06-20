@@ -179,6 +179,15 @@ export const sharedButtonStyles = css<
     `};
 
   > span {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    svg {
+      height: 20px;
+      width: 20px;
+    }
+
     ${({ isLoading }) =>
       isLoading &&
       css`

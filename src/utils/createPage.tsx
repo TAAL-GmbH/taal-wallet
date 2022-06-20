@@ -3,7 +3,6 @@ import { createRoot } from 'react-dom/client';
 import { ThemeProvider, createGlobalStyle } from 'styled-components';
 import { Provider as ReduxProvider } from 'react-redux';
 import { store } from '@/src/store';
-// @ts-expect-error convert to ts
 import light from '@/themes/light';
 
 const GlobalStyle = createGlobalStyle`
@@ -14,10 +13,10 @@ const GlobalStyle = createGlobalStyle`
   }
   body {
     background-color: #fdfdfd;
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Varta', sans-serif;
     font-size: 14px;
     line-height: 1.25;
-    color: ${light.color.grey[400]};
+    color: ${light.color.grey[600]};
 
     * {
       box-sizing: border-box;
@@ -25,11 +24,18 @@ const GlobalStyle = createGlobalStyle`
 
     > div {
       min-height: 100vh;
+      padding-top: 60px;
     }
   }
 
   h1, h2, h3, h4, h5, h6 {
+    font-family: 'Varta', Helvetica, sans-serif;
+    font-weight: 400;
     color: ${light.color.grey[700]};
+  }
+  h1 {
+    font-size: 1.7rem;
+    margin-bottom: .5rem;
   }
 `;
 

@@ -5,16 +5,18 @@ type Props = {
   children: ReactNode;
   className?: string;
   href: string;
+  onClick?: () => void;
 };
 
 export const AnchorLink: FC<Props> = ({
   className,
   children,
   href: hrefRaw,
+  onClick,
 }) => {
   const href = hrefRaw.startsWith('#') ? hrefRaw : `#${hrefRaw}`;
   return (
-    <A className={className} href={href}>
+    <A className={className} href={href} onClick={onClick}>
       {children}
     </A>
   );

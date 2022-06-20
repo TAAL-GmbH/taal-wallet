@@ -17,6 +17,9 @@ export class Client {
   private _port: chrome.runtime.Port;
   private _origin: string;
   private _isAuthorized = false;
+  private _isConnected = false;
+  private _pingTimer: ReturnType<typeof setTimeout> | null = null;
+  private _disconectTimer: ReturnType<typeof setTimeout> | null = null;
   private _storageDataLoaded = false;
   private _unsubscribeRedux: () => void;
 
@@ -37,16 +40,16 @@ export class Client {
     let storeCache: ReturnType<typeof store.getState>;
     return store.subscribe(async () => {
       const state = store.getState();
-      if (state.pk.current?.address !== storeCache?.pk.current?.address) {
+      if (state.pk.activePk?.address !== storeCache?.pk.activePk?.address) {
         this._postMessage({
           action: 'address',
-          payload: state.pk.current?.address,
+          payload: state.pk.activePk?.address,
         });
       }
-      if (state.pk.current?.balance !== storeCache?.pk.current?.balance) {
+      if (state.pk.activePk?.balance !== storeCache?.pk.activePk?.balance) {
         this._postMessage({
           action: 'balance',
-          payload: state.pk.current?.balance,
+          payload: state.pk.activePk?.balance.amount,
         });
       }
       storeCache = state;
@@ -63,6 +66,25 @@ export class Client {
     } else {
       console.warn('Can not post message to client, not authorized');
     }
+  }
+
+  private _ping() {
+    this._postMessage({
+      action: 'ping',
+    });
+    this._disconectTimer = setTimeout(() => {
+      this._isConnected = false;
+      this._postMessage({
+        action: 'disconnect',
+      });
+      this.destroy();
+    }, 1000);
+  }
+
+  private _onConnect() {
+    this._isConnected = true;
+    this._clearTimers();
+    this._pingTimer = setInterval(this._ping.bind(this), 1000);
   }
 
   public async onMessage(msg: Msg) {
@@ -87,6 +109,12 @@ export class Client {
 
     if (!this._isAuthorized) {
       this._handleNewClient();
+      return;
+    }
+
+    // handle pong response
+    if (action === 'pong') {
+      clearTimeout(this._disconectTimer);
       return;
     }
 
@@ -144,48 +172,66 @@ export class Client {
     action,
     payload,
   }: Pick<Msg, 'action' | 'payload'>) {
-    switch (action) {
-      // if client was previously authorized, then we can just send the message
-      case 'connect': {
-        return { action };
-      }
-      case 'get-address': {
-        return {
-          action: 'address',
-          payload: store.getState().pk.current?.address,
-        };
-      }
-      case 'get-balance': {
-        const state = store.getState();
-        const address = state.pk.current?.address;
+    const state = store.getState();
+    const address = state.pk.activePk?.address;
 
-        if (address) {
-          const amount = await woc.getBalance(address);
-          store.dispatch(setBalance({ address, amount }));
+    if (!address) {
+      console.log('No address', store.getState());
+      return {
+        action: 'error',
+        payload: {
+          reason: 'Address not selected',
+        },
+      };
+    }
+
+    try {
+      switch (action) {
+        // if client was previously authorized, then we can just send the message
+        case 'connect': {
+          this._onConnect();
+          return { action };
+        }
+        case 'get-address': {
+          return {
+            action: 'address',
+            payload: store.getState().pk.activePk?.address,
+          };
+        }
+        case 'get-balance': {
+          const balance = await woc.getBalance(address);
           return {
             action: 'balance',
-            payload: amount,
+            payload: JSON.stringify(balance),
           };
-        } else {
+        }
+        case 'signPreimage': {
+          // TODO: implement signPreimage
+          return {
+            action: 'balance',
+            payload: 'not-implemented',
+          };
+        }
+        default: {
           return {
             action: 'error',
             payload: {
-              reason: 'Address not selected',
+              reason: `unknown action: ${action}`,
             },
           };
         }
       }
-      default: {
-        return {
-          action: 'error',
-          payload: {
-            reason: `unknown action: ${action}`,
-          },
-        };
-      }
+    } catch (e) {
+      return {
+        action: 'error',
+        payload: {
+          reason: e.message,
+        },
+      };
     }
   }
 
+  // TODO: migrate to indexedDB
   private async _processClientData() {
     const storageKey = `origin: ${this._origin}`;
     const storageData = await chrome.storage.local.get(storageKey);
@@ -193,6 +239,7 @@ export class Client {
 
     if (data) {
       this._isAuthorized = !!data.isAuthorized;
+      this._isConnected = true;
     } else {
       await chrome.storage.local.set({
         [storageKey]: {
@@ -203,6 +250,7 @@ export class Client {
     }
   }
 
+  // TODO: migrate to broadcast API
   private async _onStorageChanged(
     changes: { [key: string]: chrome.storage.StorageChange },
     namespace: string
@@ -219,10 +267,19 @@ export class Client {
     }
   }
 
+  private _clearTimers() {
+    clearInterval(this._pingTimer);
+    clearTimeout(this._disconectTimer);
+  }
+
   public destroy() {
     // TODO: unsubscribe and prepare for garbage collection
     console.log(`client ${this._origin} destroyed`);
     this._unsubscribeRedux();
+
+    this._clearTimers();
+
+    // TODO: remove this after migration to broadcast API
     chrome.storage.onChanged.removeListener(this._onStorageChanged);
   }
 }

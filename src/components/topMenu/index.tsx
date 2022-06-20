@@ -1,19 +1,28 @@
 import { FC } from 'react';
 import styled from 'styled-components';
 import { routes } from '@/src/constants/routes';
+import { store } from '@/src/store';
+import { lockWallet } from '@/src/features/pkSlice';
+import { useAppSelector } from '@/src/hooks';
 
 type Props = {
   className?: string;
 };
 
-const menuItems: Record<string, string | (() => void)> = {
-  Home: routes.HOME,
-  'PK List': routes.PK_LIST,
-  Options: () => chrome.runtime.openOptionsPage(),
-  WebPush: routes.WEB_PUSH,
-};
-
 export const TopMenu: FC<Props> = ({ className }) => {
+  const { isLocked } = useAppSelector(state => state.pk);
+  const menuItems: Record<string, string | (() => void)> = {
+    Home: routes.HOME,
+    'PK List': routes.PK_LIST,
+    'Send BSV': routes.SEND_BSV,
+    Options: () => chrome.runtime.openOptionsPage(),
+    WebPush: routes.WEB_PUSH,
+  };
+
+  if (!isLocked) {
+    menuItems['Lock Wallet'] = () => store.dispatch(lockWallet());
+  }
+
   return (
     <Wrapper className={className}>
       <ul>

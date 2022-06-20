@@ -1,19 +1,13 @@
-import { PK_CURRENT_KEY, PK_LIST_KEY } from '@/src/constants';
-import { replacePKList, appendPK, setActivePk } from '@/src/features/pkSlice';
+import { appendPK, setActivePk, setRootPK } from '@/src/features/pkSlice';
 import { store } from '@/src/store';
-import isEqual from 'react-fast-compare';
-import { BStorePKType, PKType } from '../types';
 import bsv, { Mnemonic } from 'bsv';
 import 'bsv/mnemonic';
-// import cryptoBrowserify from 'crypto-browserify';
-import crypto from 'crypto';
-import { decryptPK, encryptPK } from '../utils/crypt';
-
+import { db } from '../db';
+import { encrypt } from '../utils/crypt';
 class PK {
   private _isInitialized = false;
 
-  public async init(callerName: string) {
-    // console.log(`pk.init`, { callerName });
+  public async init() {
     if (this._isInitialized) {
       return;
     }
@@ -28,14 +22,18 @@ class PK {
   public createHDPrivateKey({
     mnemonic,
     network = 'testnet',
-    password = '',
+    password,
+    name = 'Master Key',
   }: {
     mnemonic: Mnemonic;
     network?: string;
     password?: string;
+    name?: string;
   }) {
     // @ts-ignore
     window.bsv = bsv;
+
+    const path = 'm';
 
     const mSeed = mnemonic.toSeed(password);
     const masterPrivateKey = bsv.HDPrivateKey.fromSeed(mSeed, network);
@@ -51,11 +49,11 @@ class PK {
     //   .deriveChild(2, true);
 
     console.log('createHDPrivateKey', {
+      name,
       address,
-      path: 'm',
+      path,
       network,
       privateKey: masterPrivateKey.toString(),
-      name: Date.now().toString(),
       balance: {
         updatedAt: null,
         amount: null,
@@ -63,48 +61,74 @@ class PK {
     });
 
     store.dispatch(
-      appendPK({
-        address,
-        path: 'm',
-        network,
-        privateKey: masterPrivateKey.toString(),
-        name: 'Master Key',
-        balance: {
-          updatedAt: null,
-          amount: null,
-        },
+      setRootPK({
+        privateKeyHash: masterPrivateKey.toString(),
       })
     );
-  }
 
-  /**
-   * This function is used to convert PK data structure from browser storage to redux
-   * @param bStoreData
-   * @returns
-   */
-  public bStorePK2PKType(bStoreData: BStorePKType): PKType {
-    const { name, network, path, balance, privateKeyEncrypted } = bStoreData;
-    const privateKey = decryptPK(privateKeyEncrypted);
-    const hdPk = bsv.HDPrivateKey.fromString(privateKey);
-    return {
-      name,
-      network,
-      address: hdPk.publicKey.toAddress(network).toString(),
-      balance,
-      path,
-      privateKey,
-    };
-  }
+    db.setKeyVal(
+      'rootPk.privateKeyEncrypted',
+      encrypt(masterPrivateKey.toString(), password)
+    );
 
-  public pkType2BStore(pkData: PKType): BStorePKType {
-    const { name, path, network, privateKey, balance } = pkData;
     return {
+      pkInstance: masterPrivateKey,
       name,
       path,
       network,
-      balance,
-      privateKeyEncrypted: encryptPK(privateKey),
     };
+  }
+
+  public derive({
+    name = `Key-${Date.now()}`,
+    masterKey,
+    path,
+    network,
+  }: {
+    name?: string;
+    masterKey: bsv.HDPrivateKey;
+    path: string;
+    network: string;
+  }) {
+    // m / purpose' / coin_type' / account' / change / address_index
+    // m / 44 / 236 / 0' / 0 / 0
+    const pathSegments = path.split('/');
+    if (pathSegments.length === 3) {
+      pathSegments.unshift('m', "44'", "236'");
+    }
+
+    const fullPath = pathSegments.join('/');
+
+    if (pathSegments.length !== 6) {
+      console.log({ pathSegments });
+      throw new Error(`Invalid path: ${fullPath}`);
+    }
+
+    const key = masterKey.deriveChild(fullPath);
+    const address = key.publicKey.toAddress(network).toString();
+    const result = {
+      address,
+      path: fullPath,
+      network,
+      privateKey: key.toString(),
+      name,
+      balance: {
+        updatedAt: null,
+        amount: null,
+      },
+    };
+
+    db.setKeyVal(
+      'derivationPath.lastIndex',
+      parseInt(pathSegments[pathSegments.length - 1])
+    );
+    store.dispatch(appendPK(result));
+    store.dispatch(setActivePk(address));
+    return result;
+  }
+
+  public restorePK(privateKey: string) {
+    return bsv.HDPrivateKey.fromString(privateKey);
   }
 }
 

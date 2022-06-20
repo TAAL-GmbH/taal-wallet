@@ -1,3 +1,4 @@
+import bsv from 'bsv';
 import { ErrorCodeEnum } from '../types';
 import { ApiError } from '../utils/errors/apiError';
 
@@ -163,6 +164,43 @@ class WOC {
     // store.dispatch(refreshBalance({ address }));
 
     return true;
+  }
+
+  async broadcast(txString: string) {
+    // const txString = tx.toString('hex');
+    const endpoint = `https://taalnet.whatsonchain.com/v1/bsv/taalnet/tx/raw?dontcheckfee=true`;
+    let txid;
+
+    let body = JSON.stringify({
+      txhex: txString,
+    });
+
+    try {
+      txid = await requestLocal(endpoint, {
+        method: 'POST',
+        body: body,
+        headers: {
+          Authorization: `Basic ${btoa(`taal_private:dotheT@@l007`)}`,
+        },
+      });
+    } catch (err) {
+      throw err;
+    }
+
+    if (txid[0] === '"') {
+      txid = txid.slice(1);
+    }
+    if (txid.slice(-1) === '\n') {
+      txid = txid.slice(0, -1);
+    }
+    if (txid.slice(-1) === '"') {
+      txid = txid.slice(0, -1);
+    }
+    // Check this is a valid hex string
+    if (!txid.match(/^[0-9a-fA-F]{64}$/)) {
+      throw new Error(`Failed to broadcast: ${txid}`);
+    }
+    return txid;
   }
 }
 

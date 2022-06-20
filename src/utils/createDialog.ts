@@ -42,6 +42,7 @@ export const createDialog = async (options: CreateDialogOptions) => {
 
     chrome.storage.onChanged.addListener(onStorageChange);
 
+    // TODO: do a cleanup on extension startup
     await chrome.storage.local.set({
       [key]: {
         ...options,

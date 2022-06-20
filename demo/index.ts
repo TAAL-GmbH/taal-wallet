@@ -27,10 +27,15 @@ wallet.on('address', (address: string) => {
 
 wallet.on('connect', async () => {
   state.isConnected = true;
-  state.address = await wallet.getAddress();
-  const balance = await wallet.getBalance();
-  console.log(`got balance as return: ${balance}`);
-  document.body.classList.add('connected');
+  try {
+    state.address = await wallet.getAddress();
+    const balance = await wallet.getBalance();
+    console.log(`got balance as return: ${balance}`);
+    document.body.classList.add('connected');
+  } catch (e) {
+    console.error(e);
+    // alert(e.message);
+  }
 });
 
 wallet.on('disconnect', () => {
@@ -40,6 +45,7 @@ wallet.on('disconnect', () => {
 });
 
 wallet.on('error', error => {
+  console.warn(`Error: ${error?.reason || 'unknown'}`);
   alert(`Error: ${error?.reason || 'unknown'}`);
 });
 

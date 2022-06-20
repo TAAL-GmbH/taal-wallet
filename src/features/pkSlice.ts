@@ -1,89 +1,88 @@
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-// import { withReduxStateSync } from 'redux-state-sync';
-import { woc } from '../libs/WOC';
-import { PKType } from '../types';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { PKMap, PKType, RootPKType } from '../types';
+import { isBackgroundScript } from '../utils/generic';
 
 type State = {
-  current: PKType | null;
-  list: PKType[];
+  activePk: PKType | null;
+  rootPk: RootPKType | null;
+  map: PKMap;
+  isInSync: boolean;
+  isLocked: boolean | null;
 };
 
 const initialState: State = {
-  current: null,
-  list: [],
+  activePk: null,
+  rootPk: null,
+  map: {},
+  isInSync: isBackgroundScript() ? true : null, // true in background.js, null elsewhere
+  isLocked: isBackgroundScript() ? true : null, // true in background.js, null elsewhere
 };
-
-export const fetchBalance = createAsyncThunk(
-  'woc/fetchBalance',
-  woc.getBalance
-);
 
 const pkSlice = createSlice({
   name: 'pk',
   initialState,
   reducers: {
-    setState(state, { payload }: PayloadAction<State>) {
+    setState(state, { payload }: PayloadAction<Partial<State>>) {
       Object.assign(state, payload);
     },
-    replacePKList(state, action: PayloadAction<PKType[]>) {
-      state.list = action.payload;
+    replacePKMap(state, action: PayloadAction<PKMap>) {
+      state.map = action.payload;
     },
     appendPK(state, action: PayloadAction<PKType>) {
-      if (
-        state.list.find(item => item.privateKey === action.payload.privateKey)
-      ) {
+      if (state.map[action.payload.address]) {
         throw new Error('Key already exists');
       }
-      state.list.push(action.payload);
+      state.map[action.payload.address] = action.payload;
     },
-    setActivePk(state, action: PayloadAction<PKType | null>) {
-      state.current = action.payload;
+    deletePK(state, action: PayloadAction<string>) {
+      if (state.map[action.payload]) {
+        throw new Error('Key does not exists');
+      }
+      delete state.map[action.payload];
+      if (state.activePk?.address === action.payload) {
+        state.activePk = null;
+      }
+    },
+    lockWallet(state) {
+      state.isLocked = true;
+      state.rootPk = null;
+    },
+    setRootPK(state, action: PayloadAction<RootPKType>) {
+      state.rootPk = action.payload;
+      state.isLocked = false;
+    },
+    setActivePk(state, action: PayloadAction<string | null>) {
+      state.activePk = state.map[action.payload];
     },
     setBalance(
       state,
       action: PayloadAction<{ address: string; amount: number }>
     ) {
-      console.log('setBalance!!!!!!!!!!!!!!!', action.payload);
       const { address, amount } = action.payload;
-      const pk = state.list.find(pk => pk.address === address);
+      const pk = state.map[address];
+
       if (pk) {
         pk.balance = {
           updatedAt: Date.now(),
           amount,
         };
-        if (state.current?.address === pk.address) {
-          state.current.balance = pk.balance;
+        if (state.activePk?.address === address) {
+          state.activePk.balance = state.map[address].balance;
         }
       }
     },
   },
-  extraReducers: builder => {
-    builder
-      .addCase(fetchBalance.pending, (state, action) => {
-        console.log('fetchBalance.pending', action.meta.arg);
-      })
-      .addCase(fetchBalance.fulfilled, (state, action) => {
-        console.log(chrome.runtime, { state, action });
-        const balance = {
-          updatedAt: Date.now(),
-          amount: action.payload,
-        };
-        if (state.current?.address === action.meta.arg) {
-          state.current.balance = balance;
-        }
-        const pkInList = state.list.find(
-          item => item.address === action.meta.arg
-        );
-        if (!pkInList) {
-          throw new Error("Can't find PK in list");
-        }
-
-        pkInList.balance = balance;
-      });
-  },
 });
 
-export const { setState, replacePKList, appendPK, setActivePk, setBalance } =
-  pkSlice.actions;
+export const {
+  setState,
+  replacePKMap,
+  appendPK,
+  deletePK,
+  lockWallet,
+  setRootPK,
+  setActivePk,
+  setBalance,
+} = pkSlice.actions;
 
 export default pkSlice.reducer;

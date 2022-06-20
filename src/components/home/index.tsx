@@ -1,12 +1,16 @@
 import { FC, useState } from 'react';
 import styled from 'styled-components';
 import { Button } from '../button';
-import { pk } from '@/src/libs/PK';
 import { woc } from '@/src/libs/WOC';
 import { CurrentPk } from '../currentPk';
 import { useAppSelector } from '@/src/hooks';
-import { store } from '@/src/store';
-import { fetchBalance } from '@/src/features/pkSlice';
+import { db } from '@/src/db';
+import { sendBSV } from '@/src/utils/blockchain';
+import { createToast } from '@/src/utils/toast';
+import { getBalance } from '@/src/features/wocApiSlice';
+import { formatNumber, isNull } from '@/src/utils/generic';
+import { navigateTo } from '@/src/utils/navigation';
+import { routes } from '@/src/constants/routes';
 
 type Props = {
   className?: string;
@@ -18,39 +22,36 @@ type TokenType = {
 };
 
 export const Home: FC<Props> = ({ className }) => {
-  const { current } = useAppSelector(state => state.pk);
+  const { activePk } = useAppSelector(state => state.pk);
   const [tokens, setTokens] = useState<TokenType[]>([]);
 
-  const mintToken = async () => {
-    // let token = new Token();
-    // try {
-    //   let symbol = await token.mint(pk);
-    //   alert('Token ' + symbol + ' minted.');
-    //   refreshBalance();
-    // } catch (err) {
-    //   alert(err);
-    // }
-  };
-
   const airdrop = async () => {
-    if (!current?.address) {
-      alert('Please select a private key.');
+    const toast = createToast('Requesting Airdrop...');
+    if (!activePk?.address) {
+      toast.error('Please select an Address first!');
       return;
     }
-    const success = await woc.airdrop(current.address);
+    const success = await woc.airdrop(activePk.address).catch(toast.error);
 
     if (success) {
-      getBalance();
-      alert('Airdrop successful');
+      setTimeout(_getBalance, 5000);
+      toast.success('Airdrop was successful!');
     }
   };
 
-  const getBalance = async () => {
-    if (!current?.address) {
-      alert('Please select a private key.');
+  const _getBalance = async () => {
+    const toast = createToast('Fetching balance...');
+    if (!activePk?.address) {
+      toast.error('Please select an address');
       return;
     }
-    store.dispatch(fetchBalance(current.address));
+    const amount = await getBalance(activePk.address).catch(err => {
+      toast.error(err);
+      return null;
+    });
+    if (!isNull(amount)) {
+      toast.success('Balance fetched successfully');
+    }
   };
 
   return (
@@ -58,8 +59,8 @@ export const Home: FC<Props> = ({ className }) => {
       <CurrentPk />
       <h3>
         Balance:{' '}
-        {Number.isInteger(current?.balance?.amount)
-          ? `${current?.balance?.amount?.toLocaleString()} satoshis`
+        {typeof activePk?.balance?.amount === 'number'
+          ? `${formatNumber(activePk?.balance?.amount)} Satoshis`
           : 'unknown'}
       </h3>
       <Ul>
@@ -71,8 +72,9 @@ export const Home: FC<Props> = ({ className }) => {
         ))}
       </Ul>
       <ButtonWrapper>
-        <Button onClick={mintToken}>Mint</Button>
-        <Button onClick={getBalance}>Get balance</Button>
+        <Button onClick={() => navigateTo(routes.SEND_BSV)}>Send BSV</Button>
+        {/* <Button onClick={() => db.test()}>DB Test</Button> */}
+        {/* <Button onClick={_getBalance}>Get balance</Button> */}
         <Button variant="success" onClick={airdrop}>
           Airdrop
         </Button>

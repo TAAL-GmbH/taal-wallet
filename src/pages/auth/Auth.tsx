@@ -10,7 +10,7 @@ export const Auth: FC = () => {
   const allow = async () => {
     const namespace = dontAskAgain.current ? 'local' : 'session';
     console.log(`allow in ${namespace}`);
-    // @ts-expect-error storage.session is supported only in manifest v3
+    // @ ts-expect-error storage.session is supported only in manifest v3
     const originData = await chrome.storage[namespace].get(storageKey);
     chrome.storage.local.set({
       [storageKey]: {
@@ -23,7 +23,7 @@ export const Auth: FC = () => {
 
   const reject = async () => {
     const namespace = dontAskAgain.current ? 'local' : 'session';
-    // @ts-expect-error storage.session is supported only in manifest v3
+    // @ ts-expect-error storage.session is supported only in manifest v3
     const originData = await chrome.storage[namespace].get(storageKey);
     console.log(`reject in ${namespace}`);
     chrome.storage.local.set({

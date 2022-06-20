@@ -14,14 +14,10 @@ type Props = {
   className?: string;
 };
 
-type StylingProps = {
-  margin?: string | boolean;
-};
-
-export const PageHead: FC<Props & StylingProps> = ({ className, margin }) => {
+export const PageHead: FC<Props> = ({ className }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   return (
-    <Wrapper className={className} margin={margin}>
+    <Wrapper className={className}>
       <HomeButton onClick={() => navigateTo(routes.HOME)}>
         <AppLogo />
       </HomeButton>
@@ -36,11 +32,18 @@ export const PageHead: FC<Props & StylingProps> = ({ className, margin }) => {
   );
 };
 
-const Wrapper = styled.div<StylingProps>`
+const Wrapper = styled.div`
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  ${injectSpacing(['margin'])}
+  padding: 0.5rem 0.6rem;
+  box-shadow: 0 0px 10px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  z-index: 100;
 `;
 
 const HomeButton = styled.button`

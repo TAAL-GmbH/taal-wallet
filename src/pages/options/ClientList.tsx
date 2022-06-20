@@ -1,29 +1,17 @@
+import { db } from '@/src/db';
+import { OriginType } from '@/src/types';
 import { FC, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { OriginData } from '@/src/types';
 
 type Props = {
   className?: string;
 };
 
-type Client = OriginData & { origin: string };
-
 export const ClientList: FC<Props> = ({ className }) => {
-  const [clients, setClients] = useState<null | Client[]>(null);
+  const [clients, setClients] = useState<null | OriginType[]>(null);
 
   const getClients = async () => {
-    const storageData = await chrome.storage.local.get();
-    const result: Client[] = [];
-    Object.entries(storageData).forEach(([key, value]) => {
-      if (key.startsWith('origin: ')) {
-        const origin = key.slice('origin: '.length);
-        result.push({
-          origin,
-          ...value,
-        });
-      }
-    });
-    setClients(result);
+    setClients(await db.getOriginList());
   };
 
   useEffect(() => {

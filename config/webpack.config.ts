@@ -1,4 +1,4 @@
-import { Configuration, ProvidePlugin } from 'webpack';
+import { Configuration, ProvidePlugin, DefinePlugin } from 'webpack';
 import path from 'path';
 import CopyPluginWebpackPlugin from 'copy-webpack-plugin';
 import { MakeManifestWebpackPlugin } from '../src/utils/MakeManifestWebpackPlugin';
@@ -52,9 +52,15 @@ const config: Configuration = {
     ],
   },
   resolve: {
-    alias,
+    alias: {
+      ...alias,
+      // bn.js does some magic with require('buffer') and it doesn't play nice with ProvidePlugin
+      'bn.js': path.resolve(__dirname, '..', 'src/libs/bn.js/'),
+      // stas-js depends on dotenv so we need to mock it to use in the browser
+      dotenv: path.resolve(__dirname, '..', 'src/libs/dotenv-mock/'),
+    },
     fallback: {
-      buffer: require.resolve('buffer'),
+      // buffer: require.resolve('buffer/'), // slash at the end is important!
       assert: require.resolve('assert'),
       process: require.resolve('process'),
       crypto: require.resolve('crypto-browserify'),
@@ -70,6 +76,17 @@ const config: Configuration = {
     new ProvidePlugin({
       process: ['process'],
       Buffer: ['buffer', 'Buffer'],
+    }),
+    new DefinePlugin({
+      'process.env': {
+        SATS: 500,
+        PERBYTE: 1000,
+        NETWORK: '"testnet"',
+        API_NETWORK: '"taalnet"',
+        API_NETWORK2: '"taalnet"',
+        API_USERNAME: '"taal_private"',
+        API_PASSWORD: '"dotheT@@l007"',
+      },
     }),
     new MakeManifestWebpackPlugin({ outDir }),
     new CopyPluginWebpackPlugin({

@@ -36,6 +36,7 @@ class WalletCommunicator {
     this._onMessage = this._onMessage.bind(this);
     this._onConnect = this._onConnect.bind(this);
     this._onDisconnect = this._onDisconnect.bind(this);
+    this._addBlockingWarning();
 
     this.on('connect', this._onConnect);
     this.on('diconnect', this._onDisconnect);
@@ -78,6 +79,15 @@ class WalletCommunicator {
   }
 
   private _onMessage(msg: MessagePayload) {
+    if (msg.action === 'ping') {
+      this.postMessage({ action: 'pong' });
+      return;
+    }
+    if (msg.action === 'disconnect') {
+      this._onDisconnect();
+      return;
+    }
+
     if (msg.requestId) {
       if (msg.action === 'error') {
         this._rejectRequest(msg);
@@ -154,6 +164,31 @@ class WalletCommunicator {
   public on(eventName: string, cb: (args: any) => void) {
     this._subscriptions[eventName] = this._subscriptions[eventName] || [];
     this._subscriptions[eventName].push(cb);
+  }
+
+  private _addBlockingWarning() {
+    const getMessage = cmd =>
+      `Don't use ${cmd} with TAAL Web3 Wallet client as it will cause the wallet to disconnect`;
+
+    (proxiedAlert => {
+      window.alert = function () {
+        console.error(getMessage('alert'));
+        return proxiedAlert.apply(this, arguments);
+      };
+    })(window.alert);
+
+    (proxiedConfirm => {
+      window.confirm = function () {
+        console.error(getMessage('confirm'));
+        return proxiedConfirm.apply(this, arguments);
+      };
+    })(window.confirm);
+    (proxiedPropmpt => {
+      window.prompt = function () {
+        console.error(getMessage('prompt'));
+        return proxiedPropmpt.apply(this, arguments);
+      };
+    })(window.prompt);
   }
 }
 
