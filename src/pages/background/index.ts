@@ -1,30 +1,13 @@
-import { Client } from './client';
 import { store } from '@/src/store';
-// import { pk } from '@/src/libs/PK';
+import { Client } from './client';
 import { onPushMessage } from './pushMessageHandler';
 import { initStoreSync } from '@/src/utils/storeSync';
 import { TAAL_ICON_URL } from '@/src/constants';
-import '@/src/utils/crypt';
 
-// @ ts-expect-error
-// importScripts('/scripts/bitcoin-components.js');
-// @ ts-expect-error
-// importScripts('/scripts/wallet-connect.js');
-// @ ts-expect-error
-// importScripts('/scripts/bsv-min.js');
-// @ ts-expect-error
-// importScripts('/scripts/bsv-message.min.js');
-
-// pk.init('background');
-// @ ts-expect-error ignore this
-// globalThis['pk'] = pk;
 // @ ts-expect-error ignore this
 globalThis['store'] = store;
 
 initStoreSync();
-
-// const sighash =
-//   bsv.crypto.Signature.SIGHASH_ALL | bsv.crypto.Signature.SIGHASH_FORKID;
 
 self.addEventListener('push', onPushMessage);
 
@@ -38,9 +21,12 @@ chrome.runtime.onUpdateAvailable.addListener((...args) =>
 chrome.runtime.onConnectExternal.addListener(port => {
   let client: Client | null = new Client({ port });
 
+  chrome.runtime.onMessage.addListener(client.onInternalMessage);
+
   chrome.notifications.onClicked.addListener(() =>
     chrome.runtime.openOptionsPage(console.log)
   );
+
   chrome.notifications.create({
     type: 'basic',
     iconUrl: TAAL_ICON_URL,
@@ -51,14 +37,15 @@ chrome.runtime.onConnectExternal.addListener(port => {
   const onPortDisconnect = () => {
     console.log('port disconnected');
     port.onDisconnect.removeListener(onPortDisconnect);
-    client && port.onMessage.removeListener(client.onMessage);
+    client && port.onMessage.removeListener(client.onExternalMessage);
+    client && chrome.runtime.onMessage.removeListener(client.onInternalMessage);
     client?.destroy();
     client = null;
     console.log('client destroyed', globalThis.performance);
   };
 
   port.onDisconnect.addListener(onPortDisconnect);
-  port.onMessage.addListener(client.onMessage);
+  port.onMessage.addListener(client.onExternalMessage);
 
   // TODO: make sure this function is destroyed when the port is closed
 });

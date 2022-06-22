@@ -1,13 +1,10 @@
 import { FC, useState } from 'react';
 import styled from 'styled-components';
 import { Button } from '../button';
-import { woc } from '@/src/libs/WOC';
 import { CurrentPk } from '../currentPk';
 import { useAppSelector } from '@/src/hooks';
-import { db } from '@/src/db';
-import { sendBSV } from '@/src/utils/blockchain';
 import { createToast } from '@/src/utils/toast';
-import { getBalance } from '@/src/features/wocApiSlice';
+import { airdrop, getBalance } from '@/src/features/wocApiSlice';
 import { formatNumber, isNull } from '@/src/utils/generic';
 import { navigateTo } from '@/src/utils/navigation';
 import { routes } from '@/src/constants/routes';
@@ -25,13 +22,14 @@ export const Home: FC<Props> = ({ className }) => {
   const { activePk } = useAppSelector(state => state.pk);
   const [tokens, setTokens] = useState<TokenType[]>([]);
 
-  const airdrop = async () => {
+  const _airdrop = async () => {
     const toast = createToast('Requesting Airdrop...');
     if (!activePk?.address) {
       toast.error('Please select an Address first!');
       return;
     }
-    const success = await woc.airdrop(activePk.address).catch(toast.error);
+    // const success = await woc.airdrop(activePk.address).catch(toast.error);
+    const success = await airdrop(activePk.address).catch(toast.error);
 
     if (success) {
       setTimeout(_getBalance, 5000);
@@ -45,11 +43,11 @@ export const Home: FC<Props> = ({ className }) => {
       toast.error('Please select an address');
       return;
     }
-    const amount = await getBalance(activePk.address).catch(err => {
+    const result = await getBalance([activePk.address]).catch(err => {
       toast.error(err);
       return null;
     });
-    if (!isNull(amount)) {
+    if (!isNull(result)) {
       toast.success('Balance fetched successfully');
     }
   };
@@ -75,7 +73,7 @@ export const Home: FC<Props> = ({ className }) => {
         <Button onClick={() => navigateTo(routes.SEND_BSV)}>Send BSV</Button>
         {/* <Button onClick={() => db.test()}>DB Test</Button> */}
         {/* <Button onClick={_getBalance}>Get balance</Button> */}
-        <Button variant="success" onClick={airdrop}>
+        <Button variant="success" onClick={_airdrop}>
           Airdrop
         </Button>
       </ButtonWrapper>

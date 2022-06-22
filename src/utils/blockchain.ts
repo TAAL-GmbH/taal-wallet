@@ -1,64 +1,18 @@
-import { FetchBaseQueryError } from '@reduxjs/toolkit/dist/query';
 import bsv, { Mnemonic } from 'bsv';
 import 'bsv/mnemonic';
 import { broadcast, getTx, getUnspent } from '../features/wocApiSlice';
 import { ApiResponse, ErrorCodeEnum } from '../types';
-import { ApiError } from './errors/apiError';
 import { WocApiError } from './errors/wocApiError';
 import { getErrorMessage } from './generic';
+import { networkList } from '../constants/networkList';
 import stas from 'stas-js';
 
-const DEFAULT_NETWORK = 'testnet';
 const SATS_PER_BITCOIN = 1e8;
 
-export const createHDPrivateKey = ({
-  mnemonic,
-  network = DEFAULT_NETWORK,
-  password = '',
-}: {
-  mnemonic: Mnemonic;
-  network?: string;
-  password?: string;
-}) => {
-  // @ts-ignore
-  window.bsv = bsv;
-  const mSeed = mnemonic.toSeed(password);
+// const sighash =
+//   bsv.crypto.Signature.SIGHASH_ALL | bsv.crypto.Signature.SIGHASH_FORKID;
 
-  const hDPrivateKeyFromSeed = bsv.HDPrivateKey.fromSeed(mSeed, network);
-  const hDPrivateKey2 = mnemonic.toHDPrivateKey(password, network);
-
-  const child_0_1_2h = hDPrivateKeyFromSeed
-    .deriveChild(0)
-    .deriveChild(1)
-    .deriveChild(2, true);
-  var copy_of_child_0_1_2h = hDPrivateKey2.deriveChild("m/0/1/2'");
-
-  console.log({
-    mSeed,
-    // hDPrivateKey0: hDPrivateKey0.toString(),
-    // hDPrivateKeyFromSeed: hDPrivateKeyFromSeed.toString(),
-    hDPrivateKeyFromSeed,
-    // hDPrivateKey2: hDPrivateKey2.toString(),
-    hDPrivateKey2,
-    child_0_1_2h,
-    copy_of_child_0_1_2h,
-    // address,
-    // address2,
-  });
-
-  return;
-
-  // store.dispatch(
-  //   appendPK({
-  //     address,
-  //     pk: masterPrivateKey.toString(),
-  //     name: Date.now().toString(),
-  //     balance: null,
-  //   })
-  // );
-};
-
-export const isValidAddress = (addr: string, network = DEFAULT_NETWORK) => {
+export const isValidAddress = (addr: string, network: string) => {
   try {
     new bsv.Address(addr, network);
     return true;
@@ -74,18 +28,21 @@ export const satoshisToBitcoin = (amount: number) => amount / SATS_PER_BITCOIN;
 export const sendBSV = async ({
   srcAddress,
   dstAddress,
-  privateKey,
+  rootPkHash,
   amount,
 }: {
   srcAddress: string;
   dstAddress: string;
-  privateKey: string;
+  rootPkHash: string;
   amount: number;
 }): Promise<ApiResponse<string>> => {
-  if (!isValidAddress(srcAddress)) {
+  const rootPk = bsv.HDPrivateKey.fromString(rootPkHash);
+  const network = rootPk.network.name;
+
+  if (!isValidAddress(srcAddress, network)) {
     throw new Error(`Invalid source address: ${srcAddress}`);
   }
-  if (!isValidAddress(dstAddress)) {
+  if (!isValidAddress(dstAddress, network)) {
     throw new Error(`Invalid destination address: ${dstAddress}`);
   }
 
@@ -120,14 +77,12 @@ export const sendBSV = async ({
     satoshis,
   });
 
-  const pkObj = bsv.HDPrivateKey.fromString(privateKey);
-
   const tx = new bsv.Transaction()
     .from(utxo)
     .to(dstAddress, amount)
     // TODO: create new address for change
     .change(srcAddress)
-    .sign(pkObj.privateKey);
+    .sign(rootPk.privateKey);
 
   try {
     const result = await broadcast(tx.toString());
@@ -139,7 +94,7 @@ export const sendBSV = async ({
       };
     } else if ('error' in result) {
       console.log('tx broadcast error', result.error);
-      throw new WocApiError(result.error as FetchBaseQueryError);
+      throw new WocApiError(result.error);
     }
   } catch (e) {
     console.error(e);
@@ -152,3 +107,73 @@ export const sendBSV = async ({
     };
   }
 };
+
+export const createHDPrivateKey = ({
+  mnemonic,
+  networkId,
+  password,
+}: {
+  mnemonic: Mnemonic;
+  networkId: string;
+  password: string;
+}) => {
+  const network = networkList.find(item => item.id === networkId);
+
+  const mSeed = mnemonic.toSeed(password);
+  const masterPrivateKey = bsv.HDPrivateKey.fromSeed(mSeed, network.envName);
+
+  // another way of doing the same thing
+  // const hDPrivateKey2 = mnemonic.toHDPrivateKey(password, network);
+  // var copy_of_child_0_1_2h = hDPrivateKey2.deriveChild("m/0/1/2'");
+
+  // const child_0_1_2h = masterPrivateKey
+  //   .deriveChild(0)
+  //   .deriveChild(1)
+  //   .deriveChild(2, true);
+
+  return {
+    pkInstance: masterPrivateKey,
+  };
+};
+
+export const derivePk = ({
+  name = `Key-${Date.now()}`,
+  masterKey,
+  path,
+}: {
+  name?: string;
+  masterKey: bsv.HDPrivateKey;
+  path: string;
+}) => {
+  const network = masterKey.network.name;
+  // m / purpose' / coin_type' / account' / change / address_index
+  // m / 44 / 236 / 0' / 0 / 0
+  const pathSegments = path.split('/');
+  if (pathSegments.length === 3) {
+    pathSegments.unshift('m', "44'", "236'");
+  }
+
+  const fullPath = pathSegments.join('/');
+
+  if (pathSegments.length !== 6) {
+    throw new Error(`Invalid path: ${fullPath}`);
+  }
+
+  const key = masterKey.deriveChild(fullPath);
+  const address = key.publicKey.toAddress(network).toString();
+
+  return {
+    address,
+    path: fullPath,
+    name,
+    balance: {
+      updatedAt: null,
+      amount: null,
+    },
+  };
+};
+
+export const restorePK = (privateKey: string) =>
+  bsv.HDPrivateKey.fromString(privateKey);
+
+export const generateMnemonic = () => bsv.Mnemonic.fromRandom();

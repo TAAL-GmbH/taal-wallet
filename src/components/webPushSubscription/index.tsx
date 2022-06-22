@@ -1,13 +1,6 @@
-import { useAppSelector } from '@/src/hooks';
-import {
-  ChangeEvent,
-  ChangeEventHandler,
-  FC,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { ChangeEvent, FC, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { useAppSelector } from '@/src/hooks';
 import { getWebPushToken } from '../../utils/firebase';
 import { Button } from '../button';
 import { CurrentPk } from '../currentPk';

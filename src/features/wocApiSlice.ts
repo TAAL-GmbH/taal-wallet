@@ -1,6 +1,46 @@
 import { StartQueryActionCreatorOptions } from '@reduxjs/toolkit/dist/query/core/buildInitiate';
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { store } from '../store';
+import {
+  BaseQueryFn,
+  createApi,
+  FetchArgs,
+  fetchBaseQuery,
+  FetchBaseQueryError,
+} from '@reduxjs/toolkit/query/react';
+import { RootState, store } from '../store';
+import { WocApiError } from '../utils/errors/wocApiError';
+import { isObject } from '../utils/generic';
+import { setBatchBalance } from './pkSlice';
+
+const ORIGIN = 'https://taalnet.whatsonchain.com';
+const BASE_PATH = '/v1/bsv';
+const AUTH_HEADER = `Basic ${btoa('taal_private:dotheT@@l007')}`;
+
+const dynamicBaseQuery: BaseQueryFn<
+  string | FetchArgs,
+  unknown,
+  FetchBaseQueryError
+> = async (args, api, extraOptions) => {
+  const wocNetwork = (api.getState() as RootState).pk.network.wocNetwork;
+
+  let baseUrl: string;
+
+  if (isObject(args) && 'url' in args && args.url.startsWith('http')) {
+    baseUrl = args.url;
+  } else {
+    baseUrl = `${ORIGIN}${BASE_PATH}/${wocNetwork}`;
+  }
+  const rawBaseQuery = fetchBaseQuery({ baseUrl });
+  return rawBaseQuery(args, api, extraOptions);
+};
+
+type Balance = {
+  address: string;
+  balance: {
+    confirmed: number;
+    unconfirmed: number;
+  };
+  error: string;
+};
 
 type Unspent = {
   height: number;
@@ -61,10 +101,19 @@ type Tx = {
 
 export const wocApiSlice = createApi({
   reducerPath: 'wocApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: 'https://taalnet.whatsonchain.com/v1/bsv/taalnet',
-  }),
+  baseQuery: dynamicBaseQuery,
   endpoints: builder => ({
+    getBalance: builder.mutation<Balance[], string[]>({
+      query: addressList => ({
+        url: `/addresses/balance`,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: AUTH_HEADER,
+        },
+        body: { addresses: addressList },
+      }),
+    }),
     getUnspent: builder.query<Unspent[], string>({
       query: address => `/address/${address}/unspent`,
     }),
@@ -74,13 +123,22 @@ export const wocApiSlice = createApi({
     getTx: builder.query<Tx, string>({
       query: txId => `/tx/hash/${txId}`,
     }),
-    broadcast: builder.mutation<string, string>({
-      query: txhex => ({
-        url: '/tx/raw?dontcheckfee=true',
-        method: 'POST',
+    airdrop: builder.query<string, string>({
+      query: address => ({
+        url: `${ORIGIN}/faucet/send/${address}`,
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Basic ${btoa('taal_private:dotheT@@l007')}`,
+          Authorization: AUTH_HEADER,
+        },
+      }),
+    }),
+    broadcast: builder.mutation<string, string>({
+      query: txhex => ({
+        url: `/tx/raw?dontcheckfee=true`,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain',
+          Authorization: AUTH_HEADER,
         },
         body: { txhex },
       }),
@@ -91,36 +149,34 @@ export const wocApiSlice = createApi({
 export const { useGetTxQuery } = wocApiSlice;
 
 export const getBalance = async (
-  address: string,
-  options?: StartQueryActionCreatorOptions | undefined
+  ...args: Parameters<typeof wocApiSlice.endpoints.getBalance.initiate>
 ) => {
-  const optionsCombined = {
-    forceRefetch: true,
-    ...options,
-  };
+  const resp = await store.dispatch(
+    wocApiSlice.endpoints.getBalance.initiate(...args)
+  );
 
-  const [{ data: unspentData }, { data: tokensUnspentData }] =
-    await Promise.all([
-      getUnspent(address, optionsCombined),
-      getTokensUnspent(address, optionsCombined),
-    ]);
+  if ('error' in resp) {
+    console.error(resp.error);
+    throw new WocApiError(resp.error);
+  }
+  const total = resp.data.reduce(
+    (acc, { balance }) => acc + balance.confirmed + balance.unconfirmed,
+    0
+  );
 
-  const tokensUnspentTotal =
-    tokensUnspentData?.utxos?.reduce((acc, item) => acc + item.amount, 0) || 0;
-  const unspentTotal =
-    unspentData?.reduce((acc, item) => acc + item.value, 0) || 0;
-
-  const total = tokensUnspentTotal + unspentTotal;
-
-  store.dispatch({
-    type: 'pk/setBalance',
-    payload: {
+  const preparedData = resp.data.map(
+    ({ address, balance: { confirmed, unconfirmed } }) => ({
       address,
-      amount: total,
-    },
-  });
+      amount: confirmed + unconfirmed,
+    })
+  );
 
-  return total;
+  store.dispatch(setBatchBalance(preparedData));
+
+  return {
+    data: resp.data,
+    total,
+  };
 };
 
 export const getUnspent = async (
@@ -134,6 +190,21 @@ export const getTokensUnspent = async (
 export const getTx = async (
   ...args: Parameters<typeof wocApiSlice.endpoints.getTx.initiate>
 ) => store.dispatch(wocApiSlice.endpoints.getTx.initiate(...args));
+
+export const airdrop = async (
+  ...args: Parameters<typeof wocApiSlice.endpoints.airdrop.initiate>
+) => {
+  // ignore error as response is a plain text
+  const { error } = await store.dispatch(
+    wocApiSlice.endpoints.airdrop.initiate(...args)
+  );
+  const txId = 'data' in error ? (error.data as string) : '';
+
+  if (!txId.match(/^[0-9a-fA-F]{64}$/)) {
+    throw new Error(`Failed to get funds: ${txId}`);
+  }
+  return true;
+};
 
 export const broadcast = async (
   ...args: Parameters<typeof wocApiSlice.endpoints.broadcast.initiate>

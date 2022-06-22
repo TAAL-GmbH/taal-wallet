@@ -11,6 +11,7 @@ const btnGetBalance: HTMLButtonElement =
 const btnInvalidAction: HTMLButtonElement = document.querySelector(
   '#btn-invalid-action'
 );
+const errorEl: HTMLDivElement = document.querySelector('.error');
 
 const wallet = new WalletClient({
   name: 'chuck-norris',
@@ -46,7 +47,7 @@ wallet.on('disconnect', () => {
 
 wallet.on('error', error => {
   console.warn(`Error: ${error?.reason || 'unknown'}`);
-  alert(`Error: ${error?.reason || 'unknown'}`);
+  state.error = error?.reason;
 });
 
 btnConnect.addEventListener('click', () => {

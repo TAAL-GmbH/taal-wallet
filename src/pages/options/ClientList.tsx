@@ -19,8 +19,9 @@ export const ClientList: FC<Props> = ({ className }) => {
   }, []);
 
   const deleteOrigin = async (origin: string) => {
-    await chrome.storage.local.remove(`origin: ${origin}`);
+    await db.deleteOrigin(origin);
     getClients();
+    // TODO: disconnect origin if it's connected (broadcast)
   };
 
   if (clients === null) {

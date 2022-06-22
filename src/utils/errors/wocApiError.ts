@@ -1,11 +1,12 @@
 import { errorMessages } from '@/src/constants/errorCodes';
 import { ErrorCodeEnum } from '@/src/types';
+import { SerializedError } from '@reduxjs/toolkit';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/dist/query';
 import { ApiError } from './apiError';
 
 export class WocApiError extends ApiError {
-  constructor(options: FetchBaseQueryError) {
-    const { status, data } = options;
+  constructor(options: FetchBaseQueryError | SerializedError) {
+    const { status, data } = options as FetchBaseQueryError;
 
     let message = 'Unknown error';
     let statusCode: number = 500;

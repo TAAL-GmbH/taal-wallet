@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { networkList } from '../constants/networkList';
 import { PKMap, PKType, RootPKType } from '../types';
 import { isBackgroundScript } from '../utils/generic';
 
@@ -6,6 +7,7 @@ type State = {
   activePk: PKType | null;
   rootPk: RootPKType | null;
   map: PKMap;
+  network: typeof networkList[0] | null;
   isInSync: boolean;
   isLocked: boolean | null;
 };
@@ -14,8 +16,23 @@ const initialState: State = {
   activePk: null,
   rootPk: null,
   map: {},
+  network: null,
   isInSync: isBackgroundScript() ? true : null, // true in background.js, null elsewhere
   isLocked: isBackgroundScript() ? true : null, // true in background.js, null elsewhere
+};
+
+const setStateBalance = (state: State, address: string, amount: number) => {
+  const pk = state.map[address];
+
+  if (pk) {
+    pk.balance = {
+      updatedAt: Date.now(),
+      amount,
+    };
+    if (state.activePk?.address === address) {
+      state.activePk.balance = state.map[address].balance;
+    }
+  }
 };
 
 const pkSlice = createSlice({
@@ -51,6 +68,9 @@ const pkSlice = createSlice({
       state.rootPk = action.payload;
       state.isLocked = false;
     },
+    setNetwork(state, action: PayloadAction<typeof networkList[0]>) {
+      state.network = action.payload;
+    },
     setActivePk(state, action: PayloadAction<string | null>) {
       state.activePk = state.map[action.payload];
     },
@@ -58,18 +78,15 @@ const pkSlice = createSlice({
       state,
       action: PayloadAction<{ address: string; amount: number }>
     ) {
-      const { address, amount } = action.payload;
-      const pk = state.map[address];
-
-      if (pk) {
-        pk.balance = {
-          updatedAt: Date.now(),
-          amount,
-        };
-        if (state.activePk?.address === address) {
-          state.activePk.balance = state.map[address].balance;
-        }
-      }
+      setStateBalance(state, action.payload.address, action.payload.amount);
+    },
+    setBatchBalance(
+      state,
+      action: PayloadAction<{ address: string; amount: number }[]>
+    ) {
+      action.payload.forEach(({ address, amount }) => {
+        setStateBalance(state, address, amount);
+      });
     },
   },
 });
@@ -81,8 +98,10 @@ export const {
   deletePK,
   lockWallet,
   setRootPK,
+  setNetwork,
   setActivePk,
   setBalance,
+  setBatchBalance,
 } = pkSlice.actions;
 
 export default pkSlice.reducer;

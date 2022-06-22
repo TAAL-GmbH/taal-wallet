@@ -3,6 +3,8 @@ import { RootState, store } from '../store';
 import { detailedDiff } from 'deep-object-diff';
 import { setState } from '../features/pkSlice';
 import { isNull, isUndefined } from './generic';
+import { PKType } from '../types';
+import { networkList } from '../constants/networkList';
 
 type PKDiffType = {
   updated: RootState['pk'];
@@ -28,20 +30,33 @@ export const initStoreSync = async () => {
       store.getState().pk
     ) as PKDiffType;
 
-    if (
-      Object.keys(added).length ||
-      Object.keys(deleted).length ||
-      Object.keys(updated).length
-    ) {
-      console.log('store.subscribe', {
-        added,
-        deleted,
-        updated,
-      });
-    }
+    // if (
+    //   Object.keys(added).length ||
+    //   Object.keys(deleted).length ||
+    //   Object.keys(updated).length
+    // ) {
+    //   console.log('store.subscribe', {
+    //     added,
+    //     deleted,
+    //     updated,
+    //   });
+    // }
 
     if (added.map) {
-      Object.values(added.map).forEach(pk => db.insertPk(pk));
+      let highestDerivationPathIndex =
+        (await db.getKeyVal('derivationPath.lastIndex')) || 0;
+
+      Object.values(added.map).forEach((pk: PKType) => {
+        db.insertPk(pk);
+
+        const pathSegments = pk.path.split('/');
+        const lastSegment = parseInt(pathSegments[pathSegments.length - 1]);
+        if (lastSegment > highestDerivationPathIndex) {
+          highestDerivationPathIndex = lastSegment;
+        }
+      });
+
+      db.setKeyVal('derivationPath.lastIndex', highestDerivationPathIndex);
     }
 
     if (updated.map) {
@@ -69,10 +84,15 @@ export const initStoreSync = async () => {
       }
     }
 
-    if (updated.rootPk) {
-      console.log('updated rootPK', updated.rootPk);
+    if (updated.network?.id) {
+      db.setKeyVal('network.id', updated.network.id);
+    }
 
-      // writting to db happens in createHDPk
+    if (updated.rootPk?.privateKeyEncrypted) {
+      db.setKeyVal(
+        'rootPk.privateKeyEncrypted',
+        updated.rootPk.privateKeyEncrypted
+      );
     }
 
     previousState.pk = store.getState().pk;
@@ -82,14 +102,15 @@ export const initStoreSync = async () => {
    * The following code it to restore data from indexedDB -> redux state
    */
 
-  const [rootPrivateKeyEncrypted, pkMap, activePkAddress] = await Promise.all([
-    db.getKeyVal('rootPk.privateKeyEncrypted'),
+  const [networkId, pkMap, activePkAddress] = await Promise.all([
+    db.getKeyVal('network.id'),
     db.getPkMap(),
     db.getKeyVal('active.PkAddress'),
   ]);
 
   store.dispatch(
     setState({
+      network: networkList.find(network => network.id === networkId),
       activePk: activePkAddress ? pkMap[activePkAddress as string] : null,
       map: pkMap,
     })

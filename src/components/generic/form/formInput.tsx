@@ -37,6 +37,7 @@ type Props = {
   showRequired?: boolean;
   children?: ReactElement;
   extraElement?: ReactElement;
+  showClearButton?: boolean;
 } & Omit<InputHTMLAttributes<HTMLInputElement>, 'size'>;
 
 type StyledProps = {
@@ -62,6 +63,7 @@ export const FormInput: FC<Props & StyledProps> = ({
   showPlaceholder,
   children,
   extraElement,
+  showClearButton = true,
   ...rest
 }) => {
   const {
@@ -120,7 +122,7 @@ export const FormInput: FC<Props & StyledProps> = ({
   }
 
   const clearButton =
-    isTextField && !rest.readOnly && value ? (
+    showClearButton && isTextField && !rest.readOnly && value ? (
       <ClearButton onClick={() => setValue(name, '')}>
         <CloseIcon />
       </ClearButton>

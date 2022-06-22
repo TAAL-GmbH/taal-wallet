@@ -5,9 +5,16 @@ export type CreateDialogOptions = Omit<DialogData, 'id'> & {
   height?: number;
 };
 
-export const createDialog = async (options: CreateDialogOptions) => {
+type CreateDialogReturnType = {
+  error?: string;
+  selectedOption?: string | number;
+};
+
+export const createDialog = async (
+  options: CreateDialogOptions
+): Promise<CreateDialogReturnType> => {
   const id = Date.now() + Math.random();
-  const key = `dialog: ${id}`;
+  const bc = new BroadcastChannel(`dialog-${id}`);
   const { timeout = 30000, width = 500, height } = options;
 
   let resolveRef: (value: unknown) => void;
@@ -16,18 +23,32 @@ export const createDialog = async (options: CreateDialogOptions) => {
 
   const cleanup = async () => {
     clearTimeout(rejectTimer);
-    await chrome.storage.local.remove(key);
-    chrome.storage.onChanged.removeListener(onStorageChange);
   };
 
-  const onStorageChange = async (changes: {
-    [key: string]: chrome.storage.StorageChange;
+  bc.onmessage = async ({
+    data,
+  }: {
+    data: { action: string; payload?: unknown };
   }) => {
-    for (let [k, { oldValue, newValue }] of Object.entries(changes)) {
-      if (k === key && oldValue) {
-        await cleanup();
-        resolveRef(newValue.response);
+    const { action, payload } = data;
+
+    switch (action) {
+      case 'getData': {
+        bc.postMessage({
+          action,
+          payload: options,
+        });
+        break;
       }
+
+      case 'response': {
+        await cleanup();
+        resolveRef(payload);
+        break;
+      }
+
+      default:
+        break;
     }
   };
 
@@ -37,19 +58,8 @@ export const createDialog = async (options: CreateDialogOptions) => {
 
     rejectTimer = setTimeout(async () => {
       await cleanup();
-      resolve('timeout');
+      resolve({ error: 'timeout' });
     }, timeout);
-
-    chrome.storage.onChanged.addListener(onStorageChange);
-
-    // TODO: do a cleanup on extension startup
-    await chrome.storage.local.set({
-      [key]: {
-        ...options,
-        id,
-        timeout,
-      },
-    });
 
     chrome.windows.create({
       type: 'popup',

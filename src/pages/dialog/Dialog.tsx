@@ -4,9 +4,10 @@ import xss from 'xss';
 import { Button } from '@/src/components/button';
 import { DialogData } from '@/src/types';
 
+let bc: BroadcastChannel;
+
 export const Dialog: FC = () => {
   const dialogId = new URLSearchParams(location.search).get('id');
-  const storageKey = `dialog: ${dialogId}`;
   const [dialogData, setDialogData] = useState<DialogData | null>(null);
 
   useEffect(() => {
@@ -15,31 +16,37 @@ export const Dialog: FC = () => {
         error: `dialogData not set in query params`,
       } as DialogData);
     } else {
-      (async () => {
-        const stateData = await chrome.storage.local.get(storageKey);
-        setDialogData(
-          stateData[storageKey] || {
-            error: `dialogData not found in Chrome storage [${storageKey}]`,
+      bc = new BroadcastChannel(`dialog-${dialogId}`);
+      bc.onmessage = ({
+        data,
+      }: {
+        data: { action: string; payload?: unknown };
+      }) => {
+        if (data?.action === 'getData') {
+          setDialogData(data?.payload as DialogData);
+          const timeout = (data?.payload as DialogData)?.timeout;
+
+          if (timeout > 0) {
+            setTimeout(() => {
+              // TODO: show expired message
+              window.close();
+            }, timeout);
           }
-        );
-        // close window if user is not responding in predefined time
-        if (stateData[storageKey].timeout > 0) {
-          setTimeout(() => {
-            // TODO: show expired message
-            window.close();
-          }, stateData[storageKey].timeout);
         }
-      })();
+      };
+
+      bc.postMessage({ action: 'getData' });
     }
   }, []);
 
   const respond = async (index: number) => {
-    await chrome.storage.local.set({
-      [storageKey]: {
-        ...dialogData,
-        response: dialogData?.options[index].returnValue || index,
+    bc.postMessage({
+      action: 'response',
+      payload: {
+        selectedOption: dialogData?.options[index].returnValue || index,
       },
     });
+
     window.close();
   };
 

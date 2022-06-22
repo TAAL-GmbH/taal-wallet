@@ -41,17 +41,11 @@ export type OriginType = {
   isAuthorized: boolean;
   isPersistent: boolean;
 };
-// export type OriginData = {
-//   isAuthorized: boolean;
-//   isPersistent: boolean;
-// };
 
-export type DbPKType = {
+export type PKType = {
   name: string;
   address: string;
   path: string;
-  network: string;
-  privateKeyEncrypted: string;
   balance: {
     updatedAt: number | null;
     amount: number | null;
@@ -60,13 +54,7 @@ export type DbPKType = {
 
 export type RootPKType = {
   privateKeyHash: string;
-};
-
-export type PKType = Pick<
-  DbPKType,
-  'name' | 'address' | 'path' | 'network' | 'balance'
-> & {
-  privateKey: string;
+  privateKeyEncrypted: string;
 };
 
 export type PKMap = Record<string, PKType>;

@@ -199,13 +199,13 @@ export class WalletClient extends WalletCommunicator {
 
   public getAddress() {
     return this.request<string | null>({
-      action: 'get-address',
+      action: 'getAddress',
     });
   }
 
   public getBalance() {
     return this.request<number | null>({
-      action: 'get-balance',
+      action: 'getBalance',
     });
   }
 }

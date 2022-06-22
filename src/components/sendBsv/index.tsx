@@ -8,8 +8,6 @@ import { Form } from '../generic/form/form';
 import { FormInput } from '../generic/form/formInput';
 import { Row } from '../generic/row';
 import { CurrentPk } from '../currentPk';
-import { formatNumber } from '@/src/utils/generic';
-import { FormWrapper } from '../generic/form/formStyled';
 
 type Props = {
   className?: string;
@@ -26,7 +24,7 @@ const defaultValues: FormInputs = {
 };
 
 export const SendBSV: FC<Props> = ({ className }) => {
-  const { activePk } = useAppSelector(state => state.pk);
+  const { activePk, rootPk, network } = useAppSelector(state => state.pk);
 
   // TODO: type this
   const onSubmit = async (values: any) => {
@@ -43,7 +41,7 @@ export const SendBSV: FC<Props> = ({ className }) => {
         srcAddress: activePk.address,
         dstAddress,
         amount: Number(amount),
-        privateKey: activePk.privateKey,
+        rootPkHash: rootPk.privateKeyHash,
       });
       if (success) {
         console.log('BSV sent successfully', data);
@@ -60,7 +58,7 @@ export const SendBSV: FC<Props> = ({ className }) => {
   return (
     <Wrapper className={className}>
       <CurrentPk />
-      <h1>Send BSD</h1>
+      <h1>Send BSV</h1>
 
       <Form
         options={{ defaultValues }}
@@ -75,8 +73,7 @@ export const SendBSV: FC<Props> = ({ className }) => {
             placeholder="Destination address"
             required
             options={{
-              validate: addr =>
-                activePk?.network && isValidAddress(addr, activePk?.network),
+              validate: addr => isValidAddress(addr, network.envName),
               required: true,
             }}
           />
@@ -109,7 +106,6 @@ export const SendBSV: FC<Props> = ({ className }) => {
 const Wrapper = styled.div`
   //
 `;
-const FormStyled = styled(Form)``;
 
 const ButtonRow = styled(Row)`
   display: grid;

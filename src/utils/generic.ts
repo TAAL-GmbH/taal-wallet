@@ -2,6 +2,9 @@
 
 export const isBackgroundScript = () => typeof window === 'undefined';
 
+export const isObject = (value: unknown): value is object =>
+  value instanceof Object;
+
 export const isUndefined = (value: unknown): value is undefined =>
   typeof value === 'undefined';
 

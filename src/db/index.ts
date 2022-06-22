@@ -17,6 +17,7 @@ type KeyValAccountKey =
   | 'active.PkAddress'
   | 'derivationPath.lastIndex'
   | 'rootPk.privateKeyEncrypted'
+  | 'network.id'
   | 'account.name'
   | 'account.passwordHash';
 type KeyValSharedKey = 'activeAccountIndex';
@@ -46,8 +47,6 @@ interface TaalAccountDB extends DBSchema {
   };
 }
 
-// interface TaalShared
-
 class Db {
   _db: IDBPDatabase<TaalAccountDB> | null;
   _activeDbName = DEFAULT_ACCOUNT_DB_NAME;
@@ -62,7 +61,7 @@ class Db {
       openDB<TaalAccountDB>(this._activeDbName, CURRENT_DB_VERSION, {
         upgrade(db) {
           db.createObjectStore(storeNames.KEY_VAL);
-          db.createObjectStore(storeNames.ORIGIN);
+          db.createObjectStore(storeNames.ORIGIN, { keyPath: 'origin' });
 
           const productStore = db.createObjectStore(storeNames.PK, {
             keyPath: 'address',
@@ -158,7 +157,6 @@ class Db {
 
   public async insertPk(pk: PKType) {
     const db = await this._getDB();
-    // TODO: transform PK data for db (encrypt, etc)
     return db.put(storeNames.PK, pk);
   }
 
@@ -179,6 +177,21 @@ class Db {
     return db.transaction(storeName).store.openCursor(query);
   }
 
+  public async getOrigin(origin: string) {
+    const db = await this._getDB();
+    return db.get(storeNames.ORIGIN, origin);
+  }
+
+  public async setOrigin(originData: OriginType) {
+    const db = await this._getDB();
+    return db.put(storeNames.ORIGIN, originData);
+  }
+
+  public async deleteOrigin(origin: string) {
+    const db = await this._getDB();
+    return db.delete(storeNames.ORIGIN, origin);
+  }
+
   public async getOriginMap() {
     const db = await this._getDB();
     return db.getAll(storeNames.ORIGIN);
@@ -187,11 +200,6 @@ class Db {
   public async getOriginList() {
     const originsMap = await this.getOriginMap();
     return Object.values(originsMap);
-    // console.log({ originsMap });
-    // return Object.entries(originsMap).map(([origin, data]) => ({
-    //   origin,
-    //   ...data,
-    // }));
   }
 
   public async getPkMap() {

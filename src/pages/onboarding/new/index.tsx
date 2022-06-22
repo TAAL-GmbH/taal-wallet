@@ -1,46 +1,82 @@
 import { FC, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { pk } from '@/src/libs/PK';
 import { HDPrivateKey, Mnemonic } from 'bsv';
 import { Button } from '@/src/components/button';
-import { injectSpacing } from '@/src/utils/injectSpacing';
-import toast from 'react-hot-toast';
 import { navigateTo } from '@/src/utils/navigation';
 import { routes } from '@/src/constants/routes';
 import { createToast } from '@/src/utils/toast';
-import { useAppSelector } from '@/src/hooks';
-import { db } from '@/src/db';
 import { FormTextArea } from '@/src/components/generic/form/formTextArea';
 import { useForm } from '@/src/components/generic/form/useForm';
 import { FormInput } from '@/src/components/generic/form/formInput';
 import { PASSWORD_MIN_LENGTH } from '@/src/constants';
+import { FormSelect } from '@/src/components/generic/form/formSelect';
+import { networkList } from '@/src/constants/networkList';
+import {
+  createHDPrivateKey,
+  derivePk,
+  generateMnemonic,
+} from '@/src/utils/blockchain';
+import { store } from '@/src/store';
+import {
+  appendPK,
+  setActivePk,
+  setNetwork,
+  setRootPK,
+} from '@/src/features/pkSlice';
+import { encrypt } from '@/src/utils/crypt';
 
 type Props = {
   className?: string;
 };
 
-const defaultValues = { password: '', mnemonicPhrase: '' };
+const defaultValues = {
+  networkId: '',
+  password: '',
+  mnemonicPhrase: '',
+};
 
 export const OnboardingNew: FC<Props> = ({ className }) => {
   const mnemonic = useRef<Mnemonic>();
+  const [networkListOptions] = useState(
+    [{ label: 'Select network', value: '' }].concat(
+      networkList.map(({ label, id }) => ({ label, value: id }))
+    )
+  );
   const { Form, methods } = useForm();
 
   useEffect(() => {
-    mnemonic.current = pk.generateMnemonic();
-    methods.setValue('mnemonicPhrase', pk.generateMnemonic().phrase);
+    mnemonic.current = generateMnemonic();
+    methods.setValue('mnemonicPhrase', mnemonic.current.phrase);
   }, []);
 
-  const createHDPK = ({ password, mnemonicPhrase }: typeof defaultValues) => {
+  const onSubmit = ({
+    networkId,
+    password,
+    mnemonicPhrase,
+  }: typeof defaultValues) => {
     const toast = createToast('Creating Master Key...');
+
     if (!mnemonicPhrase) {
       toast.error('mnemonic is empty');
       return;
     }
+
     try {
-      const { pkInstance: masterKey } = pk.createHDPrivateKey({
-        mnemonic: mnemonic.current,
+      const network = networkList.find(item => item.id === networkId);
+
+      const { pkInstance: masterKey } = createHDPrivateKey({
+        networkId,
         password,
+        mnemonic: mnemonic.current,
       });
+
+      store.dispatch(
+        setRootPK({
+          privateKeyHash: masterKey.toString(),
+          privateKeyEncrypted: encrypt(masterKey.toString(), password),
+        })
+      );
+      store.dispatch(setNetwork(network));
 
       toast.success('Master Key created');
       createWallet(masterKey);
@@ -50,18 +86,20 @@ export const OnboardingNew: FC<Props> = ({ className }) => {
   };
 
   const createWallet = (masterKey: HDPrivateKey) => {
-    console.log('createWallet', { masterKey });
     const toast = createToast('Creating Wallet...');
     if (!masterKey) {
       toast.error('Please select a master key');
       return;
     }
     try {
-      const wallet = pk.derive({
+      const childKey = derivePk({
         masterKey,
-        network: masterKey.network.name,
         path: "0'/0/0",
       });
+
+      store.dispatch(appendPK(childKey));
+      store.dispatch(setActivePk(childKey.address));
+
       toast.success('Wallet created');
       navigateTo(routes.HOME);
     } catch (err) {
@@ -75,7 +113,7 @@ export const OnboardingNew: FC<Props> = ({ className }) => {
       <p>
         These are your 12 words, copy them and store them in a secure place:
       </p>
-      <Form options={{ defaultValues }} data-test-id="" onSubmit={createHDPK}>
+      <Form options={{ defaultValues }} data-test-id="" onSubmit={onSubmit}>
         <FormInput
           label="Password"
           placeholder="Password is used to encrypt your wallet"
@@ -88,6 +126,12 @@ export const OnboardingNew: FC<Props> = ({ className }) => {
                 : true,
           }}
           required
+        />
+        <FormSelect
+          label="Network"
+          name="networkId"
+          items={networkListOptions}
+          options={{ required: 'Please select network' }}
         />
         <FormTextArea
           name="mnemonicPhrase"
@@ -109,12 +153,4 @@ export const OnboardingNew: FC<Props> = ({ className }) => {
 
 const Wrapper = styled.div`
   //
-`;
-
-const Textarea = styled.textarea`
-  width: 100%;
-  height: 80px;
-  border: 1px solid ${({ theme }) => theme.color.grey[100]};
-
-  ${injectSpacing(['margin', 'padding'])}
 `;

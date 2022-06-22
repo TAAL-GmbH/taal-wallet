@@ -1,5 +1,5 @@
-import { setBalance } from '@/src/features/pkSlice';
-import { woc } from '@/src/libs/WOC';
+import { db } from '@/src/db';
+import { getBalance } from '@/src/features/wocApiSlice';
 import { store } from '@/src/store';
 import { createDialog } from '@/src/utils/createDialog';
 
@@ -20,7 +20,6 @@ export class Client {
   private _isConnected = false;
   private _pingTimer: ReturnType<typeof setTimeout> | null = null;
   private _disconectTimer: ReturnType<typeof setTimeout> | null = null;
-  private _storageDataLoaded = false;
   private _unsubscribeRedux: () => void;
 
   constructor({ port }: Options) {
@@ -29,16 +28,18 @@ export class Client {
     }
     this._port = port;
     this._origin = port.sender?.origin;
-    this._onStorageChanged = this._onStorageChanged.bind(this);
-    this.onMessage = this.onMessage.bind(this);
-
-    chrome.storage.onChanged.addListener(this._onStorageChanged);
+    this.onExternalMessage = this.onExternalMessage.bind(this);
+    this.onInternalMessage = this.onInternalMessage.bind(this);
     this._unsubscribeRedux = this._watchReduxState();
   }
 
   private _watchReduxState() {
     let storeCache: ReturnType<typeof store.getState>;
     return store.subscribe(async () => {
+      if (!this._isAuthorized) {
+        return;
+      }
+
       const state = store.getState();
       if (state.pk.activePk?.address !== storeCache?.pk.activePk?.address) {
         this._postMessage({
@@ -56,27 +57,36 @@ export class Client {
     });
   }
 
-  private _postMessage(msg: {
-    action: string;
-    payload?: unknown;
-    requestId?: number;
-  }) {
-    if (this._isAuthorized) {
+  private _postMessage(
+    msg: {
+      action: string;
+      payload?: unknown;
+      requestId?: number;
+    },
+    sendUnauthorized = false
+  ) {
+    if (this._isAuthorized || sendUnauthorized) {
       this._port.postMessage(msg);
     } else {
-      console.warn('Can not post message to client, not authorized');
+      console.error('Can not post message to client, not authorized', msg);
     }
   }
 
   private _ping() {
-    this._postMessage({
-      action: 'ping',
-    });
+    this._postMessage(
+      {
+        action: 'ping',
+      },
+      true
+    );
     this._disconectTimer = setTimeout(() => {
       this._isConnected = false;
-      this._postMessage({
-        action: 'disconnect',
-      });
+      this._postMessage(
+        {
+          action: 'disconnect',
+        },
+        true
+      );
       this.destroy();
     }, 1000);
   }
@@ -87,7 +97,42 @@ export class Client {
     this._pingTimer = setInterval(this._ping.bind(this), 1000);
   }
 
-  public async onMessage(msg: Msg) {
+  private async _checkPermissions() {
+    if (store.getState().pk.isLocked) {
+      // TODO: show dialog to unlock
+      // throw new Error('Wallet is locked. Please unlock it first');
+    }
+
+    if (this._isAuthorized) {
+      return true;
+    }
+
+    const originData = await db.getOrigin(this._origin);
+
+    if (originData?.isAuthorized) {
+      this._isAuthorized = true;
+      return true;
+    } else if (originData?.isPersistent) {
+      throw new Error('Origin is not authorized');
+    }
+
+    const isPermissionGranted = await this._requestAccessPermission();
+
+    await db.setOrigin({
+      origin: this._origin,
+      isAuthorized: isPermissionGranted,
+      isPersistent: isPermissionGranted,
+    });
+
+    if (isPermissionGranted) {
+      this._isAuthorized = true;
+      return true;
+    }
+
+    throw new Error('Permission denied');
+  }
+
+  public async onExternalMessage(msg: Msg) {
     // ignore invalid messages
     if (!(msg instanceof Object)) {
       return;
@@ -100,15 +145,22 @@ export class Client {
       throw new Error('No action provided');
     }
 
-    // initial run
-    // this can not be done in constructor because we need to await
-    if (!this._storageDataLoaded) {
-      await this._processClientData();
-      this._storageDataLoaded = true;
-    }
+    // action !== 'pong' && console.log('onExternalMessage', action, payload);
 
-    if (!this._isAuthorized) {
-      this._handleNewClient();
+    try {
+      await this._checkPermissions();
+    } catch (e) {
+      this._postMessage(
+        {
+          action: 'error',
+          payload: {
+            reason: (e as Error)?.message,
+          },
+          requestId,
+        },
+        true
+      );
+      this.destroy();
       return;
     }
 
@@ -119,7 +171,7 @@ export class Client {
     }
 
     try {
-      const result = await this._handleAction({ action, payload });
+      const result = await this._handleExternalAction({ action, payload });
       this._postMessage({
         ...result,
         requestId,
@@ -135,7 +187,23 @@ export class Client {
     }
   }
 
-  private async _handleNewClient() {
+  public onInternalMessage(
+    { action, payload }: { action: string; payload: unknown },
+    sender: chrome.runtime.MessageSender,
+    sendResponse: (result: unknown) => void
+  ) {
+    (async () => {
+      const result = await this._handleInternalAction({
+        action,
+        payload,
+        sender,
+      });
+      sendResponse(result);
+    })();
+    return true;
+  }
+
+  private async _requestAccessPermission() {
     const result = await createDialog({
       title: 'Permission request',
       body: `Do you want to allow 
@@ -151,24 +219,12 @@ export class Client {
         { label: 'Yes', variant: 'primary', returnValue: 'yes' },
         { label: 'No' },
       ],
-      data: {
-        origin: this._origin,
-      },
     });
 
-    if (result === 'yes') {
-      const key = `origin: ${this._origin}`;
-      const originData = (await chrome.storage.local.get(key))[key];
-      chrome.storage.local.set({
-        [key]: {
-          ...originData,
-          isAuthorized: true,
-        },
-      });
-    }
+    return result.selectedOption === 'yes';
   }
 
-  private async _handleAction({
+  private async _handleExternalAction({
     action,
     payload,
   }: Pick<Msg, 'action' | 'payload'>) {
@@ -192,23 +248,24 @@ export class Client {
           this._onConnect();
           return { action };
         }
-        case 'get-address': {
+        case 'getAddress': {
           return {
             action: 'address',
             payload: store.getState().pk.activePk?.address,
           };
         }
-        case 'get-balance': {
-          const balance = await woc.getBalance(address);
+        case 'getBalance': {
+          const { total } = await getBalance([address]);
           return {
             action: 'balance',
-            payload: JSON.stringify(balance),
+            payload: total,
           };
         }
         case 'signPreimage': {
           // TODO: implement signPreimage
+          console.log('signPreimage', payload);
           return {
-            action: 'balance',
+            action: 'error',
             payload: 'not-implemented',
           };
         }
@@ -231,38 +288,21 @@ export class Client {
     }
   }
 
-  // TODO: migrate to indexedDB
-  private async _processClientData() {
-    const storageKey = `origin: ${this._origin}`;
-    const storageData = await chrome.storage.local.get(storageKey);
-    const data = storageData[storageKey];
-
-    if (data) {
-      this._isAuthorized = !!data.isAuthorized;
-      this._isConnected = true;
-    } else {
-      await chrome.storage.local.set({
-        [storageKey]: {
-          origin: this._origin,
-          isAuthorized: this._isAuthorized,
-        },
-      });
-    }
-  }
-
-  // TODO: migrate to broadcast API
-  private async _onStorageChanged(
-    changes: { [key: string]: chrome.storage.StorageChange },
-    namespace: string
-  ) {
-    for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
-      if (key === `origin: ${this._origin}`) {
-        if (oldValue?.isAuthorized !== newValue?.isAuthorized) {
-          this._isAuthorized = newValue?.isAuthorized;
-          this._postMessage({
-            action: newValue?.isAuthorized ? 'connect' : 'disconnect',
-          });
-        }
+  private async _handleInternalAction({
+    action,
+    payload,
+    sender,
+  }: {
+    action: string;
+    payload: unknown;
+    sender: chrome.runtime.MessageSender;
+  }) {
+    switch (action) {
+      default: {
+        return {
+          action: 'error',
+          reason: 'not-implemented',
+        };
       }
     }
   }
@@ -278,8 +318,5 @@ export class Client {
     this._unsubscribeRedux();
 
     this._clearTimers();
-
-    // TODO: remove this after migration to broadcast API
-    chrome.storage.onChanged.removeListener(this._onStorageChanged);
   }
 }

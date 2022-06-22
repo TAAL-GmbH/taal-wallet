@@ -24,10 +24,18 @@ export const PKList: FC<Props> = ({ className }) => {
 
   const list = Object.values(map).filter(item => item.path !== 'm');
 
+  const deriveCta = (
+    <ButtonStyled onClick={() => navigateTo(routes.DERIVE_PK)}>
+      <WalletPlusIcon />
+      Create a new Wallet
+    </ButtonStyled>
+  );
+
   if (!list || !list.length) {
     return (
       <div>
         <h3>No Wallets found</h3>
+        {deriveCta}
       </div>
     );
   }
@@ -78,11 +86,7 @@ export const PKList: FC<Props> = ({ className }) => {
           ))}
         </Ul>
       )}
-
-      <ButtonStyled onClick={() => navigateTo(routes.DERIVE_PK)}>
-        <WalletPlusIcon />
-        Create a new Wallet
-      </ButtonStyled>
+      {deriveCta}
     </Wrapper>
   );
 };

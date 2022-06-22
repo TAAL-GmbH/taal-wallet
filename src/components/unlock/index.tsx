@@ -27,9 +27,9 @@ export const Unlock: FC = () => {
 
     try {
       const decrypted = decrypt(privateKeyEncrypted, password);
-      console.log('onSubmit', { privateKeyEncrypted, password, decrypted });
-
-      store.dispatch(setRootPK({ privateKeyHash: decrypted }));
+      store.dispatch(
+        setRootPK({ privateKeyHash: decrypted, privateKeyEncrypted })
+      );
 
       if (decrypted) {
         toast.success('Unlocked');

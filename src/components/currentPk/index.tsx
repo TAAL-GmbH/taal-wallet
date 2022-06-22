@@ -40,11 +40,11 @@ export const CurrentPk: FC<Props> = ({ className }) => {
       toast.error('Please select an address');
       return;
     }
-    const amount = await getBalance(activePk.address).catch(err => {
+    const result = await getBalance([activePk.address]).catch(err => {
       toast.error(err);
       return null;
     });
-    if (!isNull(amount)) {
+    if (!isNull(result)) {
       toast.success('Balance fetched successfully');
     }
   };

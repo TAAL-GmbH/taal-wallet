@@ -41,3 +41,10 @@ dl {
 dt {
   font-weight: bold;
 }
+
+#error {
+  background-color: #f9dada;
+  color: darkred;
+  border-radius: 0.25rem;
+  padding: 1rem;
+}

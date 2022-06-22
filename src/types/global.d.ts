@@ -1,6 +1,4 @@
 import Chrome from 'chrome';
-// import bsvLib from './bsv';
-import bsvLib from 'bsv';
 
 declare namespace chrome {
   export default Chrome;

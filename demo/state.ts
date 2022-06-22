@@ -2,6 +2,7 @@ type State = {
   isConnected: boolean;
   balance: number | null;
   address: string | null;
+  error: string | null;
 };
 
 export const state = new Proxy(
@@ -36,6 +37,12 @@ export const state = new Proxy(
           typeof value === 'number' ? value.toLocaleString() : String(value);
       }
       target[key as string] = value;
+
+      if (key === 'error') {
+        const errorEl: HTMLDivElement = document.querySelector('#error');
+        errorEl.style.display = value === null ? 'none' : 'block';
+        value !== null && setTimeout(() => (state.error = null), 5000);
+      }
 
       document.querySelector('#state').innerHTML = JSON.stringify(
         state,
