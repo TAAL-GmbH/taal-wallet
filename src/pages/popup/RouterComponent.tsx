@@ -15,22 +15,17 @@ import { OnboardingNew } from '../onboarding/new';
 
 type Props = {
   isInSync: boolean;
-  hasMasterKey: boolean;
+  hasRootKey: boolean;
   isLocked: boolean;
   hasActivePk: boolean;
 };
 
-export const RouterComponent: FC<Props> = ({
-  isInSync,
-  hasMasterKey,
-  isLocked,
-  hasActivePk,
-}) => {
-  if (!isInSync || isNull(hasMasterKey)) {
+export const RouterComponent: FC<Props> = ({ isInSync, hasRootKey, isLocked, hasActivePk }) => {
+  if (!isInSync || isNull(hasRootKey)) {
     return <>Loading...</>;
   }
 
-  if (!hasMasterKey) {
+  if (!hasRootKey) {
     return (
       <Router hook={useHashLocation}>
         <Route>

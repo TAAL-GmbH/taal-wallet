@@ -28,19 +28,32 @@ export const DerivePk: FC<Props> = ({ className }) => {
     }
 
     try {
-      const masterKey = restorePK(rootPk.privateKeyHash);
-      const derivationPathLastIndex = (await db.getKeyVal(
-        'derivationPath.lastIndex'
-      )) as number;
+      const rootKey = restorePK(rootPk.privateKeyHash);
+      const derivationPathLastIndex = (await db.getKeyVal('derivationPath.lastIndex')) as number;
       const path = `0/0/${derivationPathLastIndex + 1}`;
 
-      const childKey = derivePk({
-        masterKey,
+      const {
+        address,
+        name,
+        path: fullPath,
+      } = derivePk({
+        rootKey,
         name: data.name,
         path,
       });
-      store.dispatch(appendPK(childKey));
-      store.dispatch(setActivePk(childKey.address));
+
+      store.dispatch(
+        appendPK({
+          address,
+          name,
+          path: fullPath,
+          balance: {
+            amount: null,
+            updatedAt: null,
+          },
+        })
+      );
+      store.dispatch(setActivePk(address));
 
       navigateTo(routes.HOME);
     } catch (err) {
@@ -51,11 +64,7 @@ export const DerivePk: FC<Props> = ({ className }) => {
   return (
     <Wrapper className={className}>
       <h1>Create a New Wallet</h1>
-      <Form
-        onSubmit={onSubmit}
-        options={{ defaultValues: { name: '' } }}
-        data-test-id=""
-      >
+      <Form onSubmit={onSubmit} options={{ defaultValues: { name: '' } }} data-test-id="">
         <Row>
           <FormInput name="name" label="Name" />
         </Row>

@@ -1,8 +1,10 @@
 type State = {
   isConnected: boolean;
   balance: number | null;
+  publicKey: string | null;
   address: string | null;
   error: string | null;
+  unspent: unknown[];
 };
 
 export const state = new Proxy(
@@ -33,8 +35,7 @@ export const state = new Proxy(
             }
             break;
         }
-        el.innerHTML =
-          typeof value === 'number' ? value.toLocaleString() : String(value);
+        el.innerHTML = typeof value === 'number' ? value.toLocaleString() : String(value);
       }
       target[key as string] = value;
 
@@ -44,12 +45,15 @@ export const state = new Proxy(
         value !== null && setTimeout(() => (state.error = null), 5000);
       }
 
-      document.querySelector('#state').innerHTML = JSON.stringify(
-        state,
-        null,
-        2
-      );
+      document.querySelector('#state').innerHTML = JSON.stringify(state, null, 2);
       return true;
     },
   }
 );
+
+state.isConnected = false;
+state.balance = null;
+state.publicKey = null;
+state.address = null;
+state.error = null;
+state.unspent = [];

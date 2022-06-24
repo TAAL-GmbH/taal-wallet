@@ -23,6 +23,7 @@ export const createDialog = async (
 
   const cleanup = async () => {
     clearTimeout(rejectTimer);
+    bc.close();
   };
 
   bc.onmessage = async ({

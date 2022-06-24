@@ -1,16 +1,14 @@
 import bsv, { Mnemonic } from 'bsv';
 import 'bsv/mnemonic';
 import { broadcast, getTx, getUnspent } from '../features/wocApiSlice';
-import { ApiResponse, ErrorCodeEnum } from '../types';
+import { ApiResponse, ErrorCodeEnum, PKFullType, PKType } from '../types';
 import { WocApiError } from './errors/wocApiError';
 import { getErrorMessage } from './generic';
 import { networkList } from '../constants/networkList';
-import stas from 'stas-js';
 
 const SATS_PER_BITCOIN = 1e8;
 
-// const sighash =
-//   bsv.crypto.Signature.SIGHASH_ALL | bsv.crypto.Signature.SIGHASH_FORKID;
+// const sighash = bsv.crypto.Signature.SIGHASH_ALL | bsv.crypto.Signature.SIGHASH_FORKID;
 
 export const isValidAddress = (addr: string, network: string) => {
   try {
@@ -21,24 +19,22 @@ export const isValidAddress = (addr: string, network: string) => {
   }
 };
 
-export const bitcoinToSatoshis = (amount: number) =>
-  Math.round(amount * SATS_PER_BITCOIN);
+export const bitcoinToSatoshis = (amount: number) => Math.round(amount * SATS_PER_BITCOIN);
 export const satoshisToBitcoin = (amount: number) => amount / SATS_PER_BITCOIN;
 
 export const sendBSV = async ({
   srcAddress,
   dstAddress,
-  rootPkHash,
+  privateKeyHash,
+  network,
   amount,
 }: {
   srcAddress: string;
   dstAddress: string;
-  rootPkHash: string;
+  privateKeyHash: string;
+  network: string;
   amount: number;
 }): Promise<ApiResponse<string>> => {
-  const rootPk = bsv.HDPrivateKey.fromString(rootPkHash);
-  const network = rootPk.network.name;
-
   if (!isValidAddress(srcAddress, network)) {
     throw new Error(`Invalid source address: ${srcAddress}`);
   }
@@ -52,11 +48,7 @@ export const sendBSV = async ({
     throw new Error('No funds available');
   }
 
-  const {
-    tx_hash: txId,
-    tx_pos: outputIndex,
-    value: satoshis,
-  } = unspentList[0];
+  const { tx_hash: txId, tx_pos: outputIndex, value: satoshis } = unspentList[0];
 
   const { data: unspentTx } = await getTx(txId);
   const script = unspentTx?.vout[outputIndex].scriptPubKey.hex;
@@ -82,12 +74,11 @@ export const sendBSV = async ({
     .to(dstAddress, amount)
     // TODO: create new address for change
     .change(srcAddress)
-    .sign(rootPk.privateKey);
+    .sign(privateKeyHash);
 
   try {
     const result = await broadcast(tx.toString());
     if ('data' in result && /^[0-9a-fA-F]{64}$/.test(result.data)) {
-      console.log('tx broadcasted', result.data);
       return {
         success: true,
         data: result.data,
@@ -120,32 +111,33 @@ export const createHDPrivateKey = ({
   const network = networkList.find(item => item.id === networkId);
 
   const mSeed = mnemonic.toSeed(password);
-  const masterPrivateKey = bsv.HDPrivateKey.fromSeed(mSeed, network.envName);
+  const rootKey = bsv.HDPrivateKey.fromSeed(mSeed, network.envName);
 
   // another way of doing the same thing
   // const hDPrivateKey2 = mnemonic.toHDPrivateKey(password, network);
   // var copy_of_child_0_1_2h = hDPrivateKey2.deriveChild("m/0/1/2'");
 
-  // const child_0_1_2h = masterPrivateKey
+  // const child_0_1_2h = rootPrivateKey
   //   .deriveChild(0)
   //   .deriveChild(1)
   //   .deriveChild(2, true);
 
   return {
-    pkInstance: masterPrivateKey,
+    pkInstance: rootKey,
   };
 };
 
 export const derivePk = ({
   name = `Key-${Date.now()}`,
-  masterKey,
+  rootKey: rootKeyInput,
   path,
 }: {
   name?: string;
-  masterKey: bsv.HDPrivateKey;
+  rootKey: string | bsv.HDPrivateKey;
   path: string;
-}) => {
-  const network = masterKey.network.name;
+}): PKFullType => {
+  let rootKey = typeof rootKeyInput === 'string' ? restorePK(rootKeyInput) : rootKeyInput;
+  const network = rootKey.network.name;
   // m / purpose' / coin_type' / account' / change / address_index
   // m / 44 / 236 / 0' / 0 / 0
   const pathSegments = path.split('/');
@@ -159,11 +151,13 @@ export const derivePk = ({
     throw new Error(`Invalid path: ${fullPath}`);
   }
 
-  const key = masterKey.deriveChild(fullPath);
+  const key = rootKey.deriveChild(fullPath);
   const address = key.publicKey.toAddress(network).toString();
 
   return {
     address,
+    privateKeyHash: key.privateKey.toString(),
+    publicKeyHash: key.publicKey.toString(),
     path: fullPath,
     name,
     balance: {
@@ -173,7 +167,6 @@ export const derivePk = ({
   };
 };
 
-export const restorePK = (privateKey: string) =>
-  bsv.HDPrivateKey.fromString(privateKey);
+export const restorePK = (privateKeyHash: string) => bsv.HDPrivateKey.fromString(privateKeyHash);
 
 export const generateMnemonic = () => bsv.Mnemonic.fromRandom();

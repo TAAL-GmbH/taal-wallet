@@ -1,4 +1,3 @@
-import { StartQueryActionCreatorOptions } from '@reduxjs/toolkit/dist/query/core/buildInitiate';
 import {
   BaseQueryFn,
   createApi,
@@ -8,24 +7,23 @@ import {
 } from '@reduxjs/toolkit/query/react';
 import { RootState, store } from '../store';
 import { WocApiError } from '../utils/errors/wocApiError';
-import { isObject } from '../utils/generic';
 import { setBatchBalance } from './pkSlice';
 
 const ORIGIN = 'https://taalnet.whatsonchain.com';
 const BASE_PATH = '/v1/bsv';
 const AUTH_HEADER = `Basic ${btoa('taal_private:dotheT@@l007')}`;
 
-const dynamicBaseQuery: BaseQueryFn<
-  string | FetchArgs,
-  unknown,
-  FetchBaseQueryError
-> = async (args, api, extraOptions) => {
-  const wocNetwork = (api.getState() as RootState).pk.network.wocNetwork;
+const dynamicBaseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> = async (
+  args,
+  api,
+  extraOptions
+) => {
+  const { wocNetwork } = (api.getState() as RootState).pk.network;
 
   let baseUrl: string;
-
-  if (isObject(args) && 'url' in args && args.url.startsWith('http')) {
-    baseUrl = args.url;
+  // console.log({ args, api, extraOptions, endpoint: api.endpoint });
+  if (api.endpoint === 'airdrop') {
+    baseUrl = `${ORIGIN}`;
   } else {
     baseUrl = `${ORIGIN}${BASE_PATH}/${wocNetwork}`;
   }
@@ -125,7 +123,8 @@ export const wocApiSlice = createApi({
     }),
     airdrop: builder.query<string, string>({
       query: address => ({
-        url: `${ORIGIN}/faucet/send/${address}`,
+        // url: `${ORIGIN}/faucet/send/${address}`,
+        url: `/faucet/send/${address}`,
         headers: {
           'Content-Type': 'application/json',
           Authorization: AUTH_HEADER,
@@ -137,7 +136,7 @@ export const wocApiSlice = createApi({
         url: `/tx/raw?dontcheckfee=true`,
         method: 'POST',
         headers: {
-          'Content-Type': 'text/plain',
+          'Content-Type': 'application/json',
           Authorization: AUTH_HEADER,
         },
         body: { txhex },
@@ -148,28 +147,19 @@ export const wocApiSlice = createApi({
 
 export const { useGetTxQuery } = wocApiSlice;
 
-export const getBalance = async (
-  ...args: Parameters<typeof wocApiSlice.endpoints.getBalance.initiate>
-) => {
-  const resp = await store.dispatch(
-    wocApiSlice.endpoints.getBalance.initiate(...args)
-  );
+export const getBalance = async (...args: Parameters<typeof wocApiSlice.endpoints.getBalance.initiate>) => {
+  const resp = await store.dispatch(wocApiSlice.endpoints.getBalance.initiate(...args));
 
   if ('error' in resp) {
     console.error(resp.error);
     throw new WocApiError(resp.error);
   }
-  const total = resp.data.reduce(
-    (acc, { balance }) => acc + balance.confirmed + balance.unconfirmed,
-    0
-  );
+  const total = resp.data.reduce((acc, { balance }) => acc + balance.confirmed + balance.unconfirmed, 0);
 
-  const preparedData = resp.data.map(
-    ({ address, balance: { confirmed, unconfirmed } }) => ({
-      address,
-      amount: confirmed + unconfirmed,
-    })
-  );
+  const preparedData = resp.data.map(({ address, balance: { confirmed, unconfirmed } }) => ({
+    address,
+    amount: confirmed + unconfirmed,
+  }));
 
   store.dispatch(setBatchBalance(preparedData));
 
@@ -179,25 +169,19 @@ export const getBalance = async (
   };
 };
 
-export const getUnspent = async (
-  ...args: Parameters<typeof wocApiSlice.endpoints.getUnspent.initiate>
-) => store.dispatch(wocApiSlice.endpoints.getUnspent.initiate(...args));
+export const getUnspent = async (...args: Parameters<typeof wocApiSlice.endpoints.getUnspent.initiate>) =>
+  store.dispatch(wocApiSlice.endpoints.getUnspent.initiate(...args));
 
 export const getTokensUnspent = async (
   ...args: Parameters<typeof wocApiSlice.endpoints.getTokensUnspent.initiate>
 ) => store.dispatch(wocApiSlice.endpoints.getTokensUnspent.initiate(...args));
 
-export const getTx = async (
-  ...args: Parameters<typeof wocApiSlice.endpoints.getTx.initiate>
-) => store.dispatch(wocApiSlice.endpoints.getTx.initiate(...args));
+export const getTx = async (...args: Parameters<typeof wocApiSlice.endpoints.getTx.initiate>) =>
+  store.dispatch(wocApiSlice.endpoints.getTx.initiate(...args));
 
-export const airdrop = async (
-  ...args: Parameters<typeof wocApiSlice.endpoints.airdrop.initiate>
-) => {
+export const airdrop = async (...args: Parameters<typeof wocApiSlice.endpoints.airdrop.initiate>) => {
   // ignore error as response is a plain text
-  const { error } = await store.dispatch(
-    wocApiSlice.endpoints.airdrop.initiate(...args)
-  );
+  const { error } = await store.dispatch(wocApiSlice.endpoints.airdrop.initiate(...args));
   const txId = 'data' in error ? (error.data as string) : '';
 
   if (!txId.match(/^[0-9a-fA-F]{64}$/)) {
@@ -206,6 +190,5 @@ export const airdrop = async (
   return true;
 };
 
-export const broadcast = async (
-  ...args: Parameters<typeof wocApiSlice.endpoints.broadcast.initiate>
-) => store.dispatch(wocApiSlice.endpoints.broadcast.initiate(...args));
+export const broadcast = async (...args: Parameters<typeof wocApiSlice.endpoints.broadcast.initiate>) =>
+  store.dispatch(wocApiSlice.endpoints.broadcast.initiate(...args));

@@ -10,12 +10,19 @@ body.connected .d-only {
   display: none;
 }
 
+.button-wrapper {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 1rem;
+}
+
 button {
   background-color: #e1e1e1;
   border: none;
   padding: 0.5rem 1.5rem;
   border-radius: 0.25rem;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 button.primary {

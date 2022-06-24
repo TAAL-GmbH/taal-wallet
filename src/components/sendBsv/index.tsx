@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useAppSelector } from '@/src/hooks';
 import { Button } from '@/src/components/button';
 import { createToast } from '@/src/utils/toast';
-import { isValidAddress, sendBSV } from '@/src/utils/blockchain';
+import { derivePk, isValidAddress, restorePK, sendBSV } from '@/src/utils/blockchain';
 import { Form } from '../generic/form/form';
 import { FormInput } from '../generic/form/formInput';
 import { Row } from '../generic/row';
@@ -37,12 +37,20 @@ export const SendBSV: FC<Props> = ({ className }) => {
     }
 
     try {
+      const rootKey = restorePK(rootPk.privateKeyHash);
+      const pk = derivePk({
+        rootKey,
+        path: activePk.path,
+      });
+
       const { success, data, error } = await sendBSV({
         srcAddress: activePk.address,
         dstAddress,
         amount: Number(amount),
-        rootPkHash: rootPk.privateKeyHash,
+        privateKeyHash: pk.privateKeyHash,
+        network: network.envName,
       });
+
       if (success) {
         console.log('BSV sent successfully', data);
         toast.success('BSV sent successfully');
@@ -60,11 +68,7 @@ export const SendBSV: FC<Props> = ({ className }) => {
       <CurrentPk />
       <h1>Send BSV</h1>
 
-      <Form
-        options={{ defaultValues }}
-        onSubmit={onSubmit}
-        data-test-id="send-bsv-form"
-      >
+      <Form options={{ defaultValues }} onSubmit={onSubmit} data-test-id="send-bsv-form">
         <Row>
           <FormInput
             name="dstAddress"

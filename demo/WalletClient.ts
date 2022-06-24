@@ -16,6 +16,13 @@ type RequestObject<T> = {
   rejectTimer: ReturnType<typeof setTimeout>;
 };
 
+type Unspent = {
+  height: number;
+  tx_pos: number;
+  tx_hash: string;
+  value: number;
+};
+
 class WalletCommunicator {
   private _extensionId: string;
   private _name: string;
@@ -132,11 +139,7 @@ class WalletCommunicator {
     this._port.postMessage(msg);
   }
 
-  public request<T>({
-    action,
-    payload,
-    timeout = 5000,
-  }: MessagePayload & { timeout?: number }) {
+  public request<T>({ action, payload, timeout = 5000 }: MessagePayload & { timeout?: number }) {
     const requestId = Date.now() + Math.random();
     const requestObject = {
       requestId,
@@ -203,9 +206,28 @@ export class WalletClient extends WalletCommunicator {
     });
   }
 
+  public getPublicKey() {
+    return this.request<string | null>({
+      action: 'getPublicKey',
+    });
+  }
+
   public getBalance() {
     return this.request<number | null>({
       action: 'getBalance',
+    });
+  }
+
+  public getUnspent() {
+    return this.request<Unspent[]>({
+      action: 'getUnspent',
+    });
+  }
+
+  public signTx(tx) {
+    return this.request<string>({
+      action: 'signTx',
+      payload: tx,
     });
   }
 }

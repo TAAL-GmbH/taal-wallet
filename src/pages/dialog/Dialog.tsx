@@ -47,6 +47,7 @@ export const Dialog: FC = () => {
       },
     });
 
+    bc.close();
     window.close();
   };
 

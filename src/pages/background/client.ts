@@ -1,7 +1,9 @@
 import { db } from '@/src/db';
-import { getBalance } from '@/src/features/wocApiSlice';
+import { getBalance, getUnspent } from '@/src/features/wocApiSlice';
 import { store } from '@/src/store';
+import { derivePk, restorePK } from '@/src/utils/blockchain';
 import { createDialog } from '@/src/utils/createDialog';
+import bsv from 'bsv';
 
 type Options = {
   port: chrome.runtime.Port;
@@ -215,19 +217,13 @@ export class Client {
           <li>Read you Wallet balance</li>
         </ul>
       `,
-      options: [
-        { label: 'Yes', variant: 'primary', returnValue: 'yes' },
-        { label: 'No' },
-      ],
+      options: [{ label: 'Yes', variant: 'primary', returnValue: 'yes' }, { label: 'No' }],
     });
 
     return result.selectedOption === 'yes';
   }
 
-  private async _handleExternalAction({
-    action,
-    payload,
-  }: Pick<Msg, 'action' | 'payload'>) {
+  private async _handleExternalAction({ action, payload }: Pick<Msg, 'action' | 'payload'>) {
     const state = store.getState();
     const address = state.pk.activePk?.address;
 
@@ -254,11 +250,45 @@ export class Client {
             payload: store.getState().pk.activePk?.address,
           };
         }
+        case 'getPublicKey': {
+          const { path } = store.getState().pk.activePk;
+          const rootPrivateKeyHash = store.getState().pk.rootPk.privateKeyHash;
+          const rootKey = restorePK(rootPrivateKeyHash);
+          const { publicKeyHash } = derivePk({
+            rootKey,
+            path,
+          });
+
+          return {
+            action: 'publicKey',
+            payload: publicKeyHash,
+          };
+        }
         case 'getBalance': {
           const { total } = await getBalance([address]);
           return {
             action: 'balance',
             payload: total,
+          };
+        }
+        case 'getUnspent': {
+          const { data } = await getUnspent(address);
+          return {
+            action: 'unspent',
+            payload: data,
+          };
+        }
+        case 'signTx': {
+          console.log(store.getState().pk);
+          const privateKeyHash = store.getState().pk.rootPk.privateKeyHash;
+          const tx = new bsv.Transaction(payload);
+          console.log({ tx });
+          const signedTx = tx.sign(privateKeyHash);
+          console.log({ signedTx });
+          console.log({ signature: signedTx.serialize() });
+          return {
+            action: 'signTx',
+            payload: signedTx.serialize(),
           };
         }
         case 'signPreimage': {

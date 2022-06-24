@@ -11,18 +11,9 @@ import { FormInput } from '@/src/components/generic/form/formInput';
 import { PASSWORD_MIN_LENGTH } from '@/src/constants';
 import { FormSelect } from '@/src/components/generic/form/formSelect';
 import { networkList } from '@/src/constants/networkList';
-import {
-  createHDPrivateKey,
-  derivePk,
-  generateMnemonic,
-} from '@/src/utils/blockchain';
+import { createHDPrivateKey, derivePk, generateMnemonic } from '@/src/utils/blockchain';
 import { store } from '@/src/store';
-import {
-  appendPK,
-  setActivePk,
-  setNetwork,
-  setRootPK,
-} from '@/src/features/pkSlice';
+import { appendPK, setActivePk, setNetwork, setRootPK } from '@/src/features/pkSlice';
 import { encrypt } from '@/src/utils/crypt';
 
 type Props = {
@@ -49,12 +40,8 @@ export const OnboardingNew: FC<Props> = ({ className }) => {
     methods.setValue('mnemonicPhrase', mnemonic.current.phrase);
   }, []);
 
-  const onSubmit = ({
-    networkId,
-    password,
-    mnemonicPhrase,
-  }: typeof defaultValues) => {
-    const toast = createToast('Creating Master Key...');
+  const onSubmit = ({ networkId, password, mnemonicPhrase }: typeof defaultValues) => {
+    const toast = createToast('Creating Root Key...');
 
     if (!mnemonicPhrase) {
       toast.error('mnemonic is empty');
@@ -64,7 +51,7 @@ export const OnboardingNew: FC<Props> = ({ className }) => {
     try {
       const network = networkList.find(item => item.id === networkId);
 
-      const { pkInstance: masterKey } = createHDPrivateKey({
+      const { pkInstance: rootKey } = createHDPrivateKey({
         networkId,
         password,
         mnemonic: mnemonic.current,
@@ -72,33 +59,43 @@ export const OnboardingNew: FC<Props> = ({ className }) => {
 
       store.dispatch(
         setRootPK({
-          privateKeyHash: masterKey.toString(),
-          privateKeyEncrypted: encrypt(masterKey.toString(), password),
+          privateKeyHash: rootKey.toString(),
+          privateKeyEncrypted: encrypt(rootKey.toString(), password),
         })
       );
       store.dispatch(setNetwork(network));
 
-      toast.success('Master Key created');
-      createWallet(masterKey);
+      toast.success('Root Key created');
+      createWallet(rootKey);
     } catch (err) {
       toast.error(err.message);
     }
   };
 
-  const createWallet = (masterKey: HDPrivateKey) => {
+  const createWallet = (rootKey: HDPrivateKey) => {
     const toast = createToast('Creating Wallet...');
-    if (!masterKey) {
-      toast.error('Please select a master key');
+    if (!rootKey) {
+      toast.error('Please select a root key');
       return;
     }
     try {
-      const childKey = derivePk({
-        masterKey,
+      const { address, name, path } = derivePk({
+        rootKey,
         path: "0'/0/0",
       });
 
-      store.dispatch(appendPK(childKey));
-      store.dispatch(setActivePk(childKey.address));
+      store.dispatch(
+        appendPK({
+          address,
+          name,
+          path,
+          balance: {
+            amount: null,
+            updatedAt: null,
+          },
+        })
+      );
+      store.dispatch(setActivePk(address));
 
       toast.success('Wallet created');
       navigateTo(routes.HOME);
@@ -110,9 +107,7 @@ export const OnboardingNew: FC<Props> = ({ className }) => {
   return (
     <Wrapper className={className}>
       <h1>Create a new Wallet</h1>
-      <p>
-        These are your 12 words, copy them and store them in a secure place:
-      </p>
+      <p>These are your 12 words, copy them and store them in a secure place:</p>
       <Form options={{ defaultValues }} data-test-id="" onSubmit={onSubmit}>
         <FormInput
           label="Password"
@@ -133,12 +128,7 @@ export const OnboardingNew: FC<Props> = ({ className }) => {
           items={networkListOptions}
           options={{ required: 'Please select network' }}
         />
-        <FormTextArea
-          name="mnemonicPhrase"
-          padding="md"
-          margin="0 0 md 0"
-          readOnly
-        />
+        <FormTextArea name="mnemonicPhrase" padding="md" margin="0 0 md 0" readOnly />
         <Button type="submit" variant="primary">
           Next
         </Button>

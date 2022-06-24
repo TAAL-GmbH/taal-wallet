@@ -11,7 +11,7 @@ import { isNull } from '@/src/utils/generic';
 
 const Popup = () => {
   const { isInSync, isLocked, activePk } = useAppSelector(state => state.pk);
-  const [hasMasterKey, setHasMasterKey] = useState<boolean>(null);
+  const [hasRootKey, setHasRootKey] = useState<boolean>(null);
 
   useEffect(() => {
     // @ts-ignore
@@ -19,7 +19,7 @@ const Popup = () => {
     // @ts-ignore
     window.db = db;
     (async () => {
-      setHasMasterKey(!!(await db.getKeyVal('rootPk.privateKeyEncrypted')));
+      setHasRootKey(!!(await db.getKeyVal('rootPk.privateKeyEncrypted')));
     })();
   }, [isLocked]);
 
@@ -29,7 +29,7 @@ const Popup = () => {
       <PageHead />
       <RouterComponent
         isInSync={isInSync}
-        hasMasterKey={hasMasterKey}
+        hasRootKey={hasRootKey}
         isLocked={isLocked}
         hasActivePk={!isNull(activePk)}
       />

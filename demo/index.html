@@ -1,10 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
     <link href="./styles.css" rel="stylesheet" />
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -27,6 +24,11 @@
     </div>
 
     <dl>
+      <dt>PublicKey:</dt>
+      <dd id="publicKey"></dd>
+    </dl>
+
+    <dl>
       <dt>Address:</dt>
       <dd id="address"></dd>
     </dl>
@@ -36,13 +38,18 @@
       <dd id="balance"></dd>
     </dl>
 
-    <div class="c-only">
+    <div class="c-only button-wrapper">
       <button id="btn-get-address">Get Address</button>
       <button id="btn-get-balance">Refresh Balance</button>
+      <button id="btn-get-unspent">Get Unspent</button>
+      <button id="btn-create-tx">Create Tx</button>
       <button id="btn-invalid-action">Invalid action</button>
     </div>
 
     <pre id="state"></pre>
+    <script src="./scripts/bsv.min.js"></script>
+    <script src="./scripts/stas-umd.js"></script>
+    <!-- <script src="./scripts/bsv-message.min.js"></script> -->
     <script src="./index.js" type="module"></script>
   </body>
 </html>
