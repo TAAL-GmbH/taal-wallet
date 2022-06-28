@@ -41,17 +41,60 @@ button:hover {
 
 
 dl {
-  display: flex;
-  gap: 1rem;
+  font-size: 0.875rem;
+  display: grid;
+  grid-template-columns: min-content auto;
+  gap: 0.2rem 1rem;
 }
 
 dt {
   font-weight: bold;
 }
 
+dd {
+  margin: 0;
+}
+
 #error {
   background-color: #f9dada;
+  text-align: center;
   color: darkred;
   border-radius: 0.25rem;
-  padding: 1rem;
+  padding: 3rem;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 1rem solid #fff;
+  z-index: 100;
+}
+
+hr {
+  margin: 1rem 0;
+}
+
+pre {
+  padding: .5rem;
+  border: 1px solid #ccc;
+  overflow: auto;
+  max-height: 10rem;
+  border-radius: 0.25rem;
+  position: relative;
+  margin-top: 1rem;
+}
+
+pre:empty:before {
+  overflow: visible;
+  content: attr(title);
+  border-color: red;
+}
+
+label input[type=text] {
+  width: 100%;
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+}
+
+.hide-empty:empty {
+  display: none;
 }

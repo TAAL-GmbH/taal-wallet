@@ -65,6 +65,8 @@ export type DialogData = {
   body?: string;
   error?: string;
   timeout?: number;
+  fitView?: boolean;
+  resizeWindow?: boolean;
   options: {
     label: string;
     variant?: ButtonStyleProps['variant'];

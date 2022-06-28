@@ -2,10 +2,16 @@ type State = {
   isConnected: boolean;
   balance: number | null;
   publicKey: string | null;
+  rootPublicKey: string | null;
   address: string | null;
   error: string | null;
   unspent: unknown[];
+  transaction: unknown;
+  signResult: unknown;
+  signMessageResult: unknown;
 };
+
+let errorTimer: ReturnType<typeof setTimeout>;
 
 export const state = new Proxy(
   {
@@ -40,9 +46,10 @@ export const state = new Proxy(
       target[key as string] = value;
 
       if (key === 'error') {
-        const errorEl: HTMLDivElement = document.querySelector('#error');
-        errorEl.style.display = value === null ? 'none' : 'block';
-        value !== null && setTimeout(() => (state.error = null), 5000);
+        clearTimeout(errorTimer);
+        if (value !== '') {
+          errorTimer = setTimeout(() => (state.error = ''), 5000);
+        }
       }
 
       document.querySelector('#state').innerHTML = JSON.stringify(state, null, 2);
@@ -55,5 +62,5 @@ state.isConnected = false;
 state.balance = null;
 state.publicKey = null;
 state.address = null;
-state.error = null;
+state.error = '';
 state.unspent = [];

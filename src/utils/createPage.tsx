@@ -24,7 +24,7 @@ const GlobalStyle = createGlobalStyle`
 
     > div {
       min-height: 100vh;
-      padding-top: 60px;
+      /* padding-top: 60px; */
     }
   }
 

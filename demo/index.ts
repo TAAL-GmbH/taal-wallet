@@ -7,6 +7,7 @@ const btnGetAddress: HTMLButtonElement = document.querySelector('#btn-get-addres
 const btnGetBalance: HTMLButtonElement = document.querySelector('#btn-get-balance');
 const btnGetUnspent: HTMLButtonElement = document.querySelector('#btn-get-unspent');
 const btnCreateTx: HTMLButtonElement = document.querySelector('#btn-create-tx');
+const btnSignMessage: HTMLButtonElement = document.querySelector('#btn-sign-message');
 const btnInvalidAction: HTMLButtonElement = document.querySelector('#btn-invalid-action');
 
 const wallet = new WalletClient({
@@ -26,6 +27,7 @@ wallet.on('connect', async () => {
   try {
     document.body.classList.add('connected');
     state.publicKey = await wallet.getPublicKey();
+    state.rootPublicKey = await wallet.getRootPublicKey();
     state.address = await wallet.getAddress();
     state.balance = await wallet.getBalance();
     // balance also can be updated by wallet.on('balance')
@@ -39,6 +41,11 @@ wallet.on('connect', async () => {
 wallet.on('disconnect', () => {
   console.log('on disconnect');
   state.isConnected = false;
+  state.publicKey = null;
+  state.rootPublicKey = null;
+  state.address = null;
+  state.balance = null;
+  state.unspent = [];
   document.body.classList.remove('connected');
 });
 
@@ -80,6 +87,10 @@ btnCreateTx.addEventListener('click', async () => {
     state.error = 'No public key';
     return;
   }
+  if (!state.rootPublicKey) {
+    state.error = 'No Root public key';
+    return;
+  }
   if (!state.unspent.length) {
     state.error = 'No unspent transactions';
     return;
@@ -106,9 +117,18 @@ btnCreateTx.addEventListener('click', async () => {
     .to(state.address, Math.floor(unspent.value / 2))
     .change(state.address);
 
-  // console.log(tx, tx.toString());
-  const signResult = await wallet.signTx(tx);
-  console.log({ signResult });
+  state.transaction = JSON.stringify(tx, null, 2);
+  state.signResult = await wallet.signTx(tx).catch(() => '');
+  console.log({ signResult: state.signResult });
+});
+
+btnSignMessage.addEventListener('click', async () => {
+  const inputEl = document.querySelector('input[name=messageInput]') as HTMLInputElement;
+  if (inputEl.value.length === 0) {
+    state.error = 'No message';
+    return;
+  }
+  state.signMessageResult = await wallet.signMessage(inputEl.value).catch(() => '');
 });
 
 btnInvalidAction.addEventListener('click', async () => {

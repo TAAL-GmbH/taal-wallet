@@ -1,3 +1,5 @@
+import bsv from 'bsv';
+
 type Options = {
   name: string;
   extensionId: string;
@@ -212,6 +214,12 @@ export class WalletClient extends WalletCommunicator {
     });
   }
 
+  public getRootPublicKey() {
+    return this.request<string | null>({
+      action: 'getRootPublicKey',
+    });
+  }
+
   public getBalance() {
     return this.request<number | null>({
       action: 'getBalance',
@@ -224,9 +232,16 @@ export class WalletClient extends WalletCommunicator {
     });
   }
 
-  public signTx(tx) {
+  public signTx(tx: bsv.Transaction) {
     return this.request<string>({
       action: 'signTx',
+      payload: tx,
+    });
+  }
+
+  public signMessage(tx: string) {
+    return this.request<string>({
+      action: 'signMessage',
       payload: tx,
     });
   }

@@ -39,7 +39,7 @@ const Popup = () => {
 };
 
 const Wrapper = styled.div`
-  padding: 1rem;
+  padding: 5rem 1rem 1rem 1rem;
   width: 350px;
   height: 500px;
   overflow-y: auto;

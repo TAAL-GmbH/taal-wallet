@@ -3,6 +3,7 @@ import { getBalance, getUnspent } from '@/src/features/wocApiSlice';
 import { store } from '@/src/store';
 import { derivePk, restorePK } from '@/src/utils/blockchain';
 import { createDialog } from '@/src/utils/createDialog';
+import 'bsv/message';
 import bsv from 'bsv';
 
 type Options = {
@@ -102,7 +103,7 @@ export class Client {
   private async _checkPermissions() {
     if (store.getState().pk.isLocked) {
       // TODO: show dialog to unlock
-      // throw new Error('Wallet is locked. Please unlock it first');
+      throw new Error('Wallet is locked. Please unlock it first');
     }
 
     if (this._isAuthorized) {
@@ -209,14 +210,16 @@ export class Client {
     const result = await createDialog({
       title: 'Permission request',
       body: `Do you want to allow 
-        <div><code><strong>${this._origin}</strong></code></div> 
+        <div><strong>${this._origin}</strong></div> 
         to access TAAL Wallet?
         <h4>This will allow the client to:</h4>
         <ul>
           <li>Read you Wallet address</li>
           <li>Read you Wallet balance</li>
+          <li>Read you Public key</li>
         </ul>
       `,
+      resizeWindow: true,
       options: [{ label: 'Yes', variant: 'primary', returnValue: 'yes' }, { label: 'No' }],
     });
 
@@ -251,17 +254,20 @@ export class Client {
           };
         }
         case 'getPublicKey': {
-          const { path } = store.getState().pk.activePk;
-          const rootPrivateKeyHash = store.getState().pk.rootPk.privateKeyHash;
-          const rootKey = restorePK(rootPrivateKeyHash);
-          const { publicKeyHash } = derivePk({
-            rootKey,
-            path,
-          });
+          const { publicKeyHash } = this._getKey();
 
           return {
             action: 'publicKey',
-            payload: publicKeyHash,
+            payload: publicKeyHash.toString(),
+          };
+        }
+        case 'getRootPublicKey': {
+          const { privateKeyHash: rootPrivateKeyHash } = store.getState().pk.rootPk;
+          const { publicKey: rootPublicKey } = restorePK(rootPrivateKeyHash);
+
+          return {
+            action: 'rootPublicKey',
+            payload: rootPublicKey.toString(),
           };
         }
         case 'getBalance': {
@@ -279,24 +285,71 @@ export class Client {
           };
         }
         case 'signTx': {
-          console.log(store.getState().pk);
-          const privateKeyHash = store.getState().pk.rootPk.privateKeyHash;
+          const result = await createDialog({
+            title: 'Do you want to sign this transaction?',
+            body: `<pre>${JSON.stringify(payload, null, 2)}</pre>`,
+            options: [{ label: 'Yes', variant: 'primary', returnValue: 'yes' }, { label: 'No' }],
+          });
+
+          if (result.selectedOption !== 'yes') {
+            throw new Error('User rejected transaction signing');
+          }
+
+          const { privateKeyHash } = this._getKey();
+
           const tx = new bsv.Transaction(payload);
-          console.log({ tx });
           const signedTx = tx.sign(privateKeyHash);
-          console.log({ signedTx });
-          console.log({ signature: signedTx.serialize() });
+
           return {
             action: 'signTx',
             payload: signedTx.serialize(),
           };
         }
-        case 'signPreimage': {
-          // TODO: implement signPreimage
-          console.log('signPreimage', payload);
+        case 'signMessage': {
+          const result = await createDialog({
+            title: 'Do you want to sign this message?',
+            body: `<pre>${payload}</pre>`,
+            options: [{ label: 'Yes', variant: 'primary', returnValue: 'yes' }, { label: 'No' }],
+          });
+
+          if (result.selectedOption !== 'yes') {
+            throw new Error('User rejected transaction signing');
+          }
+
+          const { privateKeyHash } = this._getKey();
+          const msg = new bsv.Message(payload as string);
+          const pk = new bsv.PrivateKey(privateKeyHash);
+
+          const signedMsg = msg.sign(pk);
+
           return {
-            action: 'error',
-            payload: 'not-implemented',
+            action: 'signMessage',
+            payload: signedMsg.toString(),
+          };
+        }
+        case 'signPreimage': {
+          const result = await createDialog({
+            title: 'Do you want to sign this pre-image?',
+            body: `<pre>${JSON.stringify(payload, null, 2)}</pre>`,
+            options: [{ label: 'Yes', variant: 'primary', returnValue: 'yes' }, { label: 'No' }],
+          });
+
+          if (result.selectedOption !== 'yes') {
+            throw new Error('User rejected pre-image signing');
+          }
+
+          console.log('signPreimage', payload);
+          const { txHex, sighash, script, i, satoshis } = payload as any;
+
+          const tx = new bsv.Transaction(txHex);
+
+          // @ts-expect-error sighash method is not typed in .d.ts
+          const signedTx = bsv.Transaction.sighash.sign(tx, pk.pk.privateKey, sighash, i, script, satoshis);
+          console.log({ signature: signedTx.serialize(true) });
+
+          return {
+            action,
+            payload: signedTx,
           };
         }
         default: {
@@ -309,6 +362,7 @@ export class Client {
         }
       }
     } catch (e) {
+      console.error('_handleExternalAction', { action, payload }, e);
       return {
         action: 'error',
         payload: {
@@ -335,6 +389,22 @@ export class Client {
         };
       }
     }
+  }
+
+  private _getKey() {
+    const {
+      rootPk,
+      activePk: { path },
+    } = store.getState().pk;
+
+    if (!rootPk.privateKeyHash || !path) {
+      throw new Error("Can't get private key hash");
+    }
+
+    return derivePk({
+      rootKey: rootPk.privateKeyHash,
+      path,
+    });
   }
 
   private _clearTimers() {

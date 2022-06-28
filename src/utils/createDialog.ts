@@ -10,12 +10,18 @@ type CreateDialogReturnType = {
   selectedOption?: string | number;
 };
 
-export const createDialog = async (
-  options: CreateDialogOptions
-): Promise<CreateDialogReturnType> => {
+const defaultOptions: Partial<CreateDialogOptions> = {
+  fitView: true,
+  timeout: 0,
+  width: 400,
+  height: 500,
+  resizeWindow: false,
+};
+
+export const createDialog = async (options: CreateDialogOptions): Promise<CreateDialogReturnType> => {
   const id = Date.now() + Math.random();
   const bc = new BroadcastChannel(`dialog-${id}`);
-  const { timeout = 30000, width = 500, height } = options;
+  const { timeout, width, height } = { ...options, ...defaultOptions };
 
   let resolveRef: (value: unknown) => void;
   let rejectRef: (value: unknown) => void;
@@ -26,18 +32,18 @@ export const createDialog = async (
     bc.close();
   };
 
-  bc.onmessage = async ({
-    data,
-  }: {
-    data: { action: string; payload?: unknown };
-  }) => {
+  bc.onmessage = async ({ data }: { data: { action: string; payload?: unknown } }) => {
+    console.log('onmessage', data);
     const { action, payload } = data;
 
     switch (action) {
       case 'getData': {
         bc.postMessage({
           action,
-          payload: options,
+          payload: {
+            ...defaultOptions,
+            ...options,
+          },
         });
         break;
       }
@@ -57,10 +63,12 @@ export const createDialog = async (
     rejectRef = reject;
     resolveRef = resolve;
 
-    rejectTimer = setTimeout(async () => {
-      await cleanup();
-      resolve({ error: 'timeout' });
-    }, timeout);
+    if (timeout > 0) {
+      rejectTimer = setTimeout(async () => {
+        await cleanup();
+        resolve({ error: 'timeout' });
+      }, timeout);
+    }
 
     chrome.windows.create({
       type: 'popup',

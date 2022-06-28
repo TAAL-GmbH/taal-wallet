@@ -11,7 +11,7 @@
   <body>
     <h1>TAAL Web3 Wallet Client Demo</h1>
 
-    <div id="error" style="display: none">This is some kind of error</div>
+    <div id="error" class="hide-empty"></div>
 
     <div class="d-only">
       <h2>Disconnected</h2>
@@ -23,17 +23,13 @@
       <button id="btn-disconnect" class="danger">Disconnect</button>
     </div>
 
-    <dl>
+    <dl class="c-only">
       <dt>PublicKey:</dt>
       <dd id="publicKey"></dd>
-    </dl>
 
-    <dl>
       <dt>Address:</dt>
       <dd id="address"></dd>
-    </dl>
 
-    <dl>
       <dt>Balance:</dt>
       <dd id="balance"></dd>
     </dl>
@@ -42,10 +38,29 @@
       <button id="btn-get-address">Get Address</button>
       <button id="btn-get-balance">Refresh Balance</button>
       <button id="btn-get-unspent">Get Unspent</button>
-      <button id="btn-create-tx">Create Tx</button>
       <button id="btn-invalid-action">Invalid action</button>
     </div>
 
+    <div class="c-only">
+      <hr />
+      <h2>Transaction</h2>
+      <pre><code id="transaction">Click button to create and sign Transaction</code></pre>
+      <pre id="signResult" title="Transaction signature"></pre>
+      <button id="btn-create-tx">Create Tx</button>
+    </div>
+
+    <div class="c-only">
+      <hr />
+      <h2>Message signing</h2>
+      <label>
+        Message:
+        <input type="text" name="messageInput" placeholder="Input your message here" />
+      </label>
+      <pre id="signMessageResult" title="Message signature"></pre>
+      <button id="btn-sign-message">Sign message</button>
+    </div>
+
+    <h2>State</h2>
     <pre id="state"></pre>
     <script src="./scripts/bsv.min.js"></script>
     <script src="./scripts/stas-umd.js"></script>
