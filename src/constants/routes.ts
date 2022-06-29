@@ -7,5 +7,6 @@ export const routes: Record<string, string> = Object.freeze({
   SEND_BSV: 'send-bsv',
   RECEIVE_BSV: 'receive-bsv',
   DERIVE_PK: 'derive-pk',
+  HISTORY: 'history',
   WEB_PUSH: 'web-push',
 });

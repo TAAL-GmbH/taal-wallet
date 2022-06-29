@@ -41,6 +41,15 @@ const GlobalStyle = createGlobalStyle`
   svg {
     fill: currentColor;
   }
+
+  a {
+    text-decoration: none;
+    color: ${light.color.primary.A700};
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 `;
 
 type Props = {

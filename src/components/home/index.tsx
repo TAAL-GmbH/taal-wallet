@@ -12,6 +12,7 @@ import { IconButton } from '../generic/icon-button';
 import { RefreshIcon } from '../svg/refreshIcon';
 import { Arrow } from '../svg/arrow';
 import { BsvIcon } from '../svg/bsvIcon';
+import { HistoryIcon } from '../svg/historyIcon';
 
 type Props = {
   className?: string;
@@ -88,11 +89,13 @@ export const Home: FC<Props> = ({ className }) => {
           <Arrow direction="left" />
           Receive BSV
         </Button>
-        {/* <Button onClick={() => db.test()}>DB Test</Button> */}
-        {/* <Button onClick={_getBalance}>Get balance</Button> */}
         <Button variant="success" onClick={_airdrop}>
           <Arrow direction="down" />
           Airdrop
+        </Button>
+        <Button variant="primary" onClick={() => navigateTo(routes.HISTORY)}>
+          <HistoryIcon />
+          History
         </Button>
       </ButtonWrapper>
     </Wrapper>

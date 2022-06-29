@@ -1,4 +1,5 @@
 import { DerivePk } from '@/src/components/derivePK';
+import { History } from '@/src/components/history';
 import { Home } from '@/src/components/home';
 import { PKList } from '@/src/components/pkList';
 import { ReceiveBSV } from '@/src/components/receiveBSV';
@@ -66,6 +67,9 @@ export const RouterComponent: FC<Props> = ({ isInSync, hasRootKey, isLocked, has
       </Route>
       <Route path={routes.DERIVE_PK}>
         <DerivePk />
+      </Route>
+      <Route path={routes.HISTORY}>
+        <History />
       </Route>
       <Route path={routes.WEB_PUSH}>
         <WebPushSubscription />

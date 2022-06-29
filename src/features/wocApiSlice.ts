@@ -97,6 +97,11 @@ type Tx = {
   vout: TxOutput[];
 };
 
+type History = {
+  height: number;
+  tx_hash: string;
+};
+
 export const wocApiSlice = createApi({
   reducerPath: 'wocApi',
   baseQuery: dynamicBaseQuery,
@@ -115,7 +120,7 @@ export const wocApiSlice = createApi({
     getUnspent: builder.query<Unspent[], string>({
       query: address => `/address/${address}/unspent`,
     }),
-    getHistory: builder.query<unknown[], string>({
+    getHistory: builder.query<History[], string>({
       query: address => `/address/${address}/history`,
     }),
     getTokensUnspent: builder.query<TokensUnspent, string>({
@@ -198,3 +203,6 @@ export const airdrop = async (...args: Parameters<typeof wocApiSlice.endpoints.a
 
 export const broadcast = async (...args: Parameters<typeof wocApiSlice.endpoints.broadcast.initiate>) =>
   store.dispatch(wocApiSlice.endpoints.broadcast.initiate(...args));
+
+// react hooks
+export const { useGetHistoryQuery } = wocApiSlice;

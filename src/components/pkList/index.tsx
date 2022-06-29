@@ -9,6 +9,11 @@ import { store } from '@/src/store';
 import { PKType } from '@/src/types';
 import dayjs from 'dayjs';
 import { WalletPlusIcon } from '../svg/walletPlusIcon';
+import { createToast } from '@/src/utils/toast';
+import { getBalance } from '@/src/features/wocApiSlice';
+import { isNull } from '@/src/utils/generic';
+import { AnchorLink } from '../anchorLink';
+import { Dl, Li, Ul } from '@/components/generic/styled';
 
 type Props = {
   className?: string;
@@ -20,6 +25,17 @@ export const PKList: FC<Props> = ({ className }) => {
   const setCurrentPK = (pk: PKType) => {
     store.dispatch(setActivePk(pk.address));
     history.back();
+  };
+
+  const _getBalance = async (address: string) => {
+    const toast = createToast('Fetching balance...');
+    const result = await getBalance([address]).catch(err => {
+      toast.error(err);
+      return null;
+    });
+    if (!isNull(result)) {
+      toast.success('Balance fetched successfully');
+    }
   };
 
   const list = Object.values(map).filter(item => item.path !== 'm');
@@ -55,7 +71,7 @@ export const PKList: FC<Props> = ({ className }) => {
       {!!list.length && (
         <Ul>
           {list.map(item => (
-            <Li key={item.address} role="button" onClick={() => setCurrentPK(item)}>
+            <Li key={item.address}>
               <Dl>
                 <dt>Name:</dt>
                 <dd>{item.name}</dd>
@@ -67,7 +83,12 @@ export const PKList: FC<Props> = ({ className }) => {
                 <dd>
                   {Number.isInteger(item.balance.amount)
                     ? `${item.balance.amount?.toLocaleString()} satoshis`
-                    : 'unknown'}
+                    : 'unknown'}{' '}
+                  (
+                  <AnchorLink href="#" onClick={() => _getBalance(item.address)}>
+                    refresh
+                  </AnchorLink>
+                  )
                 </dd>
                 {item.balance.updatedAt && (
                   <>
@@ -76,6 +97,9 @@ export const PKList: FC<Props> = ({ className }) => {
                   </>
                 )}
               </Dl>
+              <Button size="sm" onClick={() => setCurrentPK(item)}>
+                Select
+              </Button>
             </Li>
           ))}
         </Ul>
@@ -86,54 +110,6 @@ export const PKList: FC<Props> = ({ className }) => {
 
 const Wrapper = styled.div`
   //
-`;
-
-const Ul = styled.ul`
-  list-style: none;
-  margin: 1rem 0;
-  padding: 0;
-  cursor: pointer;
-  border-top: 1px double ${({ theme }) => theme.color.grey[200]};
-
-  li + li {
-    &::before {
-      display: block;
-      margin: 0 -1rem;
-      content: ' ';
-      border-top: 1px solid #ccc;
-    }
-  }
-`;
-
-const Li = styled.li`
-  overflow: hidden;
-  text-overflow: ellipsis;
-  width: 100%;
-  padding: 0 0.5rem;
-
-  &:hover {
-    background-color: ${({ theme }) => theme.color.grey[100]};
-    color: ${({ theme }) => theme.color.grey[700]};
-  }
-`;
-
-const Dl = styled.dl`
-  display: grid;
-  grid-template-columns: min-content auto;
-  flex-direction: column;
-  gap: 0.2rem 0.5rem;
-  width: 100%;
-
-  dt {
-    font-weight: bold;
-    white-space: nowrap;
-  }
-
-  dd {
-    overflow-x: auto;
-    overflow-y: hidden;
-    margin: 0;
-  }
 `;
 
 const ButtonStyled = styled(Button)`
