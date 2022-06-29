@@ -115,6 +115,9 @@ export const wocApiSlice = createApi({
     getUnspent: builder.query<Unspent[], string>({
       query: address => `/address/${address}/unspent`,
     }),
+    getHistory: builder.query<unknown[], string>({
+      query: address => `/address/${address}/history`,
+    }),
     getTokensUnspent: builder.query<TokensUnspent, string>({
       query: address => `/address/${address}/tokens/unspent`,
     }),
@@ -171,6 +174,9 @@ export const getBalance = async (...args: Parameters<typeof wocApiSlice.endpoint
 
 export const getUnspent = async (...args: Parameters<typeof wocApiSlice.endpoints.getUnspent.initiate>) =>
   store.dispatch(wocApiSlice.endpoints.getUnspent.initiate(...args));
+
+export const getHistory = async (...args: Parameters<typeof wocApiSlice.endpoints.getHistory.initiate>) =>
+  store.dispatch(wocApiSlice.endpoints.getHistory.initiate(...args));
 
 export const getTokensUnspent = async (
   ...args: Parameters<typeof wocApiSlice.endpoints.getTokensUnspent.initiate>

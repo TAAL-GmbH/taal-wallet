@@ -1,5 +1,4 @@
 import { FC, useEffect, useRef, useState } from 'react';
-import styled from 'styled-components';
 import { HDPrivateKey, Mnemonic } from 'bsv';
 import { Button } from '@/src/components/button';
 import { navigateTo } from '@/src/utils/navigation';
@@ -15,7 +14,9 @@ import { createHDPrivateKey, derivePk, generateMnemonic, rebuildMnemonic } from 
 import { store } from '@/src/store';
 import { appendPK, setActivePk, setNetwork, setRootPK } from '@/src/features/pkSlice';
 import { encrypt } from '@/src/utils/crypt';
-import { Row } from '../../generic/row';
+import { Row } from '@/components/generic/row';
+import { getHistory } from '@/src/features/wocApiSlice';
+import { PKType } from '@/src/types';
 
 type Props = {
   className?: string;
@@ -25,7 +26,7 @@ type Props = {
 const defaultValues = {
   networkId: '',
   password: '',
-  mnemonicPhrase: 'seek they close gun alpha field aspect cram jaguar cycle oven march',
+  mnemonicPhrase: '',
 };
 
 export const OnboardingForm: FC<Props> = ({ className, action }) => {
@@ -44,7 +45,7 @@ export const OnboardingForm: FC<Props> = ({ className, action }) => {
     }
   }, [action]);
 
-  const onSubmit = ({ networkId, password, mnemonicPhrase }: typeof defaultValues) => {
+  const onSubmit = async ({ networkId, password, mnemonicPhrase }: typeof defaultValues) => {
     const toast = createToast('Creating Root Key...');
 
     if (!mnemonicPhrase) {
@@ -70,42 +71,73 @@ export const OnboardingForm: FC<Props> = ({ className, action }) => {
       store.dispatch(setNetwork(network));
 
       toast.success('Root Key created');
-      createWallet(rootKey);
+
+      let lastAddress: string;
+
+      if (action === 'createNew') {
+        const toast = createToast('Creating Wallet...');
+        const newWallet = createWallet(rootKey);
+        store.dispatch(appendPK(newWallet));
+        lastAddress = newWallet.address;
+        toast.success('Wallet created');
+      } else {
+        // Restoring wallets
+        const toast = createToast('Restoring Wallets...');
+        const walletList = await getWalletsWithHistory(rootKey);
+
+        if (!walletList.length) {
+          walletList.push(createWallet(rootKey));
+        }
+
+        walletList.forEach(wallet => store.dispatch(appendPK(wallet)));
+        lastAddress = walletList[walletList.length - 1].address;
+        toast.success(`${walletList.length} Wallet(s) restored`);
+      }
+
+      store.dispatch(setActivePk(lastAddress));
+
+      navigateTo(routes.HOME);
     } catch (err) {
       toast.error(err.message);
     }
   };
 
-  const createWallet = (rootKey: HDPrivateKey) => {
-    const toast = createToast('Creating Wallet...');
+  const getWalletsWithHistory = async (rootKey: HDPrivateKey): Promise<PKType[]> => {
+    // TODO: this function fetches only first 20 wallets
+    const walletList: PKType[] = [];
+
+    for (let i = 0; i < 20; i++) {
+      walletList.push(createWallet(rootKey, i));
+    }
+
+    const historyFetchResultList = await Promise.all(walletList.map(wallet => getHistory(wallet.address)));
+
+    const addressWithHistoryList = historyFetchResultList
+      .filter(({ data }) => data.length > 0)
+      .map(({ originalArgs }) => originalArgs);
+
+    return walletList.filter(({ address }) => addressWithHistoryList.includes(address));
+  };
+
+  const createWallet = (rootKey: HDPrivateKey, index = 0): PKType => {
     if (!rootKey) {
-      toast.error('Please select a root key');
-      return;
+      throw new Error('rootKey is empty');
     }
-    try {
-      const { address, name, path } = derivePk({
-        rootKey,
-        path: "0'/0/0",
-      });
 
-      store.dispatch(
-        appendPK({
-          address,
-          name,
-          path,
-          balance: {
-            amount: null,
-            updatedAt: null,
-          },
-        })
-      );
-      store.dispatch(setActivePk(address));
+    const { address, name, path } = derivePk({
+      rootKey,
+      path: `0'/0/${index}`,
+    });
 
-      toast.success('Wallet created');
-      navigateTo(routes.HOME);
-    } catch (err) {
-      toast.error(err.message);
-    }
+    return {
+      address,
+      name,
+      path,
+      balance: {
+        amount: null,
+        updatedAt: null,
+      },
+    };
   };
 
   return (
@@ -135,7 +167,6 @@ export const OnboardingForm: FC<Props> = ({ className, action }) => {
           options={{ required: 'Please select network' }}
         />
       </Row>
-      {/* <p>These are your 12 words, copy them and store them in a secure place:</p> */}
 
       <Row>
         <FormTextArea
@@ -164,7 +195,3 @@ export const OnboardingForm: FC<Props> = ({ className, action }) => {
     </Form>
   );
 };
-
-const Wrapper = styled.div`
-  //
-`;

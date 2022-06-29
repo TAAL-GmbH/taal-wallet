@@ -128,7 +128,7 @@ export const createHDPrivateKey = ({
 };
 
 export const derivePk = ({
-  name = `Key-${Date.now()}`,
+  name,
   rootKey: rootKeyInput,
   path,
 }: {
@@ -159,7 +159,7 @@ export const derivePk = ({
     privateKeyHash: key.privateKey.toString(),
     publicKeyHash: key.publicKey.toString(),
     path: fullPath,
-    name,
+    name: name || `Key-${pathSegments[5]}`,
     balance: {
       updatedAt: null,
       amount: null,

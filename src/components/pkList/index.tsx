@@ -50,6 +50,8 @@ export const PKList: FC<Props> = ({ className }) => {
         </div>
       )}
 
+      {deriveCta}
+
       {!!list.length && (
         <Ul>
           {list.map(item => (
@@ -78,7 +80,6 @@ export const PKList: FC<Props> = ({ className }) => {
           ))}
         </Ul>
       )}
-      {deriveCta}
     </Wrapper>
   );
 };
