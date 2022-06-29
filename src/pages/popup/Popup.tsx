@@ -14,6 +14,7 @@ const Popup = () => {
   const [hasRootKey, setHasRootKey] = useState<boolean>(null);
 
   useEffect(() => {
+    document.body.classList.add('popup');
     // @ts-ignore
     window.store = store;
     // @ts-ignore
@@ -40,10 +41,6 @@ const Popup = () => {
 
 const Wrapper = styled.div`
   padding: 5rem 1rem 1rem 1rem;
-  width: 350px;
-  height: 500px;
-  overflow-y: auto;
-  overflow-x: hidden;
 `;
 
 export default Popup;

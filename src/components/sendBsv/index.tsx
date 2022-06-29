@@ -7,7 +7,7 @@ import { derivePk, isValidAddress, restorePK, sendBSV } from '@/src/utils/blockc
 import { Form } from '../generic/form/form';
 import { FormInput } from '../generic/form/formInput';
 import { Row } from '../generic/row';
-import { CurrentPk } from '../currentPk';
+import { QuickWalletSelector } from '../quickWalletSelector';
 
 type Props = {
   className?: string;
@@ -65,9 +65,8 @@ export const SendBSV: FC<Props> = ({ className }) => {
 
   return (
     <Wrapper className={className}>
-      <CurrentPk />
+      <QuickWalletSelector />
       <h1>Send BSV</h1>
-
       <Form options={{ defaultValues }} onSubmit={onSubmit} data-test-id="send-bsv-form">
         <Row>
           <FormInput

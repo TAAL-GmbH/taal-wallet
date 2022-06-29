@@ -1,7 +1,6 @@
 import { FC, useState } from 'react';
 import styled from 'styled-components';
 import { Button } from '../button';
-import { CurrentPk } from '../currentPk';
 import { useAppSelector } from '@/src/hooks';
 import { createToast } from '@/src/utils/toast';
 import { airdrop, getBalance } from '@/src/features/wocApiSlice';
@@ -13,6 +12,8 @@ import { RefreshIcon } from '../svg/refreshIcon';
 import { Arrow } from '../svg/arrow';
 import { BsvIcon } from '../svg/bsvIcon';
 import { HistoryIcon } from '../svg/historyIcon';
+import { QuickWalletSelector } from '../quickWalletSelector';
+import { Tooltip } from '../generic/tooltip';
 
 type Props = {
   className?: string;
@@ -59,18 +60,20 @@ export const Home: FC<Props> = ({ className }) => {
 
   return (
     <Wrapper className={className}>
-      <CurrentPk />
+      <QuickWalletSelector />
       <BalanceRow>
         <BsvIcon />
         <span>
           Balance:{' '}
           {typeof activePk?.balance?.amount === 'number'
-            ? `${formatNumber(activePk?.balance?.amount)} Satoshis`
+            ? `${formatNumber(activePk?.balance?.amount)} satoshis`
             : 'unknown'}
         </span>
-        <IconButton onClick={_getBalance}>
-          <RefreshIcon />
-        </IconButton>
+        <Tooltip contents="Refresh Balance">
+          <IconButton onClick={_getBalance}>
+            <RefreshIcon />
+          </IconButton>
+        </Tooltip>
       </BalanceRow>
       <Ul>
         {tokens.map(({ balance, symbol }, idx) => (
@@ -82,11 +85,11 @@ export const Home: FC<Props> = ({ className }) => {
       </Ul>
       <ButtonWrapper>
         <Button onClick={() => navigateTo(routes.SEND_BSV)}>
-          <Arrow />
+          <Arrow direction="upright" />
           Send BSV
         </Button>
         <Button onClick={() => navigateTo(routes.RECEIVE_BSV)}>
-          <Arrow direction="left" />
+          <Arrow direction="downleft" />
           Receive BSV
         </Button>
         <Button variant="success" onClick={_airdrop}>

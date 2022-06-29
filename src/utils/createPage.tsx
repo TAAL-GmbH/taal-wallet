@@ -18,13 +18,27 @@ const GlobalStyle = createGlobalStyle`
     line-height: 1.25;
     color: ${light.color.grey[600]};
 
+    &.popup {
+      width: 350px;
+      height: 500px;
+    }
+
     * {
       box-sizing: border-box;
     }
 
-    > div {
-      min-height: 100vh;
-      /* padding-top: 60px; */
+  }
+
+  #app-container {
+    min-height: 100vh;
+  }
+
+  #tooptip-container {
+    position: relative;
+
+    > * {
+      position: absolute;
+      z-index: 1000;
     }
   }
 

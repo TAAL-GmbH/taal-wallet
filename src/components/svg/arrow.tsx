@@ -2,15 +2,20 @@ import { FC } from 'react';
 
 type Props = {
   className?: string;
-  direction?: 'up' | 'down' | 'left' | 'right';
+  direction?: 'up' | 'upright' | 'right' | 'downright' | 'down' | 'downleft' | 'left' | 'upleft';
 };
 
 export const Arrow: FC<Props> = ({ className, direction = 'right', ...rest }) => {
   const degrees =
     {
-      left: 180,
       up: -90,
+      upright: -45,
+      right: 0,
+      downright: 45,
       down: 90,
+      downleft: 135,
+      left: 180,
+      upleft: 225,
     }?.[direction] || 0;
 
   return (

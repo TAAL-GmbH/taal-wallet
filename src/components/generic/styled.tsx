@@ -1,3 +1,4 @@
+import { injectSpacing } from '@/src/utils/injectSpacing';
 import styled from 'styled-components';
 
 export const Ul = styled.ul`
@@ -34,7 +35,7 @@ export const Li = styled.li`
   }
 `;
 
-export const Dl = styled.dl`
+export const Dl = styled.dl<{ padding?: string; margin?: string }>`
   display: grid;
   grid-template-columns: min-content auto;
   flex-direction: column;
@@ -51,4 +52,6 @@ export const Dl = styled.dl`
     overflow-y: hidden;
     margin: 0;
   }
+
+  ${injectSpacing(['padding', 'margin'])}
 `;

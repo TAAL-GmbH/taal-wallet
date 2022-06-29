@@ -1,18 +1,18 @@
 import { FC } from 'react';
 import styled from 'styled-components';
 import { useAppSelector } from '@/src/hooks';
-import { CurrentPk } from '../currentPk';
 import { QRCodeSVG } from 'qrcode.react';
 import { Note } from '../generic/note';
 import { CopyToClipboard } from '../generic/copyToClipboard';
 import { InfoIcon } from '../svg/infoIcon';
+import { QuickWalletSelector } from '../quickWalletSelector';
 
 export const ReceiveBSV: FC = () => {
   const { activePk } = useAppSelector(state => state.pk);
 
   return (
     <Wrapper>
-      <CurrentPk />
+      <QuickWalletSelector />
       <h1>Receive BSV</h1>
       <Subtitle>Your BSV address:</Subtitle>
 

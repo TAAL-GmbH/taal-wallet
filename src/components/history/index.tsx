@@ -2,8 +2,8 @@ import { FC } from 'react';
 import styled from 'styled-components';
 import { useAppSelector } from '@/src/hooks';
 import { useGetHistoryQuery } from '@/src/features/wocApiSlice';
-import { CurrentPk } from '../currentPk';
 import { Dl, Li, Ul } from '@/components/generic/styled';
+import { QuickWalletSelector } from '../quickWalletSelector';
 
 type Props = {
   className?: string;
@@ -19,7 +19,7 @@ export const History: FC<Props> = ({ className }) => {
 
   return (
     <Wrapper className={className}>
-      <CurrentPk />
+      <QuickWalletSelector />
       <h1>Your Wallet's history</h1>
 
       {!list.length && (

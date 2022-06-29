@@ -1,18 +1,21 @@
-import { FC, useState } from 'react';
-import toast from 'react-hot-toast';
+import { FC, ReactNode, useState } from 'react';
 import styled, { css } from 'styled-components';
+import toast from 'react-hot-toast';
 import { CheckIcon } from '../../svg/checkIcon';
 import { CopyIcon } from '../../svg/copyIcon';
 import { IconButton } from '../icon-button';
+import { Tooltip } from '../tooltip';
 
 type Props = {
   className?: string;
   text: string | number;
+  showText?: boolean;
+  showTooltip?: boolean;
 };
 
 let timer: ReturnType<typeof setTimeout>;
 
-export const CopyToClipboard: FC<Props> = ({ className, text }) => {
+export const CopyToClipboard: FC<Props> = ({ className, text, showText, showTooltip = true }) => {
   const [wasCopied, setWasCopied] = useState(false);
 
   const copyToClipboard = async () => {
@@ -27,11 +30,23 @@ export const CopyToClipboard: FC<Props> = ({ className, text }) => {
     }
   };
 
-  return (
-    <IconButtonStyled onClick={copyToClipboard} wasCopied={wasCopied} className={className}>
-      {wasCopied ? <CheckIcon /> : <CopyIcon />}
-    </IconButtonStyled>
-  );
+  let contents: ReactNode;
+
+  if (showText) {
+    contents = (
+      <span role="button" onClick={copyToClipboard}>
+        {text}
+      </span>
+    );
+  } else {
+    contents = (
+      <IconButtonStyled onClick={copyToClipboard} wasCopied={wasCopied} className={className}>
+        {wasCopied ? <CheckIcon /> : <CopyIcon />}
+      </IconButtonStyled>
+    );
+  }
+
+  return <TooltipStyled contents={<>Click to copy</>}>{contents}</TooltipStyled>;
 };
 
 const IconButtonStyled = styled(IconButton)<{ wasCopied: boolean }>`
@@ -53,4 +68,8 @@ const IconButtonStyled = styled(IconButton)<{ wasCopied: boolean }>`
         color: #fff !important;
       }
     `}
+`;
+
+const TooltipStyled = styled(Tooltip)`
+  cursor: pointer;
 `;
