@@ -25,7 +25,7 @@ const menuItems: Record<string, MenuItem> = {
     action: routes.HOME,
     icon: <HomeIcon />,
   },
-  'Change Wallet': { action: routes.PK_LIST, icon: <WalletPlusIcon /> },
+  'Select Wallet': { action: routes.PK_LIST, icon: <WalletPlusIcon /> },
   'Send BSV': { action: routes.SEND_BSV, icon: <Arrow /> },
   'Receive BSV': { action: routes.RECEIVE_BSV, icon: <Arrow direction="left" /> },
   Options: { action: () => chrome.runtime.openOptionsPage(), icon: <CogIcon /> },

@@ -74,16 +74,10 @@ const pkSlice = createSlice({
     setActivePk(state, action: PayloadAction<string | null>) {
       state.activePk = state.map[action.payload];
     },
-    setBalance(
-      state,
-      action: PayloadAction<{ address: string; amount: number }>
-    ) {
+    setBalance(state, action: PayloadAction<{ address: string; amount: number }>) {
       setStateBalance(state, action.payload.address, action.payload.amount);
     },
-    setBatchBalance(
-      state,
-      action: PayloadAction<{ address: string; amount: number }[]>
-    ) {
+    setBatchBalance(state, action: PayloadAction<{ address: string; amount: number }[]>) {
       action.payload.forEach(({ address, amount }) => {
         setStateBalance(state, address, amount);
       });

@@ -1,9 +1,6 @@
 import { FC } from 'react';
 import styled from 'styled-components';
-import { Button } from '@/src/components/button';
-import toast from 'react-hot-toast';
-import { AnchorLink } from '@/src/components/anchorLink';
-import { routes } from '@/src/constants/routes';
+import { OnboardingForm } from '@/src/components/onboarding/onboardingForm';
 
 type Props = {
   className?: string;
@@ -12,20 +9,12 @@ type Props = {
 export const OnboardingImport: FC<Props> = ({ className }) => {
   return (
     <Wrapper className={className}>
-      <AnchorLink href={routes.ONBOARDING}>back</AnchorLink>
       <h1>Import your Wallet</h1>
-      <p>Please input you secret phrase</p>
-      <Textarea />
-      <Button onClick={() => toast.error('Not implemented')}>Next</Button>
+      <OnboardingForm action="importExisting" />
     </Wrapper>
   );
 };
 
 const Wrapper = styled.div`
   //
-`;
-
-const Textarea = styled.textarea`
-  width: 100%;
-  height: 60px;
 `;

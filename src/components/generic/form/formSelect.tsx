@@ -14,15 +14,10 @@ type Props = {
 
 export const FormSelect: FC<Props> = ({ items, ...rest }) => {
   return (
-    <FormInput
-      showClearButton={false}
-      extraElement={<ChevronStyled />}
-      {...rest}
-    >
-      <Select>
+    <FormInput showClearButton={false} extraElement={<ChevronStyled />} {...rest}>
+      <Select inputSize={rest.size}>
         {items.map(item => {
-          const label =
-            'label' in item ? item.label : 'name' in item && item.name;
+          const label = 'label' in item ? item.label : 'name' in item && item.name;
           return <option key={label} label={label} {...item} />;
         })}
       </Select>

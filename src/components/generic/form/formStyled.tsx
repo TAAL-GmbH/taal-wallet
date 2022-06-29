@@ -77,7 +77,7 @@ export const sharedInput = css<StyledInput>`
       case 'sm':
         return css`
           font-size: ${theme.fontSize.sm};
-          margin: ${({ theme }) => theme.spacing.xs} 0;
+          margin: 0.4rem 0;
           padding-top: 0.4rem;
           padding-bottom: 0.4rem;
         `;

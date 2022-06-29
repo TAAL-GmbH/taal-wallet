@@ -10,7 +10,7 @@ type Props = {
 export const FormTextArea: FC<Props> = ({ rows = 5, ...rest }) => {
   return (
     <FormInput showPlaceholder {...rest}>
-      <TextArea rows={rows} />
+      <TextArea rows={rows} inputSize={rest.size} />
     </FormInput>
   );
 };
