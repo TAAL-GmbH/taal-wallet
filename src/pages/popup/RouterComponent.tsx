@@ -1,7 +1,8 @@
 import { DerivePk } from '@/src/components/derivePK';
 import { Home } from '@/src/components/home';
 import { PKList } from '@/src/components/pkList';
-import { SendBSV } from '@/src/components/sendBsv';
+import { ReceiveBSV } from '@/src/components/receiveBSV';
+import { SendBSV } from '@/src/components/sendBSV';
 import { Unlock } from '@/src/components/unlock';
 import { WebPushSubscription } from '@/src/components/webPushSubscription';
 import { routes } from '@/src/constants/routes';
@@ -59,6 +60,9 @@ export const RouterComponent: FC<Props> = ({ isInSync, hasRootKey, isLocked, has
       </Route>
       <Route path={`${routes.SEND_BSV}`}>
         <SendBSV />
+      </Route>
+      <Route path={`${routes.RECEIVE_BSV}`}>
+        <ReceiveBSV />
       </Route>
       <Route path={routes.DERIVE_PK}>
         <DerivePk />

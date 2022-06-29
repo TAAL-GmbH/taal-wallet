@@ -60,11 +60,7 @@ export const CurrentPk: FC<Props> = ({ className }) => {
     <Dl>
       <dt>Name:</dt>
       <dd>
-        {activePk?.name} (
-        <AnchorLink href={routes.PK_LIST}>
-          {activePk ? 'change' : 'select'}
-        </AnchorLink>
-        )
+        {activePk?.name} (<AnchorLink href={routes.PK_LIST}>{activePk ? 'change' : 'select'}</AnchorLink>)
       </dd>
 
       <dt>Path:</dt>
@@ -94,20 +90,22 @@ export const CurrentPk: FC<Props> = ({ className }) => {
 
 const Wrapper = styled.div<{ isExpanded: boolean }>`
   font-size: 0.75rem;
-  border-top: 1px solid ${({ theme }) => theme.color.grey[200]};
-  border-bottom: 1px solid ${({ theme }) => theme.color.grey[200]};
-  background-color: ${({ theme }) => theme.color.grey[50]};
-  padding: ${({ theme }) => theme.spacing.xs};
+  /* border-top: 1px solid ${({ theme }) => theme.color.grey[200]}; */
+  /* border-bottom: 1px solid ${({ theme }) => theme.color.grey[200]}; */
+  background-color: ${({ theme }) => theme.color.neutral[200]};
+  padding: 0.5rem 1.5rem 0.3rem 0.6rem;
+  border-radius: 0.5rem;
   position: relative;
 `;
 
 const ToggleButton = styled(IconButton)`
   position: absolute;
-  top: 0;
+  top: 50%;
+  transform: translate(0, -50%);
   right: ${({ theme }) => theme.spacing.xs};
 
   svg {
-    width: 1.2rem;
+    width: 1.1rem;
   }
 `;
 

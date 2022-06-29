@@ -4,7 +4,7 @@ import { TaalLogo } from '@/src/components/svg/taalLogo';
 import { injectSpacing } from '@/src/utils/injectSpacing';
 import { navigateTo } from '@/src/utils/navigation';
 import { routes } from '@/src/constants/routes';
-import { HamburgerMenuIcon } from '../svg/hamburger-menu';
+import { HamburgerMenuIcon } from '../svg/hamburgerMenu';
 import { TopMenu } from '../topMenu';
 import { AppLogo } from '../appLogo';
 

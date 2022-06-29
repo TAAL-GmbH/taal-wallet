@@ -9,6 +9,7 @@ import styled from 'styled-components';
 import { Button } from '../button';
 import { Form } from '../generic/form/form';
 import { FormInput } from '../generic/form/formInput';
+import { UnlockIcon } from '../svg/unlockIcon';
 
 const defaultValues = {
   password: '',
@@ -53,7 +54,10 @@ export const Unlock: FC = () => {
           required
           autoFocus
         />
-        <Button type="submit">Unlock</Button>
+        <Button type="submit">
+          <UnlockIcon />
+          Unlock
+        </Button>
       </Form>
     </Wrapper>
   );

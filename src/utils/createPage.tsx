@@ -12,7 +12,7 @@ const GlobalStyle = createGlobalStyle`
     min-height: 100vh;
   }
   body {
-    background-color: #fdfdfd;
+    background-color: #fafafa;
     font-family: 'Varta', sans-serif;
     font-size: 14px;
     line-height: 1.25;
@@ -36,6 +36,10 @@ const GlobalStyle = createGlobalStyle`
   h1 {
     font-size: 1.7rem;
     margin-bottom: .5rem;
+  }
+
+  svg {
+    fill: currentColor;
   }
 `;
 

@@ -42,7 +42,7 @@ export const PKList: FC<Props> = ({ className }) => {
 
   return (
     <Wrapper className={className}>
-      <h1>Wallets</h1>
+      <h1>Your Wallets</h1>
 
       {!list.length && (
         <div>
@@ -53,11 +53,7 @@ export const PKList: FC<Props> = ({ className }) => {
       {!!list.length && (
         <Ul>
           {list.map(item => (
-            <Li
-              key={item.address}
-              role="button"
-              onClick={() => setCurrentPK(item)}
-            >
+            <Li key={item.address} role="button" onClick={() => setCurrentPK(item)}>
               <Dl>
                 <dt>Name:</dt>
                 <dd>{item.name}</dd>
@@ -74,11 +70,7 @@ export const PKList: FC<Props> = ({ className }) => {
                 {item.balance.updatedAt && (
                   <>
                     <dt>Updated:</dt>
-                    <dd>
-                      {dayjs(item.balance.updatedAt).format(
-                        'YYYY-MM-DD HH:mm:ss'
-                      )}
-                    </dd>
+                    <dd>{dayjs(item.balance.updatedAt).format('YYYY-MM-DD HH:mm:ss')}</dd>
                   </>
                 )}
               </Dl>

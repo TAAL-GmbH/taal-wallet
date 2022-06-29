@@ -69,7 +69,7 @@ export const sharedInput = css<StyledInput>`
           border: 1px solid var(--errorColor);
         `
       : css`
-          border: 1px solid ${({ theme }) => theme.color.grey[200]};
+          border: 1px solid ${({ theme }) => theme.color.neutral[200]};
         `};
 
   ${({ inputSize, theme }) => {

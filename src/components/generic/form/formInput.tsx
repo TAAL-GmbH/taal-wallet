@@ -1,11 +1,4 @@
-import {
-  cloneElement,
-  FC,
-  InputHTMLAttributes,
-  isValidElement,
-  ReactElement,
-  ReactNode,
-} from 'react';
+import { cloneElement, FC, InputHTMLAttributes, isValidElement, ReactElement, ReactNode } from 'react';
 import { RegisterOptions, useFormContext } from 'react-hook-form';
 import styled from 'styled-components';
 import { FormInputError } from './formInputError';
@@ -13,15 +6,9 @@ import { FormInputLabel } from './formInputLabel';
 import { Checkbox } from '@/components/generic/form/checkbox';
 import { Radio } from './radio';
 import { FormFieldWrapper } from './formFieldWrapper';
-import {
-  InputElWrapper,
-  LabelText,
-  Required,
-  sharedInput,
-  StyledInput,
-} from './formStyled';
+import { InputElWrapper, LabelText, Required, sharedInput, StyledInput } from './formStyled';
 import { IconButton } from '../icon-button';
-import { CloseIcon } from '@/components/svg/close-icon';
+import { CloseIcon } from '@/src/components/svg/closeIcon';
 
 type Props = {
   name: string;
@@ -82,9 +69,7 @@ export const FormInput: FC<Props & StyledProps> = ({
 
   const hasError = errors[name];
   const isCustomEl = ['checkbox', 'radio'].includes(type);
-  const isTextField = ['text', 'email', 'password', 'number', 'tel'].includes(
-    type
-  );
+  const isTextField = ['text', 'email', 'password', 'number', 'tel'].includes(type);
   const labelString = typeof label === 'string' ? (label as string) : '';
   const placeholderValue = isTextField ? placeholder || labelString : undefined;
 
@@ -129,15 +114,8 @@ export const FormInput: FC<Props & StyledProps> = ({
     ) : null;
 
   return (
-    <FormFieldWrapper
-      className={className}
-      data-test-id={`form-input-${name}`}
-      margin={margin}
-    >
-      <FormInputLabel
-        data-test-id={`form-label-${name}`}
-        labelOnLeft={isCustomEl}
-      >
+    <FormFieldWrapper className={className} data-test-id={`form-input-${name}`} margin={margin}>
+      <FormInputLabel data-test-id={`form-label-${name}`} labelOnLeft={isCustomEl}>
         {label && (
           <LabelText data-test-id={`form-label-text-${name}`}>
             {label}
