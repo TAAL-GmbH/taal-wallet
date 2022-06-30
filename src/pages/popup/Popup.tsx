@@ -7,14 +7,14 @@ import { RouterComponent } from './RouterComponent';
 import { Debug } from '@/src/components/debug/debug';
 import { store } from '@/src/store';
 import { db } from '@/src/db';
-import { isNull } from '@/src/utils/generic';
+import { isNull, isPopup } from '@/src/utils/generic';
 
 const Popup = () => {
   const { isInSync, isLocked, activePk } = useAppSelector(state => state.pk);
   const [hasRootKey, setHasRootKey] = useState<boolean>(null);
 
   useEffect(() => {
-    document.body.classList.add('popup');
+    document.body.classList.add(isPopup() ? 'main-app-in-popup' : 'main-app-in-tab');
     // @ts-ignore
     window.store = store;
     // @ts-ignore
@@ -40,7 +40,7 @@ const Popup = () => {
 };
 
 const Wrapper = styled.div`
-  padding: 5rem 1rem 1rem 1rem;
+  padding: 1rem;
 `;
 
 export default Popup;

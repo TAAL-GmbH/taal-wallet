@@ -6,8 +6,8 @@ import { Note } from '../generic/note';
 import { CopyToClipboard } from '../generic/copyToClipboard';
 import { InfoIcon } from '../svg/infoIcon';
 import { QuickWalletSelector } from '../quickWalletSelector';
-import { RoundIconWrapper } from '../generic/RoundIconWrapper';
 import { Arrow } from '../svg/arrow';
+import { Heading } from '../generic/heading';
 
 export const ReceiveBSV: FC = () => {
   const { activePk } = useAppSelector(state => state.pk);
@@ -15,12 +15,8 @@ export const ReceiveBSV: FC = () => {
   return (
     <Wrapper>
       <QuickWalletSelector />
-      <h1>
-        <RoundIconWrapper>
-          <Arrow direction="downleft" />
-        </RoundIconWrapper>
-        Receive BSV
-      </h1>
+      <Heading icon={<Arrow direction="downleft" />}>Receive BSV</Heading>
+
       <Subtitle>Your BSV address:</Subtitle>
 
       <AddressWrapper>

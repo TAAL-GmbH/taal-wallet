@@ -4,9 +4,11 @@ import { useAppSelector } from '@/src/hooks';
 import { useGetHistoryQuery } from '@/src/features/wocApiSlice';
 import { Dl, Li, Ul } from '@/components/generic/styled';
 import { QuickWalletSelector } from '../quickWalletSelector';
-import { RoundIconWrapper } from '../generic/RoundIconWrapper';
 import { HistoryIcon } from '../svg/historyIcon';
-import { BlankIcon } from '../svg/blankIcon';
+import { Heading } from '../generic/heading';
+import { Tooltip } from '../generic/tooltip';
+import { IconButton } from '../generic/icon-button';
+import { RefreshIcon } from '../svg/refreshIcon';
 
 type Props = {
   className?: string;
@@ -14,7 +16,7 @@ type Props = {
 
 export const History: FC<Props> = ({ className }) => {
   const { activePk, network } = useAppSelector(state => state.pk);
-  const { data: list, isLoading } = useGetHistoryQuery(activePk.address);
+  const { data: list, isLoading, refetch } = useGetHistoryQuery(activePk.address);
 
   if (isLoading) {
     return <Wrapper>Loading...</Wrapper>;
@@ -23,12 +25,18 @@ export const History: FC<Props> = ({ className }) => {
   return (
     <Wrapper className={className}>
       <QuickWalletSelector />
-      <h1>
-        <RoundIconWrapper>
-          <HistoryIcon />
-        </RoundIconWrapper>
+      <Heading
+        icon={<HistoryIcon />}
+        cta={
+          <Tooltip contents="Refetch history">
+            <IconButton onClick={refetch}>
+              <RefreshIcon />
+            </IconButton>
+          </Tooltip>
+        }
+      >
         Your Wallet's history
-      </h1>
+      </Heading>
 
       {!list.length && (
         <div>
@@ -43,13 +51,13 @@ export const History: FC<Props> = ({ className }) => {
               <Dl>
                 <dt>Height:</dt>
                 <dd>{height}</dd>
-                <dt>Hash:</dt>
-                <dd>{txHash}</dd>
+                <dt>TX ID:</dt>
+                <dd>
+                  <a href={`https://${network.wocNetwork}.whatsonchain.com/tx/${txHash}`} target="_blank">
+                    {txHash}
+                  </a>
+                </dd>
               </Dl>
-              <a href={`https://${network.wocNetwork}.whatsonchain.com/tx/${txHash}`} target="_blank">
-                View on whatsonchain.com
-                <BlankIcon />
-              </a>
             </Li>
           ))}
         </Ul>

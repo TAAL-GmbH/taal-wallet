@@ -89,6 +89,7 @@ const Wrapper = styled.div`
     list-style: none;
     display: flex;
     flex-direction: column;
+    min-width: 180px;
   }
 
   a {
@@ -98,12 +99,13 @@ const Wrapper = styled.div`
     text-decoration: none;
     color: ${({ theme }) => theme.color.grey[700]};
     white-space: nowrap;
-    padding: 0.5rem 1.5rem 0.5rem 1rem;
+    padding: 0.5rem 2rem 0.5rem 1.5rem;
     font-size: 0.85rem;
 
     svg {
-      width: 1rem;
-      height: 1rem;
+      max-width: 1.2rem;
+      max-height: 1.2rem;
+      margin: 0;
       fill: ${({ theme }) => theme.color.grey[600]};
     }
 

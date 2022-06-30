@@ -25,7 +25,7 @@ export const Li = styled.li`
   overflow: hidden;
   text-overflow: ellipsis;
   width: 100%;
-  padding: 0 0.5rem 0.5rem;
+  padding: 0.5rem;
   position: relative;
   background-color: ${({ theme }) => theme.color.grey[50]};
 
@@ -41,6 +41,7 @@ export const Dl = styled.dl<{ padding?: string; margin?: string }>`
   flex-direction: column;
   gap: 0.2rem 0.5rem;
   width: 100%;
+  margin: 0.2rem 0;
 
   dt {
     font-weight: bold;

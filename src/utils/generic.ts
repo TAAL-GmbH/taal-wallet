@@ -2,14 +2,14 @@
 
 export const isBackgroundScript = () => typeof window === 'undefined';
 
-export const isObject = (value: unknown): value is object =>
-  value instanceof Object;
+export const isPopup = () =>
+  typeof window !== 'undefined' && chrome.extension.getViews?.({ type: 'popup' })[0] === window;
 
-export const isUndefined = (value: unknown): value is undefined =>
-  typeof value === 'undefined';
+export const isObject = (value: unknown): value is object => value instanceof Object;
 
-export const isString = (value: unknown): value is string =>
-  typeof value === 'string';
+export const isUndefined = (value: unknown): value is undefined => typeof value === 'undefined';
+
+export const isString = (value: unknown): value is string => typeof value === 'string';
 
 export const isNull = (value: unknown): value is null => value === null;
 
@@ -19,14 +19,11 @@ export const round = (value: number, precision = 0) =>
 export const objectPick = (obj: Record<string, unknown>, keys: string[]) =>
   Object.fromEntries(Object.entries(obj).filter(([key]) => keys.includes(key)));
 
-export const formatNumber = (number: number) =>
-  !isNaN(number) ? number.toLocaleString('en-US') : null;
+export const formatNumber = (number: number) => (!isNaN(number) ? number.toLocaleString('en-US') : null);
 
-export const parseNumber = (n: string | number) =>
-  isNumeric(n) ? parseFloat(n as string) : null;
+export const parseNumber = (n: string | number) => (isNumeric(n) ? parseFloat(n as string) : null);
 
-export const isNumeric = (n: string | number) =>
-  !isNaN(parseFloat(n as string)) && isFinite(n as number);
+export const isNumeric = (n: string | number) => !isNaN(parseFloat(n as string)) && isFinite(n as number);
 
 export const slugify = (text: string) =>
   text
@@ -46,10 +43,7 @@ export const createHugeString = (length = 1000000) => {
   return string;
 };
 
-export const getErrorMessage = (
-  error: unknown,
-  defaultMessage?: string | undefined
-) => {
+export const getErrorMessage = (error: unknown, defaultMessage?: string | undefined) => {
   if (!error) {
     return defaultMessage;
   }

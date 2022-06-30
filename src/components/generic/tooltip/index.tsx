@@ -9,12 +9,17 @@ type Props = {
 };
 
 const TooltipComponent: FC<{ contents: Props['contents']; domRect: any }> = ({ contents, domRect }) => {
+  const ref = useRef<HTMLSpanElement>();
+  const tooltipHeight = ref.current?.getBoundingClientRect().height || 30;
+  const tooltipWidth = ref.current?.getBoundingClientRect().width || 60;
+
   return ReactDOM.createPortal(
     <TooltipBody
+      className="fadein"
+      ref={ref}
       style={{
-        top: `${domRect.top + document.documentElement.scrollTop - 5}px`,
-        left: `${domRect.left + document.documentElement.scrollLeft + domRect.width / 2}px`,
-        transform: 'translate(-50%, -100%)',
+        top: `${domRect.top + document.documentElement.scrollTop - tooltipHeight - 10}px`,
+        left: `${domRect.left + document.documentElement.scrollLeft - tooltipWidth / 2}px`,
       }}
     >
       {contents}
@@ -67,7 +72,7 @@ const TooltipBody = styled.span`
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    bottom: -4px;
+    bottom: -3px;
     content: ' ';
     width: 0;
     height: 0;

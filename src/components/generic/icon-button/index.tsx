@@ -45,6 +45,7 @@ export const IconButton: FC<Props> = ({
 
 const Button = styled.button<ButtonType>`
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
   background: transparent;

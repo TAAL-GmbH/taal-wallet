@@ -1,10 +1,13 @@
 import { useGetTokensQuery } from '@/src/features/wocApiSlice';
 import { useAppSelector } from '@/src/hooks';
-import { FC, ReactNode } from 'react';
+import { FC, ReactNode, useEffect } from 'react';
 import styled from 'styled-components';
-import { RoundIconWrapper } from '../generic/RoundIconWrapper';
+import { Heading } from '../generic/heading';
+import { IconButton } from '../generic/icon-button';
 import { Dl, Li, Ul } from '../generic/styled';
+import { Tooltip } from '../generic/tooltip';
 import { QuickWalletSelector } from '../quickWalletSelector';
+import { RefreshIcon } from '../svg/refreshIcon';
 import { TokenIcon } from '../svg/tokenIcon';
 
 type Props = {
@@ -13,10 +16,13 @@ type Props = {
 
 export const Tokens: FC<Props> = ({ className }) => {
   const { activePk } = useAppSelector(state => state.pk);
-  const { data, isLoading } = useGetTokensQuery(activePk.address);
+  const { data, isLoading, refetch } = useGetTokensQuery(activePk.address);
 
   const tokenList = data?.tokens || [];
-  console.log({ tokenList });
+
+  useEffect(() => {
+    console.log({ isLoading });
+  }, [isLoading]);
 
   if (isLoading) {
     return <Wrapper>Loading...</Wrapper>;
@@ -25,12 +31,19 @@ export const Tokens: FC<Props> = ({ className }) => {
   return (
     <Wrapper className={className}>
       <QuickWalletSelector />
-      <h1>
-        <RoundIconWrapper>
-          <TokenIcon />
-        </RoundIconWrapper>
+
+      <Heading
+        icon={<TokenIcon />}
+        cta={
+          <Tooltip contents="Refetch tokens">
+            <IconButton onClick={refetch}>
+              <RefreshIcon />
+            </IconButton>
+          </Tooltip>
+        }
+      >
         Your Tokens
-      </h1>
+      </Heading>
 
       {!tokenList.length && (
         <div>

@@ -14,7 +14,7 @@ import { getBalance } from '@/src/features/wocApiSlice';
 import { isNull } from '@/src/utils/generic';
 import { AnchorLink } from '../anchorLink';
 import { Dl, Li, Ul } from '@/components/generic/styled';
-import { RoundIconWrapper } from '../generic/RoundIconWrapper';
+import { Heading } from '../generic/heading';
 
 type Props = {
   className?: string;
@@ -59,12 +59,7 @@ export const PKList: FC<Props> = ({ className }) => {
 
   return (
     <Wrapper className={className}>
-      <h1>
-        <RoundIconWrapper>
-          <WalletPlusIcon />
-        </RoundIconWrapper>
-        Your Wallets
-      </h1>
+      <Heading icon={<WalletPlusIcon />}>Your Wallets</Heading>
 
       {!list.length && (
         <div>

@@ -8,8 +8,8 @@ import { Form } from '../generic/form/form';
 import { FormInput } from '../generic/form/formInput';
 import { Row } from '../generic/row';
 import { QuickWalletSelector } from '../quickWalletSelector';
-import { RoundIconWrapper } from '../generic/RoundIconWrapper';
 import { Arrow } from '../svg/arrow';
+import { Heading } from '../generic/heading';
 
 type Props = {
   className?: string;
@@ -68,12 +68,7 @@ export const SendBSV: FC<Props> = ({ className }) => {
   return (
     <Wrapper className={className}>
       <QuickWalletSelector />
-      <h1>
-        <RoundIconWrapper>
-          <Arrow direction="upright" />
-        </RoundIconWrapper>
-        Send BSV
-      </h1>
+      <Heading icon={<Arrow direction="upright" />}>Send BSV</Heading>
       <Form options={{ defaultValues }} onSubmit={onSubmit} data-test-id="send-bsv-form">
         <Row>
           <FormInput

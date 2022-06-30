@@ -1,12 +1,13 @@
 import { FC, useState } from 'react';
 import styled from 'styled-components';
-import { TaalLogo } from '@/src/components/svg/taalLogo';
-import { injectSpacing } from '@/src/utils/injectSpacing';
 import { navigateTo } from '@/src/utils/navigation';
 import { routes } from '@/src/constants/routes';
 import { HamburgerMenuIcon } from '../svg/hamburgerMenu';
 import { TopMenu } from '../topMenu';
 import { AppLogo } from '../appLogo';
+import { ExpandIcon } from '../svg/expandIcon';
+import { IconButton } from '../generic/icon-button';
+import { isPopup } from '@/src/utils/generic';
 
 const menuButtonHeight = '2.5rem';
 
@@ -16,34 +17,45 @@ type Props = {
 
 export const PageHead: FC<Props> = ({ className }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const openInTab = () => chrome.tabs.create({ url: window.location.href });
+
   return (
     <Wrapper className={className}>
-      <HomeButton onClick={() => navigateTo(routes.HOME)}>
-        <AppLogo />
-      </HomeButton>
+      <LogoWrapper>
+        <HomeButton onClick={() => navigateTo(routes.HOME)}>
+          <AppLogo />
+        </HomeButton>
+      </LogoWrapper>
 
       {isMenuOpen && <Backdrop onClick={() => setIsMenuOpen(false)} />}
 
-      <MenuButton onClick={() => setIsMenuOpen(current => !current)}>
+      {isPopup() && (
+        <ExpandButton onClick={openInTab}>
+          <ExpandIconStyled />
+        </ExpandButton>
+      )}
+
+      <IconButton onClick={() => setIsMenuOpen(current => !current)}>
         <HamburgerMenuIcon />
         {isMenuOpen && <MenuBox />}
-      </MenuButton>
+      </IconButton>
     </Wrapper>
   );
 };
 
 const Wrapper = styled.div`
-  position: fixed;
-  top: 0;
-  right: 0;
-  left: 0;
+  max-width: 800px;
+  padding: 0.5rem 0;
+  margin: 0 auto;
   display: flex;
+  gap: 0.6rem;
   align-items: center;
   justify-content: space-between;
-  padding: 0.5rem 0.6rem;
-  box-shadow: 0 0px 10px rgba(0, 0, 0, 0.1);
-  background-color: #fff;
-  z-index: 100;
+`;
+
+const LogoWrapper = styled.div`
+  flex-grow: 1;
 `;
 
 const HomeButton = styled.button`
@@ -52,19 +64,16 @@ const HomeButton = styled.button`
   cursor: pointer;
 `;
 
-const MenuButton = styled.button`
-  background-color: transparent;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  position: relative;
-  z-index: 3;
-
+const ExpandButton = styled(IconButton)`
   svg {
-    fill: #000;
-    width: ${menuButtonHeight};
-    height: ${menuButtonHeight};
+    width: 1.2rem;
+    height: 1.2rem;
   }
+`;
+
+const ExpandIconStyled = styled(ExpandIcon)`
+  width: calc(${menuButtonHeight} * 0.5);
+  height: calc(${menuButtonHeight} * 0.5);
 `;
 
 const MenuBox = styled(TopMenu)`
@@ -79,7 +88,5 @@ const Backdrop = styled.div`
   right: 0;
   bottom: 0;
   left: 0;
-  background-color: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(2px);
   z-index: 2;
 `;

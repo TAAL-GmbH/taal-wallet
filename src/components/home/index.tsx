@@ -14,6 +14,7 @@ import { BsvIcon } from '../svg/bsvIcon';
 import { HistoryIcon } from '../svg/historyIcon';
 import { QuickWalletSelector } from '../quickWalletSelector';
 import { Tooltip } from '../generic/tooltip';
+import { Heading } from '../generic/heading';
 
 type Props = {
   className?: string;
@@ -61,20 +62,23 @@ export const Home: FC<Props> = ({ className }) => {
   return (
     <Wrapper className={className}>
       <QuickWalletSelector />
-      <BalanceRow>
-        <BsvIcon />
-        <span>
-          Balance:{' '}
-          {typeof activePk?.balance?.amount === 'number'
-            ? `${formatNumber(activePk?.balance?.amount)} satoshis`
-            : 'unknown'}
-        </span>
-        <Tooltip contents="Refresh Balance">
-          <IconButton onClick={_getBalance}>
-            <RefreshIcon />
-          </IconButton>
-        </Tooltip>
-      </BalanceRow>
+
+      <HeadingStyled
+        icon={<BsvIcon />}
+        cta={
+          <Tooltip contents="Refetch balance">
+            <IconButton onClick={_getBalance}>
+              <RefreshIcon />
+            </IconButton>
+          </Tooltip>
+        }
+      >
+        Balance{' '}
+        {typeof activePk?.balance?.amount === 'number'
+          ? `${formatNumber(activePk?.balance?.amount)}${'\u00A0'}satoshis`
+          : 'unknown'}
+      </HeadingStyled>
+
       <Ul>
         {tokens.map(({ balance, symbol }, idx) => (
           <li key={idx}>
@@ -113,33 +117,9 @@ const Wrapper = styled.div`
   //
 `;
 
-const BalanceRow = styled.div`
-  background-color: ${({ theme }) => theme.color.neutral[100]};
-  padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.sm};
-  display: flex;
-  border-radius: 0.4rem;
-  gap: 0.5rem;
-  font-size: 1.1rem;
-  font-weight: bold;
-  margin: ${props => props.theme.spacing.lg} 0;
-  display: flex;
-  align-items: center;
-
-  span {
-    position: relative;
-    top: 0.1rem;
-  }
-
-  > svg {
-    width: 1.5rem;
-  }
-
-  button {
-    height: 1.2rem;
-    width: 1.2rem;
-    background-color: ${({ theme }) => theme.color.neutral[800]};
-    color: #fff;
-    border-radius: 50%;
+const HeadingStyled = styled(Heading)`
+  h1 {
+    font-size: 1.4rem;
   }
 `;
 
