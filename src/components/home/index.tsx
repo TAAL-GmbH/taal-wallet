@@ -84,21 +84,25 @@ export const Home: FC<Props> = ({ className }) => {
         ))}
       </Ul>
       <ButtonWrapper>
-        <Button onClick={() => navigateTo(routes.SEND_BSV)}>
+        <Button variant="accent" onClick={() => navigateTo(routes.SEND_BSV)}>
           <Arrow direction="upright" />
           Send BSV
         </Button>
-        <Button onClick={() => navigateTo(routes.RECEIVE_BSV)}>
+        <Button variant="success" onClick={() => navigateTo(routes.RECEIVE_BSV)}>
           <Arrow direction="downleft" />
           Receive BSV
         </Button>
-        <Button variant="success" onClick={_airdrop}>
-          <Arrow direction="down" />
-          Airdrop
-        </Button>
-        <Button variant="primary" onClick={() => navigateTo(routes.HISTORY)}>
+        <Button onClick={() => navigateTo(routes.HISTORY)}>
           <HistoryIcon />
           History
+        </Button>
+        <Button onClick={() => navigateTo(routes.TOKENS)}>
+          <HistoryIcon />
+          Tokens
+        </Button>
+        <Button onClick={_airdrop}>
+          <Arrow direction="down" />
+          Airdrop
         </Button>
       </ButtonWrapper>
     </Wrapper>

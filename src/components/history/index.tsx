@@ -4,6 +4,9 @@ import { useAppSelector } from '@/src/hooks';
 import { useGetHistoryQuery } from '@/src/features/wocApiSlice';
 import { Dl, Li, Ul } from '@/components/generic/styled';
 import { QuickWalletSelector } from '../quickWalletSelector';
+import { RoundIconWrapper } from '../generic/RoundIconWrapper';
+import { HistoryIcon } from '../svg/historyIcon';
+import { BlankIcon } from '../svg/blankIcon';
 
 type Props = {
   className?: string;
@@ -20,7 +23,12 @@ export const History: FC<Props> = ({ className }) => {
   return (
     <Wrapper className={className}>
       <QuickWalletSelector />
-      <h1>Your Wallet's history</h1>
+      <h1>
+        <RoundIconWrapper>
+          <HistoryIcon />
+        </RoundIconWrapper>
+        Your Wallet's history
+      </h1>
 
       {!list.length && (
         <div>
@@ -40,6 +48,7 @@ export const History: FC<Props> = ({ className }) => {
               </Dl>
               <a href={`https://${network.wocNetwork}.whatsonchain.com/tx/${txHash}`} target="_blank">
                 View on whatsonchain.com
+                <BlankIcon />
               </a>
             </Li>
           ))}

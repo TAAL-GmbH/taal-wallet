@@ -50,6 +50,13 @@ const GlobalStyle = createGlobalStyle`
   h1 {
     font-size: 1.7rem;
     margin-bottom: .5rem;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+
+    svg {
+      color: ${light.color.grey[200]};
+    }
   }
 
   svg {
@@ -62,6 +69,12 @@ const GlobalStyle = createGlobalStyle`
 
     &:hover {
       text-decoration: underline;
+    }
+
+    svg {
+      max-height: .8rem;
+      max-width: .7rem;
+      margin: 0 .2rem;
     }
   }
 `;

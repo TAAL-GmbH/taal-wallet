@@ -4,6 +4,7 @@ import { Home } from '@/src/components/home';
 import { PKList } from '@/src/components/pkList';
 import { ReceiveBSV } from '@/src/components/receiveBSV';
 import { SendBSV } from '@/src/components/sendBSV';
+import { Tokens } from '@/src/components/tokens';
 import { Unlock } from '@/src/components/unlock';
 import { WebPushSubscription } from '@/src/components/webPushSubscription';
 import { routes } from '@/src/constants/routes';
@@ -70,6 +71,9 @@ export const RouterComponent: FC<Props> = ({ isInSync, hasRootKey, isLocked, has
       </Route>
       <Route path={routes.HISTORY}>
         <History />
+      </Route>
+      <Route path={routes.TOKENS}>
+        <Tokens />
       </Route>
       <Route path={routes.WEB_PUSH}>
         <WebPushSubscription />

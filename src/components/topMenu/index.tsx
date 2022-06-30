@@ -10,6 +10,8 @@ import { CogIcon } from '../svg/cogIcon';
 import { WalletPlusIcon } from '../svg/walletPlusIcon';
 import { RefreshIcon } from '../svg/refreshIcon';
 import { LockIcon } from '../svg/lockIcon';
+import { HistoryIcon } from '../svg/historyIcon';
+import { TokenIcon } from '../svg/tokenIcon';
 
 type Props = {
   className?: string;
@@ -28,6 +30,8 @@ const menuItems: Record<string, MenuItem> = {
   'Select Wallet': { action: routes.PK_LIST, icon: <WalletPlusIcon /> },
   'Send BSV': { action: routes.SEND_BSV, icon: <Arrow /> },
   'Receive BSV': { action: routes.RECEIVE_BSV, icon: <Arrow direction="left" /> },
+  History: { action: routes.HISTORY, icon: <HistoryIcon /> },
+  Tokens: { action: routes.TOKENS, icon: <TokenIcon /> },
   Options: { action: () => chrome.runtime.openOptionsPage(), icon: <CogIcon /> },
   WebPush: { action: routes.WEB_PUSH, icon: <RefreshIcon /> },
 };

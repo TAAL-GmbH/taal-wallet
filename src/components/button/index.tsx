@@ -10,14 +10,7 @@ import { Spinner } from '../spinner';
 // import { sharedAnchorStyles } from '../anchor-link/anchor-link';
 
 export type ButtonStyleProps = {
-  variant?:
-    | 'default'
-    | 'primary'
-    | 'accent'
-    | 'invert'
-    | 'danger'
-    | 'success'
-    | 'link';
+  variant?: 'default' | 'primary' | 'accent' | 'invert' | 'danger' | 'success' | 'link';
   size?: 'sm' | 'md' | 'lg';
   outline?: boolean;
   hasDarkBg?: boolean;
@@ -89,9 +82,7 @@ export const Button: FC<ButtonProps> = ({
   );
 };
 
-export const sharedButtonStyles = css<
-  ButtonStyleProps & { isLoading: boolean }
->`
+export const sharedButtonStyles = css<ButtonStyleProps & { isLoading: boolean }>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -105,8 +96,7 @@ export const sharedButtonStyles = css<
   ${({ theme: { button }, size = 'md' }) => {
     const height = button.size[size].height;
     const paddingHorizontal = math(`${height} * 1.2`);
-    const borderRadius =
-      button.size[size].borderRadius || button.size.md.borderRadius;
+    const borderRadius = button.size[size].borderRadius || button.size.md.borderRadius;
 
     return css`
       height: ${height}; // used for flex-direction: row and display: block
@@ -118,23 +108,14 @@ export const sharedButtonStyles = css<
   }};
 
   // Button variant;
-  ${({
-    theme: { button },
-    variant = 'default',
-    outline,
-    hasDarkBg = false,
-  }) => {
+  ${({ theme: { button }, variant = 'default', outline, hasDarkBg = false }) => {
     // get variant color or default color
-    const color =
-      button.variant[variant]?.color || button.variant.default.color;
+    const color = button.variant[variant]?.color || button.variant.default.color;
 
     // get variant background color or default background color
-    const bgColor =
-      button.variant[variant]?.backgroundColor ||
-      button.variant.default.backgroundColor;
+    const bgColor = button.variant[variant]?.backgroundColor || button.variant.default.backgroundColor;
 
-    const hoverBgColor =
-      button.variant[variant]?.backgroundColorHover || darken(0.15, bgColor);
+    const hoverBgColor = button.variant[variant]?.backgroundColorHover || darken(0.15, bgColor);
 
     const border = button.variant[variant]?.border || 'none';
 
@@ -186,6 +167,7 @@ export const sharedButtonStyles = css<
     svg {
       height: 20px;
       width: 20px;
+      fill: currentColor;
     }
 
     ${({ isLoading }) =>

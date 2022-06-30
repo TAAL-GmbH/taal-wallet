@@ -40,6 +40,15 @@ type Balance = {
   error: string;
 };
 
+type Token = {
+  protocol: string;
+  redeemAddr: string;
+  symbol: string;
+  image: string;
+  balance: number;
+  tokenBalance: number;
+};
+
 type Unspent = {
   height: number;
   tx_hash: string;
@@ -123,6 +132,9 @@ export const wocApiSlice = createApi({
     getHistory: builder.query<History[], string>({
       query: address => `/address/${address}/history`,
     }),
+    getTokens: builder.query<{ address: string; tokens: Token[] }, string>({
+      query: address => `/address/${address}/tokens`,
+    }),
     getTokensUnspent: builder.query<TokensUnspent, string>({
       query: address => `/address/${address}/tokens/unspent`,
     }),
@@ -205,4 +217,4 @@ export const broadcast = async (...args: Parameters<typeof wocApiSlice.endpoints
   store.dispatch(wocApiSlice.endpoints.broadcast.initiate(...args));
 
 // react hooks
-export const { useGetHistoryQuery } = wocApiSlice;
+export const { useGetHistoryQuery, useGetTokensQuery } = wocApiSlice;
