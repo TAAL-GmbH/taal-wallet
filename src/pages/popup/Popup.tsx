@@ -28,12 +28,14 @@ const Popup = () => {
     <Wrapper>
       <Toaster />
       <PageHead />
+
       <RouterComponent
         isInSync={isInSync}
         hasRootKey={hasRootKey}
         isLocked={isLocked}
         hasActivePk={!isNull(activePk)}
       />
+
       <Debug />
     </Wrapper>
   );

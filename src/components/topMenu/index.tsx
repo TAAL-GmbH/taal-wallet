@@ -12,6 +12,7 @@ import { RefreshIcon } from '../svg/refreshIcon';
 import { LockIcon } from '../svg/lockIcon';
 import { HistoryIcon } from '../svg/historyIcon';
 import { TokenIcon } from '../svg/tokenIcon';
+import { useBlockchain } from '@/src/hooks/useBlockchain';
 
 type Props = {
   className?: string;
@@ -22,22 +23,28 @@ type MenuItem = {
   icon: ReactNode;
 };
 
-const menuItems: Record<string, MenuItem> = {
-  Home: {
-    action: routes.HOME,
-    icon: <HomeIcon />,
-  },
-  'Select Wallet': { action: routes.PK_LIST, icon: <WalletPlusIcon /> },
-  'Send BSV': { action: routes.SEND_BSV, icon: <Arrow /> },
-  'Receive BSV': { action: routes.RECEIVE_BSV, icon: <Arrow direction="left" /> },
-  History: { action: routes.HISTORY, icon: <HistoryIcon /> },
-  Tokens: { action: routes.TOKENS, icon: <TokenIcon /> },
-  Options: { action: () => chrome.runtime.openOptionsPage(), icon: <CogIcon /> },
-  WebPush: { action: routes.WEB_PUSH, icon: <RefreshIcon /> },
-};
-
 export const TopMenu: FC<Props> = ({ className }) => {
-  const { isLocked } = useAppSelector(state => state.pk);
+  const { isLocked, network } = useAppSelector(state => state.pk);
+  const { getBalance, airdrop } = useBlockchain();
+
+  const menuItems: Record<string, MenuItem> = {
+    Home: {
+      action: routes.HOME,
+      icon: <HomeIcon />,
+    },
+    'Select Wallet': { action: routes.PK_LIST, icon: <WalletPlusIcon /> },
+    'Get Balance': { action: getBalance, icon: <RefreshIcon /> },
+    'Send BSV': { action: routes.SEND_BSV, icon: <Arrow /> },
+    'Receive BSV': { action: routes.RECEIVE_BSV, icon: <Arrow direction="left" /> },
+    History: { action: routes.HISTORY, icon: <HistoryIcon /> },
+    Tokens: { action: routes.TOKENS, icon: <TokenIcon /> },
+    Options: { action: () => chrome.runtime.openOptionsPage(), icon: <CogIcon /> },
+    WebPush: { action: routes.WEB_PUSH, icon: <RefreshIcon /> },
+  };
+
+  if (network.envName === 'testnet') {
+    menuItems['Airdrop'] = { action: () => airdrop, icon: <Arrow direction="down" /> };
+  }
 
   if (!isLocked) {
     menuItems['Lock Wallet'] = { action: () => store.dispatch(lockWallet()), icon: <LockIcon /> };
@@ -82,6 +89,7 @@ const Wrapper = styled.div`
   box-shadow: 0 1px 2px 0 rgb(60 64 67 / 30%), 0 2px 6px 2px rgb(60 64 67 / 15%);
   text-align: left;
   min-width: 150px;
+  z-index: 1000;
 
   ul {
     padding: 0;

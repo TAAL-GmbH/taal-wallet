@@ -24,6 +24,7 @@ export const IconButton: FC<Props> = ({
   children,
   type = 'button',
   trackEvent: trackEventOptions,
+  ...rest
 }) => {
   const _onClick = () => {
     if (trackEventOptions) {
@@ -37,7 +38,7 @@ export const IconButton: FC<Props> = ({
   };
 
   return (
-    <Button onClick={_onClick} {...{ className, width, height, type }}>
+    <Button onClick={_onClick} {...{ className, width, height, type }} {...rest}>
       {children}
     </Button>
   );

@@ -36,10 +36,10 @@ export const PageHead: FC<Props> = ({ className }) => {
         </ExpandButton>
       )}
 
-      <IconButton onClick={() => setIsMenuOpen(current => !current)}>
+      <MenuButton onClick={() => setIsMenuOpen(current => !current)}>
         <HamburgerMenuIcon />
         {isMenuOpen && <MenuBox />}
-      </IconButton>
+      </MenuButton>
     </Wrapper>
   );
 };
@@ -71,6 +71,10 @@ const ExpandButton = styled(IconButton)`
   }
 `;
 
+const MenuButton = styled(IconButton)`
+  position: relative;
+`;
+
 const ExpandIconStyled = styled(ExpandIcon)`
   width: calc(${menuButtonHeight} * 0.5);
   height: calc(${menuButtonHeight} * 0.5);
@@ -78,7 +82,7 @@ const ExpandIconStyled = styled(ExpandIcon)`
 
 const MenuBox = styled(TopMenu)`
   position: absolute;
-  top: ${menuButtonHeight};
+  top: 1.5rem;
   right: 0;
 `;
 

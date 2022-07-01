@@ -34,6 +34,7 @@
     "react-hook-form": "^7.31.3",
     "react-hot-toast": "^2.2.0",
     "react-redux": "^8.0.1",
+    "react-tooltip": "^4.2.21",
     "redux-logger": "^3.0.6",
     "redux-state-sync": "^3.1.2",
     "stas-js": "^1.0.2",

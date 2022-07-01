@@ -107,7 +107,6 @@ const GlobalStyle = createGlobalStyle`
     animation-duration: .5s;
     animation-timing-function: ease-in-out;
   }
-}
 `;
 
 type Props = {
