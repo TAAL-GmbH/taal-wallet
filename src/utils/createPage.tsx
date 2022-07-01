@@ -70,13 +70,6 @@ const GlobalStyle = createGlobalStyle`
   h1 {
     font-size: 1.7rem;
     margin-bottom: .5rem;
-    display: flex;
-    align-items: center;
-    gap: .5rem;
-
-    svg {
-      color: ${light.color.grey[200]};
-    }
   }
 
   svg {

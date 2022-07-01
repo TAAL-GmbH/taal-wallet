@@ -9,6 +9,7 @@ import { Tooltip } from '../generic/tooltip';
 import { QuickWalletSelector } from '../quickWalletSelector';
 import { RefreshIcon } from '../svg/refreshIcon';
 import { TokenIcon } from '../svg/tokenIcon';
+import { TokenItemList } from './tokenItemList';
 
 type Props = {
   className?: string;
@@ -16,17 +17,9 @@ type Props = {
 
 export const Tokens: FC<Props> = ({ className }) => {
   const { activePk } = useAppSelector(state => state.pk);
-  const { data, isLoading, refetch } = useGetTokensQuery(activePk.address);
+  const { data, isFetching, refetch } = useGetTokensQuery(activePk.address);
 
   const tokenList = data?.tokens || [];
-
-  useEffect(() => {
-    console.log({ isLoading });
-  }, [isLoading]);
-
-  if (isLoading) {
-    return <Wrapper>Loading...</Wrapper>;
-  }
 
   return (
     <Wrapper className={className}>
@@ -45,34 +38,7 @@ export const Tokens: FC<Props> = ({ className }) => {
         Your Tokens
       </Heading>
 
-      {!tokenList.length && (
-        <div>
-          <p>No tokens found.</p>
-        </div>
-      )}
-
-      {!!tokenList.length && (
-        <Ul>
-          {tokenList.map(({ protocol, balance, image, redeemAddr, symbol, tokenBalance }) => (
-            <Li key={symbol}>
-              <Dl>
-                <dt>Protocol:</dt>
-                <dd>{protocol}</dd>
-                <dt>Image:</dt>
-                <dd>{image}</dd>
-                <dt>Balance:</dt>
-                <dd>{balance}</dd>
-                <dt>Redeem Addr:</dt>
-                <dd>{redeemAddr}</dd>
-                <dt>Symbol:</dt>
-                <dd>{symbol}</dd>
-                <dt>Token Balance:</dt>
-                <dd>{tokenBalance}</dd>
-              </Dl>
-            </Li>
-          ))}
-        </Ul>
-      )}
+      <TokenItemList list={tokenList} isFetching={isFetching} />
     </Wrapper>
   );
 };

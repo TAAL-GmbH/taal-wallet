@@ -42,7 +42,7 @@ export const TopMenu: FC<Props> = ({ className }) => {
     WebPush: { action: routes.WEB_PUSH, icon: <RefreshIcon /> },
   };
 
-  if (network.envName === 'testnet') {
+  if (network?.envName === 'testnet') {
     menuItems['Airdrop'] = { action: () => airdrop, icon: <Arrow direction="down" /> };
   }
 

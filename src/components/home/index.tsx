@@ -65,10 +65,6 @@ export const Home: FC<Props> = ({ className }) => {
           <HistoryIcon />
           Tokens
         </Button>
-        <Button onClick={airdrop}>
-          <Arrow direction="down" />
-          Airdrop
-        </Button>
       </ButtonWrapper>
     </Wrapper>
   );
@@ -79,22 +75,12 @@ const Wrapper = styled.div`
 `;
 
 const HeadingStyled = styled(Heading)`
+  margin: 2rem 0;
+
   h1 {
     font-size: 1.4rem;
-  }
-`;
-
-const Ul = styled.ul`
-  list-style: none;
-  font-size: 1.2rem;
-  padding: 0;
-
-  li {
-    display: flex;
-    gap: 1rem;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #ccc;
-    white-space: nowrap;
+    flex-shrink: 0;
+    flex-grow: 0;
   }
 `;
 

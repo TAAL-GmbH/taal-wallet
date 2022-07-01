@@ -106,7 +106,7 @@ type Tx = {
   vout: TxOutput[];
 };
 
-type History = {
+export type History = {
   height: number;
   tx_hash: string;
 };
