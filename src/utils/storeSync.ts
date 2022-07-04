@@ -5,6 +5,7 @@ import { setState } from '../features/pkSlice';
 import { isNull, isUndefined } from './generic';
 import { PKType } from '../types';
 import { networkList } from '../constants/networkList';
+import { sharedDb } from '../db/shared';
 
 type PKDiffType = {
   updated: RootState['pk'];
@@ -25,16 +26,9 @@ export const initStoreSync = async () => {
   };
 
   store.subscribe(async () => {
-    const { added, deleted, updated } = detailedDiff(
-      previousState.pk,
-      store.getState().pk
-    ) as PKDiffType;
+    const { added, deleted, updated } = detailedDiff(previousState.pk, store.getState().pk) as PKDiffType;
 
-    // if (
-    //   Object.keys(added).length ||
-    //   Object.keys(deleted).length ||
-    //   Object.keys(updated).length
-    // ) {
+    // if (Object.keys(added).length || Object.keys(deleted).length || Object.keys(updated).length) {
     //   console.log('store.subscribe', {
     //     added,
     //     deleted,
@@ -43,8 +37,7 @@ export const initStoreSync = async () => {
     // }
 
     if (added.map) {
-      let highestDerivationPathIndex =
-        (await db.getKeyVal('derivationPath.lastIndex')) || 0;
+      let highestDerivationPathIndex = (await db.getKeyVal('derivationPath.lastIndex')) || 0;
 
       Object.values(added.map).forEach((pk: PKType) => {
         db.insertPk(pk);
@@ -89,18 +82,28 @@ export const initStoreSync = async () => {
     }
 
     if (updated.rootPk?.privateKeyEncrypted) {
-      db.setKeyVal(
-        'rootPk.privateKeyEncrypted',
-        updated.rootPk.privateKeyEncrypted
-      );
+      db.setKeyVal('rootPk.privateKeyEncrypted', updated.rootPk.privateKeyEncrypted);
+    }
+
+    if (updated.isLocked) {
+      // TODO: change icon to locked
     }
 
     previousState.pk = store.getState().pk;
   });
 
+  restoreDataFromDb();
+};
+
+export const restoreDataFromDb = async () => {
   /**
    * The following code it to restore data from indexedDB -> redux state
    */
+
+  const activeAccountId = await sharedDb.getKeyVal('activeAccountId');
+  if (isUndefined(activeAccountId)) {
+    return;
+  }
 
   const [networkId, pkMap, activePkAddress] = await Promise.all([
     db.getKeyVal('network.id'),
@@ -113,6 +116,7 @@ export const initStoreSync = async () => {
       network: networkList.find(network => network.id === networkId),
       activePk: activePkAddress ? pkMap[activePkAddress as string] : null,
       map: pkMap,
+      rootPk: null,
     })
   );
 };

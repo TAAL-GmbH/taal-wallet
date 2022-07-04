@@ -7,10 +7,15 @@ import { RouterComponent } from './RouterComponent';
 import { Debug } from '@/src/components/debug/debug';
 import { store } from '@/src/store';
 import { db } from '@/src/db';
-import { isNull, isPopup } from '@/src/utils/generic';
+import { isNull, isPopup, isUndefined } from '@/src/utils/generic';
+import { sharedDb } from '@/src/db/shared';
+import { AccountSelector } from '@/src/components/accountSelector';
+
+// let background know we're connected
+chrome.runtime.connect();
 
 const Popup = () => {
-  const { isInSync, isLocked, activePk } = useAppSelector(state => state.pk);
+  const { isInSync, isLocked, rootPk, activePk } = useAppSelector(state => state.pk);
   const [hasRootKey, setHasRootKey] = useState<boolean>(null);
 
   useEffect(() => {
@@ -20,14 +25,21 @@ const Popup = () => {
     // @ts-ignore
     window.db = db;
     (async () => {
-      setHasRootKey(!!(await db.getKeyVal('rootPk.privateKeyEncrypted')));
+      const activeAccountId = await sharedDb.getKeyVal('activeAccountId');
+      if (!isUndefined(activeAccountId)) {
+        setHasRootKey(!!(await db.getKeyVal('rootPk.privateKeyEncrypted')));
+      } else {
+        setHasRootKey(false);
+      }
     })();
-  }, [isLocked]);
+  }, [isLocked, rootPk]);
 
   return (
     <Wrapper>
       <Toaster />
       <PageHead />
+
+      {hasRootKey && <AccountSelector />}
 
       <RouterComponent
         isInSync={isInSync}

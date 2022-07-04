@@ -37,6 +37,12 @@ export type OriginType = {
   isPersistent: boolean;
 };
 
+export type AccountType = {
+  id: string;
+  name: string;
+  networkId: string;
+};
+
 export type PKType = {
   name: string;
   address: string;

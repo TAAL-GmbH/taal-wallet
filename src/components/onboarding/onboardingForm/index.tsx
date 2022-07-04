@@ -17,6 +17,8 @@ import { encrypt } from '@/src/utils/crypt';
 import { Row } from '@/components/generic/row';
 import { getHistory } from '@/src/features/wocApiSlice';
 import { PKType } from '@/src/types';
+import { db } from '@/src/db';
+import { sharedDb } from '@/src/db/shared';
 
 type Props = {
   className?: string;
@@ -59,8 +61,19 @@ export const OnboardingForm: FC<Props> = ({ className, action }) => {
       const { pkInstance: rootKey } = createHDPrivateKey({
         networkId,
         password,
-        mnemonic: action === 'createNew' ? mnemonic.current : rebuildMnemonic(mnemonicPhrase),
+        mnemonic: action === 'createNew' ? mnemonic.current : rebuildMnemonic(mnemonicPhrase.trim()),
       });
+
+      const accountId = `${Date.now()}`;
+
+      await sharedDb.insertAccount({
+        id: accountId,
+        name: `Account-${accountId}`, // TODO: add form field for name
+        networkId,
+      });
+
+      // it's important to await for background to switch database
+      await db.useAccount(accountId, true);
 
       store.dispatch(
         setRootPK({
@@ -98,6 +111,7 @@ export const OnboardingForm: FC<Props> = ({ className, action }) => {
 
       navigateTo(routes.HOME);
     } catch (err) {
+      console.error('onboardingForm', err);
       toast.error(err.message);
     }
   };
@@ -183,7 +197,8 @@ export const OnboardingForm: FC<Props> = ({ className, action }) => {
           placeholder="Please input your 12 words mnemonic phrase"
           readOnly={action === 'createNew'}
           options={{
-            validate: value => (value.split(' ').length !== 12 ? 'Mnemonic phrase must be 12 words' : true),
+            validate: value =>
+              value.trim().split(' ').length !== 12 ? 'Mnemonic phrase must be 12 words' : true,
           }}
         />
       </Row>

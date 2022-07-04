@@ -43,7 +43,7 @@ export const TopMenu: FC<Props> = ({ className }) => {
   };
 
   if (network?.envName === 'testnet') {
-    menuItems['Airdrop'] = { action: () => airdrop, icon: <Arrow direction="down" /> };
+    menuItems['Airdrop'] = { action: () => airdrop(), icon: <Arrow direction="down" /> };
   }
 
   if (!isLocked) {

@@ -38,8 +38,8 @@ wallet.on('connect', async () => {
   }
 });
 
-wallet.on('disconnect', () => {
-  console.log('on disconnect');
+wallet.on('disconnect', payload => {
+  console.log('on disconnect', payload);
   state.isConnected = false;
   state.publicKey = null;
   state.rootPublicKey = null;

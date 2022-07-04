@@ -1,11 +1,10 @@
 import { openDB, DBSchema, IDBPDatabase, StoreNames } from 'idb';
 import { OriginType, PKType } from '../types';
+import { isBackgroundScript } from '../utils/generic';
+import { sharedDb } from './shared';
 
 const CURRENT_DB_VERSION = 1;
-const DB_NAME_PREFIX = 'Taal-web3-wallet';
-const SHARED_DB_NAME = `${DB_NAME_PREFIX}-shared`;
-const ACCOUNT_DB_NAME_PREFIX = `${DB_NAME_PREFIX}-account`;
-const DEFAULT_ACCOUNT_DB_NAME = `${ACCOUNT_DB_NAME_PREFIX}-0`;
+const ACCOUNT_DB_NAME_PREFIX = `Account`;
 
 export const storeNames = {
   KEY_VAL: 'keyVal',
@@ -20,14 +19,6 @@ type KeyValAccountKey =
   | 'network.id'
   | 'account.name'
   | 'account.passwordHash';
-type KeyValSharedKey = 'activeAccountIndex';
-
-interface TaalSharedDB extends DBSchema {
-  [storeNames.KEY_VAL]: {
-    key: string;
-    value: string | number | boolean | null;
-  };
-}
 
 interface TaalAccountDB extends DBSchema {
   [storeNames.KEY_VAL]: {
@@ -48,14 +39,18 @@ interface TaalAccountDB extends DBSchema {
 }
 
 class Db {
-  _db: IDBPDatabase<TaalAccountDB> | null;
-  _activeDbName = DEFAULT_ACCOUNT_DB_NAME;
+  private _db: IDBPDatabase<TaalAccountDB> | null;
+  private _activeDbName: string;
 
-  constructor() {
-    this._getDB().then(db => (this._db = db));
-  }
+  constructor() {}
 
   private async _getDB() {
+    if (!this._activeDbName) {
+      const accountId = ((await sharedDb.getKeyVal('activeAccountId')) as number) || 0;
+      this._activeDbName = `${ACCOUNT_DB_NAME_PREFIX}-${accountId}`;
+      this._db = null;
+    }
+
     return (
       this._db ||
       openDB<TaalAccountDB>(this._activeDbName, CURRENT_DB_VERSION, {
@@ -63,21 +58,13 @@ class Db {
           db.createObjectStore(storeNames.KEY_VAL);
           db.createObjectStore(storeNames.ORIGIN, { keyPath: 'origin' });
 
-          const productStore = db.createObjectStore(storeNames.PK, {
+          const pkStore = db.createObjectStore(storeNames.PK, {
             keyPath: 'address',
           });
-          productStore.createIndex('by-path', 'path');
+          pkStore.createIndex('by-path', 'path');
         },
       })
     );
-  }
-
-  private async _getSharedDB() {
-    return openDB<TaalAccountDB>(SHARED_DB_NAME, CURRENT_DB_VERSION, {
-      upgrade(db) {
-        db.createObjectStore(storeNames.KEY_VAL);
-      },
-    });
   }
 
   private async _getStore<T extends StoreNames<TaalAccountDB>>(storeName: T) {
@@ -85,56 +72,35 @@ class Db {
     return db.transaction(storeName).objectStore(storeName);
   }
 
-  public async getAccountList(resolveNames = true) {
+  public async useAccount(accountId: string, create?: boolean) {
+    console.log('useAccount', accountId);
+    const dbName = `${ACCOUNT_DB_NAME_PREFIX}-${accountId}`;
+
     const dbList = await indexedDB.databases();
-    const accountList = dbList.filter(item =>
-      item.name.startsWith(ACCOUNT_DB_NAME_PREFIX)
-    );
+    const dbExists = !!dbList.find(item => item.name === dbName);
 
-    const dbNameToRestore = this._activeDbName;
-
-    const getAccountName = async (index: number) => {
-      await this.useAccount(index);
-      const accountName = await this.getKeyVal('account.name');
-      return typeof accountName === 'string' ? accountName : `Account ${index}`;
-    };
-
-    const promises = accountList.map(async (item, index) => {
-      return {
-        dbName: item.name,
-        accountName: resolveNames ? await getAccountName(index) : '',
-        version: item.version,
-      };
-    });
-
-    this._activeDbName = dbNameToRestore;
-
-    return Promise.all(promises);
-  }
-
-  public async useAccount(index: number) {
-    const dbName = `${ACCOUNT_DB_NAME_PREFIX}-${index}`;
-    const accountDbList = await this.getAccountList(false);
-    if (!accountDbList.find(item => item.dbName === dbName)) {
-      console.error(`Account #${index} not found!`, { accountDbList });
-      throw new Error(`Account #${index} not found!`);
+    if (!dbExists && !create) {
+      console.error(`Account #${accountId} not found!`, { dbList });
+      throw new Error(`Account #${accountId} not found!`);
     }
+
+    sharedDb.setKeyVal('activeAccountId', accountId);
     this._activeDbName = dbName;
     this._db = null;
-    await this._getDB();
-  }
 
-  public async getSharedKeyVal(key: KeyValSharedKey) {
-    const db = await this._getSharedDB();
-    return db.get(storeNames.KEY_VAL, key);
-  }
+    if (!dbExists && create) {
+      // calling _getDB() will create the DB
+      await this._getDB();
+    }
 
-  public async setSharedKeyVal(
-    key: KeyValSharedKey,
-    value: TaalSharedDB['keyVal']['value']
-  ) {
-    const db = await this._getSharedDB();
-    return db.put(storeNames.KEY_VAL, value, key);
+    // tell background script that we are using this account now
+    // TODO: switch to long-lived internal communication
+    if (!isBackgroundScript()) {
+      await chrome.runtime.sendMessage({
+        action: 'bg:setAccount',
+        payload: accountId,
+      });
+    }
   }
 
   public async getKeyVal(key: KeyValAccountKey) {
@@ -142,10 +108,7 @@ class Db {
     return db.get(storeNames.KEY_VAL, key);
   }
 
-  public async setKeyVal(
-    key: KeyValAccountKey,
-    value: TaalAccountDB['keyVal']['value']
-  ) {
+  public async setKeyVal(key: KeyValAccountKey, value: TaalAccountDB['keyVal']['value']) {
     const db = await this._getDB();
     return db.put(storeNames.KEY_VAL, value, key);
   }
@@ -220,10 +183,7 @@ class Db {
     const start = 0;
     const end = 100;
 
-    var range = IDBKeyRange.bound(
-      `m/44/236/0/0/${start}`,
-      `m/44/236/0/0/${end}`
-    );
+    var range = IDBKeyRange.bound(`m/44/236/0/0/${start}`, `m/44/236/0/0/${end}`);
     let cursor = await this.getCursor('pk', range);
 
     const result: Record<string, PKType> = {};

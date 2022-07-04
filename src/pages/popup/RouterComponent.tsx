@@ -24,6 +24,7 @@ type Props = {
 };
 
 export const RouterComponent: FC<Props> = ({ isInSync, hasRootKey, isLocked, hasActivePk }) => {
+  // isNull(hasRootKey) === true means we're still fetching the root key from db
   if (!isInSync || isNull(hasRootKey)) {
     return <>Loading...</>;
   }
@@ -77,6 +78,12 @@ export const RouterComponent: FC<Props> = ({ isInSync, hasRootKey, isLocked, has
       </Route>
       <Route path={routes.WEB_PUSH}>
         <WebPushSubscription />
+      </Route>
+      <Route path={`${routes.ONBOARDING_NEW}`}>
+        <OnboardingNew />
+      </Route>
+      <Route path={`${routes.ONBOARDING_IMPORT}`}>
+        <OnboardingImport />
       </Route>
     </Router>
   );

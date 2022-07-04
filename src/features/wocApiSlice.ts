@@ -7,9 +7,10 @@ import {
 } from '@reduxjs/toolkit/query/react';
 import { RootState, store } from '../store';
 import { WocApiError } from '../utils/errors/wocApiError';
+import { isObject } from '../utils/generic';
 import { setBatchBalance } from './pkSlice';
 
-const ORIGIN = 'https://taalnet.whatsonchain.com';
+const ORIGIN = 'https://api.whatsonchain.com';
 const BASE_PATH = '/v1/bsv';
 const AUTH_HEADER = `Basic ${btoa('taal_private:dotheT@@l007')}`;
 
@@ -18,7 +19,7 @@ const dynamicBaseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryE
   api,
   extraOptions
 ) => {
-  const { wocNetwork } = (api.getState() as RootState).pk.network;
+  const { id: networkId, wocNetwork } = (api.getState() as RootState).pk.network;
 
   let baseUrl: string;
   // console.log({ args, api, extraOptions, endpoint: api.endpoint });
@@ -27,6 +28,13 @@ const dynamicBaseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryE
   } else {
     baseUrl = `${ORIGIN}${BASE_PATH}/${wocNetwork}`;
   }
+
+  if (isObject(args) && 'headers' in args && networkId !== 'taalnet') {
+    if ('Authorization' in args.headers) {
+      delete args.headers.Authorization;
+    }
+  }
+
   const rawBaseQuery = fetchBaseQuery({ baseUrl });
   return rawBaseQuery(args, api, extraOptions);
 };
@@ -143,7 +151,6 @@ export const wocApiSlice = createApi({
     }),
     airdrop: builder.query<string, string>({
       query: address => ({
-        // url: `${ORIGIN}/faucet/send/${address}`,
         url: `/faucet/send/${address}`,
         headers: {
           'Content-Type': 'application/json',

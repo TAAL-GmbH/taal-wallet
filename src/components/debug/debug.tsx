@@ -7,18 +7,13 @@ export const Debug: FC = () => {
 
   return (
     <>
-      {!isDebugExpanded && (
-        <DebugButton onClick={() => setIsDebugExpanded(true)}>
-          Show Debug
-        </DebugButton>
-      )}
+      {!isDebugExpanded && <DebugButton onClick={() => setIsDebugExpanded(true)}>Show Debug</DebugButton>}
       {isDebugExpanded && (
-        <pre
-          onDoubleClick={() => setIsDebugExpanded(false)}
-          style={{ marginTop: '6rem' }}
-        >
-          {JSON.stringify(store.getState().pk, null, 2)}
-        </pre>
+        <>
+          <pre onDoubleClick={() => setIsDebugExpanded(false)} style={{ marginTop: '6rem' }}>
+            {JSON.stringify(store.getState().pk, null, 2)}
+          </pre>
+        </>
       )}
     </>
   );

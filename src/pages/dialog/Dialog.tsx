@@ -116,6 +116,7 @@ const Body = styled.div`
   display: flex;
   flex: 1;
   overflow: auto;
+  flex-direction: column;
 
   pre {
     border: 1px solid ${({ theme }) => theme.color.grey[100]};

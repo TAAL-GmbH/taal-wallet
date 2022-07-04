@@ -24,6 +24,7 @@ export class Client {
   private _pingTimer: ReturnType<typeof setTimeout> | null = null;
   private _disconectTimer: ReturnType<typeof setTimeout> | null = null;
   private _unsubscribeRedux: () => void;
+  public onAuthorized: (() => void) | null = null;
 
   constructor({ port }: Options) {
     if (!port.sender?.origin) {
@@ -56,6 +57,32 @@ export class Client {
           payload: state.pk.activePk?.balance.amount,
         });
       }
+
+      if (
+        state.pk.rootPk?.privateKeyHash &&
+        state.pk.rootPk?.privateKeyHash !== storeCache?.pk.rootPk?.privateKeyHash
+      ) {
+        const { publicKeyHash } = this._getKey();
+        return {
+          action: 'publicKey',
+          payload: publicKeyHash.toString(),
+        };
+      }
+
+      if (state.pk.isLocked) {
+        console.log('Wallet is locked');
+        this._postMessage(
+          {
+            action: 'disconnect',
+            payload: {
+              reason: 'wallet-locked',
+            },
+          },
+          true
+        );
+        this.destroy();
+      }
+
       storeCache = state;
     });
   }
@@ -114,6 +141,7 @@ export class Client {
 
     if (originData?.isAuthorized) {
       this._isAuthorized = true;
+      this.onAuthorized && this.onAuthorized();
       return true;
     } else if (originData?.isPersistent) {
       throw new Error('Origin is not authorized');
@@ -129,6 +157,7 @@ export class Client {
 
     if (isPermissionGranted) {
       this._isAuthorized = true;
+      this.onAuthorized && this.onAuthorized();
       return true;
     }
 
@@ -163,7 +192,7 @@ export class Client {
         },
         true
       );
-      this.destroy();
+      await this.destroy();
       return;
     }
 
@@ -392,12 +421,10 @@ export class Client {
   }
 
   private _getKey() {
-    const {
-      rootPk,
-      activePk: { path },
-    } = store.getState().pk;
+    const { rootPk, activePk } = store.getState().pk;
+    const path = activePk?.path;
 
-    if (!rootPk.privateKeyHash || !path) {
+    if (!rootPk?.privateKeyHash || !path) {
       throw new Error("Can't get private key hash");
     }
 
@@ -412,7 +439,7 @@ export class Client {
     clearTimeout(this._disconectTimer);
   }
 
-  public destroy() {
+  public async destroy() {
     // TODO: unsubscribe and prepare for garbage collection
     console.log(`client ${this._origin} destroyed`);
     this._unsubscribeRedux();

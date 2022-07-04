@@ -37,8 +37,13 @@ const GlobalStyle = createGlobalStyle`
     padding-top: 2rem;
 
     #app-container {
-      min-height: 500px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      min-height: 600px;
+      
+      @media only screen and (min-width: 400px) {
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        margin-left: 2rem;
+        margin-right: 2rem;
+      }
     }
   }
 

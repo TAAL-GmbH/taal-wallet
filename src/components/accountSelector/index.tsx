@@ -1,28 +1,56 @@
-import { db } from '@/src/db';
 import { FC, useEffect, useState } from 'react';
 import styled from 'styled-components';
-
-type AccountType = {
-  dbName: string;
-  accountName: string;
-  version: number;
-};
+import { db } from '@/src/db';
+import { sharedDb } from '@/src/db/shared';
+import { lockWallet } from '@/src/features/pkSlice';
+import { store } from '@/src/store';
+import { AccountType } from '@/src/types';
+import { isNull } from '@/src/utils/generic';
+import { FormSelect } from '../generic/form/formSelect';
+import { useForm } from '../generic/form/useForm';
 
 export const AccountSelector: FC = () => {
   const [accountList, setAccountList] = useState<AccountType[]>(null);
+  const [activeAccountId, setActiveAccountId] = useState<string>(null);
+  const {
+    Form,
+    methods: { setValue },
+  } = useForm({ defaultValues: { activeAccountId } });
 
   useEffect(() => {
     (async () => {
-      const activeAccountId =
-        (await db.getSharedKeyVal('activeAccountIndex')) || 0;
-      setAccountList(await db.getAccountList());
+      const accounts = await sharedDb.getAccountList();
+      setAccountList(accounts);
+      const activeAccountId = (await sharedDb.getKeyVal('activeAccountId')) || accounts[0].id;
+      setActiveAccountId(activeAccountId as string);
+      setValue('activeAccountId', activeAccountId);
       console.log({ activeAccountId });
     })();
   }, []);
 
+  const switchAccount = async (accountId: AccountType['id']) => {
+    await db.useAccount(accountId);
+    setActiveAccountId(accountId);
+    await chrome.runtime.sendMessage({ action: 'bg:reloadFromDb' });
+    store.dispatch(lockWallet());
+  };
+
+  const onChange = async ({ activeAccountId }: { activeAccountId: string }) => {
+    switchAccount(activeAccountId);
+  };
+
+  if (isNull(accountList)) {
+    return <div>Loading account list...</div>;
+  }
+
   return (
     <Wrapper>
-      <pre>{JSON.stringify(accountList)}</pre>
+      <Form onSubmit={() => {}} data-test-id="" onChange={onChange}>
+        <FormSelect
+          name="activeAccountId"
+          items={accountList.map(({ id: value, name: label }) => ({ label, value }))}
+        />
+      </Form>
     </Wrapper>
   );
 };

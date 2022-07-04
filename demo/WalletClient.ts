@@ -71,13 +71,14 @@ class WalletCommunicator {
     this._onDisconnect();
   }
 
-  private _onDisconnect() {
+  private _onDisconnect(payload?: chrome.runtime.Port | { reason?: string }) {
     this._connected = false;
+    const reason = payload && 'reason' in payload ? payload.reason : null;
 
     this._port.onDisconnect.removeListener(this._onDisconnect);
     this._port.onMessage.removeListener(this._onMessage);
 
-    this._subscriptions['disconnect']?.forEach(cb => cb(null));
+    this._subscriptions['disconnect']?.forEach(cb => cb(reason));
 
     // reject all pending promises
     Object.values(this._requestMap).forEach(requestObject => {
@@ -93,7 +94,7 @@ class WalletCommunicator {
       return;
     }
     if (msg.action === 'disconnect') {
-      this._onDisconnect();
+      this._onDisconnect(msg.payload);
       return;
     }
 

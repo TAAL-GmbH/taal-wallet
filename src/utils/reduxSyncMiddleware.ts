@@ -3,10 +3,7 @@ import { Middleware, AnyAction } from '@reduxjs/toolkit';
 const BACKGROUND_PAGE_PATH = 'background.js';
 
 const extensionId = chrome.runtime.id;
-const pagePath =
-  typeof window === 'undefined'
-    ? BACKGROUND_PAGE_PATH
-    : window?.location.pathname;
+const pagePath = typeof window === 'undefined' ? BACKGROUND_PAGE_PATH : window?.location.pathname;
 const isBackgroundPage = pagePath === BACKGROUND_PAGE_PATH;
 
 const isValidOrigin = (origin: string) => {
@@ -16,8 +13,7 @@ const isValidOrigin = (origin: string) => {
 const shouldForward = (action: AnyAction) => {
   return (
     action.type &&
-    (action.type.substr(0, 2) !== '@@' ||
-      action.type.startsWith('@@redux-ui')) &&
+    (action.type.substr(0, 2) !== '@@' || action.type.startsWith('@@redux-ui')) &&
     action.type &&
     !action.type.startsWith('redux-form') &&
     !action.type.startsWith('persist/') &&
@@ -52,7 +48,8 @@ export const reduxSyncMiddleWare: Middleware = store => {
      * Every Chrome extension window will ask "getState" on init
      */
     if (data.action === 'getState' && isBackgroundPage) {
-      // fake dispatch event to sync extension windows to background
+      // broadcast dispatch structured event to sync extension windows to background
+      console.log('got getState request to background page');
       bc.postMessage({
         action: 'dispatch',
         reduxAction: {
@@ -66,6 +63,7 @@ export const reduxSyncMiddleWare: Middleware = store => {
 
   // non-background pages should ask background for the whole state
   if (!isBackgroundPage) {
+    console.log('requesting background for state to sync');
     bc.postMessage({
       action: 'getState',
     });
