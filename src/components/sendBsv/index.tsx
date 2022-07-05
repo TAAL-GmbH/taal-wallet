@@ -10,6 +10,8 @@ import { Row } from '../generic/row';
 import { QuickWalletSelector } from '../quickWalletSelector';
 import { Arrow } from '../svg/arrow';
 import { Heading } from '../generic/heading';
+import { navigateTo } from '@/src/utils/navigation';
+import { routes } from '@/src/constants/routes';
 // test
 type Props = {
   className?: string;
@@ -56,6 +58,7 @@ export const SendBSV: FC<Props> = ({ className }) => {
       if (success) {
         console.log('BSV sent successfully', data);
         toast.success('BSV sent successfully');
+        navigateTo(routes.HOME);
       } else {
         toast.error(error.message);
       }

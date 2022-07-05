@@ -10,7 +10,7 @@ import { WocApiError } from '../utils/errors/wocApiError';
 import { isObject } from '../utils/generic';
 import { setBatchBalance } from './pkSlice';
 
-const ORIGIN = 'https://api.whatsonchain.com';
+const ORIGIN = 'https://taalnet.whatsonchain.com';
 const BASE_PATH = '/v1/bsv';
 const AUTH_HEADER = `Basic ${btoa('taal_private:dotheT@@l007')}`;
 
