@@ -12,7 +12,8 @@ import { Arrow } from '../svg/arrow';
 import { Heading } from '../generic/heading';
 import { navigateTo } from '@/src/utils/navigation';
 import { routes } from '@/src/constants/routes';
-// test
+import { useBlockchain } from '@/src/hooks/useBlockchain';
+
 type Props = {
   className?: string;
 };
@@ -29,6 +30,7 @@ const defaultValues: FormInputs = {
 
 export const SendBSV: FC<Props> = ({ className }) => {
   const { activePk, rootPk, network } = useAppSelector(state => state.pk);
+  const { getBalance } = useBlockchain();
 
   // TODO: type this
   const onSubmit = async (values: any) => {
@@ -58,6 +60,9 @@ export const SendBSV: FC<Props> = ({ className }) => {
       if (success) {
         console.log('BSV sent successfully', data);
         toast.success('BSV sent successfully');
+
+        setTimeout(() => getBalance(), 5000);
+
         navigateTo(routes.HOME);
       } else {
         toast.error(error.message);

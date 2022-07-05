@@ -6,9 +6,18 @@ import { AccountType } from '@/src/types';
 import { isNull } from '@/src/utils/generic';
 import { FormSelect } from '../generic/form/formSelect';
 import { useForm } from '../generic/form/useForm';
+import { useAppSelector } from '@/src/hooks';
+import { networkMap } from '@/src/constants/networkList';
+
+type AccountSelectOption = {
+  label: string;
+  value: string;
+};
 
 export const AccountSelector: FC = () => {
+  const { rootPk } = useAppSelector(state => state.pk);
   const [accountList, setAccountList] = useState<AccountType[]>(null);
+  const [accountSelectOptions, setAccountSelectOptions] = useState<AccountSelectOption[]>(null);
   const [activeAccountId, setActiveAccountId] = useState<string>(null);
   const {
     Form,
@@ -19,11 +28,21 @@ export const AccountSelector: FC = () => {
     (async () => {
       const accounts = await sharedDb.getAccountList();
       setAccountList(accounts);
-      const activeAccountId = (await sharedDb.getKeyVal('activeAccountId')) || accounts[0].id;
-      setActiveAccountId(activeAccountId as string);
-      setValue('activeAccountId', activeAccountId);
+      setAccountSelectOptions(
+        accounts.map(account => ({
+          label: `${account.name} (${networkMap[account.networkId].label})`,
+          value: account.id,
+        }))
+      );
+
+      const activeAccountIdFromDb = (await sharedDb.getKeyVal('activeAccountId')) || accounts[0].id;
+
+      if (activeAccountId !== activeAccountIdFromDb) {
+        setActiveAccountId(activeAccountIdFromDb as string);
+        setValue('activeAccountId', activeAccountIdFromDb);
+      }
     })();
-  }, []);
+  }, [rootPk?.privateKeyEncrypted]);
 
   const switchAccount = async (accountId: AccountType['id']) => {
     await db.useAccount(accountId);
@@ -45,10 +64,7 @@ export const AccountSelector: FC = () => {
   return (
     <Wrapper>
       <Form onSubmit={() => {}} data-test-id="" onChange={onChange}>
-        <FormSelect
-          name="activeAccountId"
-          items={accountList.map(({ id: value, name: label }) => ({ label, value }))}
-        />
+        <FormSelect name="activeAccountId" items={accountSelectOptions} />
       </Form>
     </Wrapper>
   );
