@@ -77,6 +77,7 @@ chrome.runtime.onMessage.addListener(({ action, payload }, sender, sendResponse)
             rootPk: null,
             activePk: null,
             network: null,
+            isLocked: true,
           })
         );
         sendResponse('account set');

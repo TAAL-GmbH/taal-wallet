@@ -2,8 +2,6 @@ import { FC, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { db } from '@/src/db';
 import { sharedDb } from '@/src/db/shared';
-import { lockWallet } from '@/src/features/pkSlice';
-import { store } from '@/src/store';
 import { AccountType } from '@/src/types';
 import { isNull } from '@/src/utils/generic';
 import { FormSelect } from '../generic/form/formSelect';
@@ -32,7 +30,6 @@ export const AccountSelector: FC = () => {
     await db.useAccount(accountId);
     setActiveAccountId(accountId);
     await chrome.runtime.sendMessage({ action: 'bg:reloadFromDb' });
-    store.dispatch(lockWallet());
   };
 
   const onChange = async ({ activeAccountId }: { activeAccountId: string }) => {

@@ -10,7 +10,7 @@ import { WocApiError } from '../utils/errors/wocApiError';
 import { isObject } from '../utils/generic';
 import { setBatchBalance } from './pkSlice';
 
-const ORIGIN = 'https://taalnet.whatsonchain.com';
+const ORIGIN = 'https://api.whatsonchain.com';
 const ORIGIN_TALLNET = 'https://taalnet.whatsonchain.com';
 const BASE_PATH = '/v1/bsv';
 const AUTH_HEADER = `Basic ${btoa('taal_private:dotheT@@l007')}`;
@@ -22,6 +22,7 @@ const dynamicBaseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryE
 ) => {
   const { id: networkId, wocNetwork } = (api.getState() as RootState).pk.network;
   const origin = networkId === 'taalnet' ? ORIGIN_TALLNET : ORIGIN;
+  console.log({ networkId, origin });
 
   let baseUrl: string;
   if (api.endpoint === 'airdrop') {
