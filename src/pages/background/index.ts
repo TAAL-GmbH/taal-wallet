@@ -102,13 +102,6 @@ chrome.runtime.onConnectExternal.addListener(port => {
 
   chrome.notifications.onClicked.addListener(() => chrome.runtime.openOptionsPage(console.log));
 
-  chrome.notifications.create({
-    type: 'basic',
-    iconUrl: TAAL_ICON_URL,
-    title: 'TAAL Web3 Wallet',
-    message: `Webpage with origin ${port.sender?.origin} connected to TAAL's Web3 Wallet`,
-  });
-
   const onPortDisconnect = async () => {
     console.log('port disconnected');
     port.onDisconnect.removeListener(onPortDisconnect);
@@ -123,7 +116,16 @@ chrome.runtime.onConnectExternal.addListener(port => {
   port.onDisconnect.addListener(onPortDisconnect);
   port.onMessage.addListener(client.onExternalMessage);
 
-  client.onAuthorized = () => clientList.add(client);
+  client.onAuthorized = () => {
+    clientList.add(client);
+
+    chrome.notifications.create({
+      type: 'basic',
+      iconUrl: TAAL_ICON_URL,
+      title: 'TAAL Web3 Wallet',
+      message: `Webpage with origin ${port.sender?.origin} connected to TAAL's Web3 Wallet`,
+    });
+  };
 
   // TODO: make sure this function is destroyed when the port is closed
 });

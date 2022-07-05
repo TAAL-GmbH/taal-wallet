@@ -114,8 +114,6 @@ class WalletCommunicator {
       this._removeRequest(requestId);
       clearTimeout(requestObject.rejectTimer);
       requestObject.resolve(payload);
-    } else {
-      console.warn('unknown requestId', requestId);
     }
   }
 
@@ -125,8 +123,6 @@ class WalletCommunicator {
       this._removeRequest(requestId);
       clearTimeout(requestObject.rejectTimer);
       requestObject.reject(payload || { reason: 'unknown error' });
-    } else {
-      console.warn('unknown requestId', requestId);
     }
   }
 

@@ -1,6 +1,8 @@
+import { Button } from '@/src/components/button';
 import { DerivePk } from '@/src/components/derivePK';
 import { History } from '@/src/components/history';
 import { Home } from '@/src/components/home';
+import { PageLoading } from '@/src/components/loadingPage';
 import { PKList } from '@/src/components/pkList';
 import { ReceiveBSV } from '@/src/components/receiveBSV';
 import { SendBSV } from '@/src/components/sendBSV';
@@ -10,7 +12,8 @@ import { WebPushSubscription } from '@/src/components/webPushSubscription';
 import { routes } from '@/src/constants/routes';
 import { useHashLocation } from '@/src/hooks/useHashLocation';
 import { isNull } from '@/src/utils/generic';
-import { FC } from 'react';
+import { FC, useEffect, useState } from 'react';
+import styled from 'styled-components';
 import { Route, Router } from 'wouter';
 import { Onboarding } from '../onboarding';
 import { OnboardingImport } from '../onboarding/import';
@@ -23,10 +26,33 @@ type Props = {
   hasActivePk: boolean;
 };
 
+let reloadTimer: ReturnType<typeof setTimeout> | null = null;
+
 export const RouterComponent: FC<Props> = ({ isInSync, hasRootKey, isLocked, hasActivePk }) => {
+  const [showReloadCta, setShowReloadCta] = useState(false);
+
+  useEffect(() => {
+    if (!isInSync || isNull(hasRootKey)) {
+      reloadTimer = setTimeout(() => {
+        setShowReloadCta(true);
+      }, 1000);
+    } else {
+      clearTimeout(reloadTimer);
+    }
+  }, [isInSync, hasRootKey]);
+
+  if (showReloadCta) {
+    return (
+      <ErrorMessage>
+        <div>Oops, something went wrong!</div>
+        <Button onClick={() => chrome.runtime.reload()}>Reload wallet</Button>
+      </ErrorMessage>
+    );
+  }
+
   // isNull(hasRootKey) === true means we're still fetching the root key from db
   if (!isInSync || isNull(hasRootKey)) {
-    return <>Loading...</>;
+    return <PageLoading />;
   }
 
   if (!hasRootKey) {
@@ -88,3 +114,13 @@ export const RouterComponent: FC<Props> = ({ isInSync, hasRootKey, isLocked, has
     </Router>
   );
 };
+
+const ErrorMessage = styled.div`
+  font-size: 1rem;
+  margin: 4rem 0 2rem;
+  text-align: center;
+
+  > div {
+    margin-bottom: 1rem;
+  }
+`;

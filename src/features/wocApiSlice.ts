@@ -11,6 +11,7 @@ import { isObject } from '../utils/generic';
 import { setBatchBalance } from './pkSlice';
 
 const ORIGIN = 'https://taalnet.whatsonchain.com';
+const ORIGIN_TALLNET = 'https://taalnet.whatsonchain.com';
 const BASE_PATH = '/v1/bsv';
 const AUTH_HEADER = `Basic ${btoa('taal_private:dotheT@@l007')}`;
 
@@ -20,13 +21,13 @@ const dynamicBaseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryE
   extraOptions
 ) => {
   const { id: networkId, wocNetwork } = (api.getState() as RootState).pk.network;
+  const origin = networkId === 'taalnet' ? ORIGIN_TALLNET : ORIGIN;
 
   let baseUrl: string;
-  // console.log({ args, api, extraOptions, endpoint: api.endpoint });
   if (api.endpoint === 'airdrop') {
-    baseUrl = `${ORIGIN}`;
+    baseUrl = `${origin}`;
   } else {
-    baseUrl = `${ORIGIN}${BASE_PATH}/${wocNetwork}`;
+    baseUrl = `${origin}${BASE_PATH}/${wocNetwork}`;
   }
 
   if (isObject(args) && 'headers' in args && networkId !== 'taalnet') {

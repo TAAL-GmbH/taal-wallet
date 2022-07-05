@@ -37,7 +37,7 @@ const Popup = () => {
   return (
     <Wrapper>
       <Toaster />
-      <PageHead />
+      <PageHead hasRootKey={hasRootKey} />
 
       {hasRootKey && <AccountSelector />}
 

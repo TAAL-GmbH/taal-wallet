@@ -8,14 +8,18 @@ import { AppLogo } from '../appLogo';
 import { ExpandIcon } from '../svg/expandIcon';
 import { IconButton } from '../generic/icon-button';
 import { isPopup } from '@/src/utils/generic';
+import { useAppSelector } from '@/src/hooks';
+import { LockIcon } from '../svg/lockIcon';
 
 const menuButtonHeight = '2.5rem';
 
 type Props = {
   className?: string;
+  hasRootKey?: boolean;
 };
 
-export const PageHead: FC<Props> = ({ className }) => {
+export const PageHead: FC<Props> = ({ className, hasRootKey }) => {
+  const { isLocked } = useAppSelector(state => state.pk);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const openInTab = () => chrome.tabs.create({ url: window.location.href });
@@ -36,10 +40,14 @@ export const PageHead: FC<Props> = ({ className }) => {
         </ExpandButton>
       )}
 
-      <MenuButton onClick={() => setIsMenuOpen(current => !current)}>
-        <HamburgerMenuIcon />
-        {isMenuOpen && <MenuBox />}
-      </MenuButton>
+      {isLocked ? (
+        hasRootKey && <LockIconStyled />
+      ) : (
+        <MenuButton onClick={() => setIsMenuOpen(current => !current)}>
+          <HamburgerMenuIcon />
+          {isMenuOpen && <MenuBox />}
+        </MenuButton>
+      )}
     </Wrapper>
   );
 };
@@ -69,6 +77,11 @@ const ExpandButton = styled(IconButton)`
     width: 1.2rem;
     height: 1.2rem;
   }
+`;
+
+const LockIconStyled = styled(LockIcon)`
+  height: 1.4rem;
+  width: 1.4rem;
 `;
 
 const MenuButton = styled(IconButton)`

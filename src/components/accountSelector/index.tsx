@@ -36,7 +36,10 @@ export const AccountSelector: FC = () => {
   };
 
   const onChange = async ({ activeAccountId }: { activeAccountId: string }) => {
-    switchAccount(activeAccountId);
+    const currentAccountId = await sharedDb.getKeyVal('activeAccountId');
+    if (currentAccountId !== activeAccountId) {
+      await switchAccount(activeAccountId);
+    }
   };
 
   if (isNull(accountList)) {

@@ -6,7 +6,7 @@ export const Debug: FC = () => {
   const [isDebugExpanded, setIsDebugExpanded] = useState(false);
 
   return (
-    <>
+    <Wrapper>
       {!isDebugExpanded && <DebugButton onClick={() => setIsDebugExpanded(true)}>Show Debug</DebugButton>}
       {isDebugExpanded && (
         <>
@@ -15,11 +15,14 @@ export const Debug: FC = () => {
           </pre>
         </>
       )}
-    </>
+    </Wrapper>
   );
 };
 
-const DebugButton = styled.button`
+const Wrapper = styled.div`
   margin-top: 6rem;
+`;
+
+const DebugButton = styled.button`
   opacity: 0.2;
 `;

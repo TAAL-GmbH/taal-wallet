@@ -9,7 +9,7 @@ const manifest: ManifestType = {
   description: packageJson.description,
   options_page: 'src/pages/options/index.html',
   background: { service_worker: 'src/pages/background/index.js' },
-  permissions: ['storage', 'activeTab', 'scripting', 'notifications', 'alarms'],
+  permissions: ['storage', 'notifications', 'alarms'],
   host_permissions: ['*://localhost/*'],
   externally_connectable: {
     matches: ['*://localhost/*'],
