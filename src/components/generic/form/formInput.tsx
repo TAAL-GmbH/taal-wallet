@@ -1,4 +1,12 @@
-import { cloneElement, FC, InputHTMLAttributes, isValidElement, ReactElement, ReactNode } from 'react';
+import {
+  cloneElement,
+  FC,
+  InputHTMLAttributes,
+  isValidElement,
+  ReactElement,
+  ReactNode,
+  useState,
+} from 'react';
 import { RegisterOptions, useFormContext } from 'react-hook-form';
 import styled from 'styled-components';
 import { FormInputError } from './formInputError';
@@ -6,9 +14,18 @@ import { FormInputLabel } from './formInputLabel';
 import { Checkbox } from '@/components/generic/form/checkbox';
 import { Radio } from './radio';
 import { FormFieldWrapper } from './formFieldWrapper';
-import { InputElWrapper, LabelText, Required, sharedInput, StyledInput } from './formStyled';
+import {
+  FormFieldActionButton,
+  FormFieldCtaWrapper,
+  InputElWrapper,
+  LabelText,
+  Required,
+  sharedInput,
+  StyledInput,
+} from './formStyled';
 import { IconButton } from '../icon-button';
 import { CloseIcon } from '@/src/components/svg/closeIcon';
+import { VisibilityIcon } from '../../svg/visibilityIcon';
 
 type Props = {
   name: string;
@@ -60,6 +77,7 @@ export const FormInput: FC<Props & StyledProps> = ({
     watch,
     formState: { errors },
   } = useFormContext();
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   if (typeof options.validateWithValues === 'function') {
     options.validate = (value: string) => {
@@ -82,6 +100,21 @@ export const FormInput: FC<Props & StyledProps> = ({
   // TODO: watch makes whole form rerender, find a way to avoid it
   const value = type === 'radio' ? watch(name) === rest.value : watch(name);
 
+  const clearButton =
+    showClearButton && isTextField && !rest.readOnly && value ? (
+      <FormFieldActionButton onClick={() => setValue(name, '')}>
+        <CloseIcon />
+      </FormFieldActionButton>
+    ) : null;
+
+  const passwordRevealButton = type === 'password' && (
+    <FormFieldActionButton onClick={() => setIsPasswordVisible(state => !state)}>
+      <VisibilityIcon on={!isPasswordVisible} />
+    </FormFieldActionButton>
+  );
+
+  const ctaCount = [!!clearButton, !!passwordRevealButton].filter(Boolean).length;
+
   let inputElement = null;
 
   if (isValidElement(children)) {
@@ -94,24 +127,18 @@ export const FormInput: FC<Props & StyledProps> = ({
   } else {
     inputElement = (
       <Input
-        type={type}
+        type={type === 'password' ? (isPasswordVisible ? 'text' : 'password') : type}
         inputSize={size}
         placeholder={placeholderValue}
         hasError={hasError}
         labelOnLeft={isCustomEl}
         isCustomEl={isCustomEl}
+        ctaCount={ctaCount}
         {...register(name, options)}
         {...rest}
       />
     );
   }
-
-  const clearButton =
-    showClearButton && isTextField && !rest.readOnly && value ? (
-      <ClearButton onClick={() => setValue(name, '')}>
-        <CloseIcon />
-      </ClearButton>
-    ) : null;
 
   return (
     <FormFieldWrapper className={className} data-test-id={`form-input-${name}`} margin={margin}>
@@ -125,9 +152,13 @@ export const FormInput: FC<Props & StyledProps> = ({
 
         <InputElWrapper isCustomEl={isCustomEl}>
           {inputElement}
-          {clearButton}
           {isCustomEl && <CustomEl isChecked={value} tabIndex={-1} />}
-          {extraElement}
+
+          <FormFieldCtaWrapper>
+            {passwordRevealButton}
+            {clearButton}
+            {extraElement}
+          </FormFieldCtaWrapper>
         </InputElWrapper>
       </FormInputLabel>
 
@@ -136,18 +167,6 @@ export const FormInput: FC<Props & StyledProps> = ({
   );
 };
 
-const Input = styled.input<StyledInput & { inputSize: StyledProps['size'] }>`
+const Input = styled.input<StyledInput & { inputSize: StyledProps['size']; ctaCount?: number }>`
   ${sharedInput}
-`;
-
-const ClearButton = styled(IconButton)`
-  position: absolute;
-  right: 0.6rem;
-  border-radius: 50%;
-  width: 1.2rem;
-  height: 1.2rem;
-
-  svg {
-    opacity: 0.5;
-  }
 `;

@@ -22,7 +22,6 @@ const dynamicBaseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryE
 ) => {
   const { id: networkId, wocNetwork } = (api.getState() as RootState).pk.network;
   const origin = networkId === 'taalnet' ? ORIGIN_TALLNET : ORIGIN;
-  console.log({ networkId, origin });
 
   let baseUrl: string;
   if (api.endpoint === 'airdrop') {

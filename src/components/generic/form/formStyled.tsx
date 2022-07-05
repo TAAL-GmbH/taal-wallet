@@ -1,5 +1,6 @@
 import { injectSpacing } from '@/src/utils/injectSpacing';
 import styled, { css } from 'styled-components';
+import { IconButton } from '../icon-button';
 
 export type StyledInput = {
   inputSize?: 'sm' | 'md' | 'lg';
@@ -37,11 +38,12 @@ export const InputElWrapper = styled.div<{ isCustomEl: boolean }>`
         `}
 `;
 
-export const sharedInput = css<StyledInput>`
+export const sharedInput = css<StyledInput & { ctaCount?: number }>`
   width: ${({ labelOnLeft }) => (labelOnLeft ? 'auto' : '100%')};
   outline: none;
   border-radius: 0.25rem;
   padding: 0.8rem;
+  padding-right: ${({ ctaCount }) => (ctaCount ? `${ctaCount * 1.5}rem` : '0.8rem')};
   margin: ${({ theme }) => theme.spacing.sm} 0;
   appearance: none;
   color: ${({ theme }) => theme.color.grey[600]};
@@ -103,4 +105,22 @@ export const FormWrapper = styled.div`
   border-radius: 0.4rem;
 
   ${injectSpacing(['padding'])}
+`;
+
+export const FormFieldCtaWrapper = styled.div`
+  position: absolute;
+  right: 0.5rem;
+  display: flex;
+  gap: 0.25rem;
+  /* border: 1px solid red; */
+`;
+
+export const FormFieldActionButton = styled(IconButton)`
+  border-radius: 50%;
+  width: 1.2rem;
+  height: 1.2rem;
+
+  svg {
+    opacity: 0.5;
+  }
 `;

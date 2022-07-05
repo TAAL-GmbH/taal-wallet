@@ -46,6 +46,7 @@ export const RouterComponent: FC<Props> = ({ isInSync, hasRootKey, isLocked, has
       <ErrorMessage>
         <div>Oops, something went wrong!</div>
         <Button onClick={() => chrome.runtime.reload()}>Reload wallet</Button>
+        <pre>{JSON.stringify({ isInSync, hasRootKey }, null, 2)}</pre>
       </ErrorMessage>
     );
   }

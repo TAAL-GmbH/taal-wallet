@@ -73,7 +73,6 @@ class Db {
   }
 
   public async useAccount(accountId: string, create?: boolean) {
-    console.log('useAccount', accountId);
     const dbName = `${ACCOUNT_DB_NAME_PREFIX}-${accountId}`;
 
     const dbList = await indexedDB.databases();

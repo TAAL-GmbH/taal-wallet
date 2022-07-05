@@ -5,26 +5,7 @@ import { initStoreSync, restoreDataFromDb } from '@/src/utils/storeSync';
 import { alarms, TAAL_ICON_URL } from '@/src/constants';
 import { db } from '@/src/db';
 import { lockWallet, setState } from '@/src/features/pkSlice';
-
-class ClientList {
-  private _clientList: Client[] = [];
-
-  private _updateBadge() {
-    const text = this._clientList.length ? `${this._clientList.length}` : '';
-    chrome.action.setBadgeText({ text });
-  }
-
-  public add(client: Client) {
-    this._clientList.push(client);
-    this._updateBadge();
-  }
-
-  public remove(client: Client) {
-    this._clientList = this._clientList.filter(c => c !== client);
-    this._updateBadge();
-  }
-}
-const clientList = new ClientList();
+import { clientList } from './clientListController';
 
 // @ ts-expect-error ignore this
 globalThis['clientList'] = clientList;
@@ -55,12 +36,12 @@ chrome.alarms.onAlarm.addListener(({ name }) => {
 
 // internal one-time connection handling
 chrome.runtime.onConnect.addListener(function (externalPort) {
+  // add alarm on popup window close
   externalPort.onDisconnect.addListener(function () {
-    console.log('onDisconnect');
     chrome.alarms.create(alarms.WALLET_LOCK, { delayInMinutes: 5 });
   });
 
-  // add alarm on connect
+  // clear alarm on popup window open
   chrome.alarms.clear(alarms.WALLET_LOCK);
 });
 

@@ -22,7 +22,6 @@ export const AccountSelector: FC = () => {
       const activeAccountId = (await sharedDb.getKeyVal('activeAccountId')) || accounts[0].id;
       setActiveAccountId(activeAccountId as string);
       setValue('activeAccountId', activeAccountId);
-      console.log({ activeAccountId });
     })();
   }, []);
 

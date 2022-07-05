@@ -49,7 +49,6 @@ export const reduxSyncMiddleWare: Middleware = store => {
      */
     if (data.action === 'getState' && isBackgroundPage) {
       // broadcast dispatch structured event to sync extension windows to background
-      console.log('got getState request to background page');
       bc.postMessage({
         action: 'dispatch',
         reduxAction: {
@@ -63,7 +62,6 @@ export const reduxSyncMiddleWare: Middleware = store => {
 
   // non-background pages should ask background for the whole state
   if (!isBackgroundPage) {
-    console.log('requesting background for state to sync');
     bc.postMessage({
       action: 'getState',
     });

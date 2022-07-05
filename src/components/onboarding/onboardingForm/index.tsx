@@ -28,6 +28,7 @@ type Props = {
 const defaultValues = {
   networkId: '',
   password: '',
+  password2: '',
   mnemonicPhrase: '',
 };
 
@@ -164,10 +165,27 @@ export const OnboardingForm: FC<Props> = ({ className, action }) => {
           type="password"
           size="sm"
           options={{
+            required: 'Password is required',
             validate: value =>
               value.length < PASSWORD_MIN_LENGTH
                 ? `Password must be at least ${PASSWORD_MIN_LENGTH} characters length`
                 : true,
+          }}
+          required
+        />
+      </Row>
+      <Row>
+        <FormInput
+          label="Repeat password"
+          placeholder="Please repeat your password"
+          name="password2"
+          type="password"
+          size="sm"
+          options={{
+            required: 'Please repeat password',
+            validateWithValues(value, values: typeof defaultValues) {
+              return value === values.password || "Passwords don't match";
+            },
           }}
           required
         />

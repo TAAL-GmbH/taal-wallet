@@ -32,8 +32,6 @@ const Select = styled.select`
 `;
 
 const ChevronStyled = styled(Chevron)`
-  position: absolute;
-  right: 14px;
   width: 18px;
   height: 18px;
   pointer-events: none;
