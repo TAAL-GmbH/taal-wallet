@@ -24,12 +24,13 @@ const dynamicBaseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryE
   const origin = networkId === 'taalnet' ? ORIGIN_TALLNET : ORIGIN;
 
   let baseUrl: string;
-  if (api.endpoint === 'airdrop') {
+  if (api.endpoint === 'airdrop' && networkId === 'taalnet') {
     baseUrl = `${origin}`;
   } else {
     baseUrl = `${origin}${BASE_PATH}/${wocNetwork}`;
   }
 
+  // TODO: remove authentication from createApi
   if (isObject(args) && 'headers' in args && networkId !== 'taalnet') {
     if ('Authorization' in args.headers) {
       delete args.headers.Authorization;
