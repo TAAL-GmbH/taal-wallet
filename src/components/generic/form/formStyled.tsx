@@ -112,13 +112,14 @@ export const FormFieldCtaWrapper = styled.div`
   right: 0.5rem;
   display: flex;
   gap: 0.25rem;
-  /* border: 1px solid red; */
+  pointer-events: none;
 `;
 
 export const FormFieldActionButton = styled(IconButton)`
   border-radius: 50%;
   width: 1.2rem;
   height: 1.2rem;
+  pointer-events: all;
 
   svg {
     opacity: 0.5;

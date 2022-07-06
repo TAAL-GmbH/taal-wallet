@@ -173,20 +173,20 @@ class WalletCommunicator {
       `Don't use ${cmd} with TAAL Web3 Wallet client as it will cause the wallet to disconnect`;
 
     (proxiedAlert => {
-      window.alert = function () {
+      window.alert = () => {
         console.error(getMessage('alert'));
         return proxiedAlert.apply(this, arguments);
       };
     })(window.alert);
 
     (proxiedConfirm => {
-      window.confirm = function () {
+      window.confirm = () => {
         console.error(getMessage('confirm'));
         return proxiedConfirm.apply(this, arguments);
       };
     })(window.confirm);
     (proxiedPropmpt => {
-      window.prompt = function () {
+      window.prompt = () => {
         console.error(getMessage('prompt'));
         return proxiedPropmpt.apply(this, arguments);
       };

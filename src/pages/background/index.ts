@@ -6,6 +6,7 @@ import { alarms, TAAL_ICON_URL } from '@/src/constants';
 import { db } from '@/src/db';
 import { lockWallet, setState } from '@/src/features/pkSlice';
 import { clientList } from './clientListController';
+import { sharedDb } from '@/src/db/shared';
 
 // @ ts-expect-error ignore this
 globalThis['clientList'] = clientList;
@@ -35,10 +36,11 @@ chrome.alarms.onAlarm.addListener(({ name }) => {
 });
 
 // internal one-time connection handling
-chrome.runtime.onConnect.addListener(function (externalPort) {
+chrome.runtime.onConnect.addListener(async externalPort => {
   // add alarm on popup window close
-  externalPort.onDisconnect.addListener(function () {
-    chrome.alarms.create(alarms.WALLET_LOCK, { delayInMinutes: 5 });
+  externalPort.onDisconnect.addListener(async () => {
+    const walletLockPeriod = (await sharedDb.getKeyVal('walletLockPeriod')) || 30;
+    chrome.alarms.create(alarms.WALLET_LOCK, { delayInMinutes: walletLockPeriod });
   });
 
   // clear alarm on popup window open

@@ -10,7 +10,10 @@ export const storeNames = {
   KEY_VAL: 'keyVal',
 } as const;
 
-type KeyValKey = 'activeAccountId';
+type KeyVal = {
+  activeAccountId: string;
+  walletLockPeriod: number;
+};
 
 interface TaalSharedDB extends DBSchema {
   [storeNames.ACCOUNT_LIST]: {
@@ -63,12 +66,12 @@ class SharedDb {
     return Object.values(originsMap);
   }
 
-  public async getKeyVal(key: KeyValKey) {
+  public async getKeyVal<T extends keyof KeyVal>(key: T) {
     const db = await this._getDB();
-    return db.get(storeNames.KEY_VAL, key);
+    return db.get(storeNames.KEY_VAL, key) as Promise<KeyVal[typeof key]>;
   }
 
-  public async setKeyVal(key: KeyValKey, value: TaalSharedDB['keyVal']['value']) {
+  public async setKeyVal<T extends keyof KeyVal>(key: T, value: KeyVal[typeof key]) {
     const db = await this._getDB();
     return db.put(storeNames.KEY_VAL, value, key);
   }

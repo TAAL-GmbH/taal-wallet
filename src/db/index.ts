@@ -12,13 +12,14 @@ export const storeNames = {
   ORIGIN: 'origin',
 } as const;
 
-type KeyValAccountKey =
-  | 'active.PkAddress'
-  | 'derivationPath.lastIndex'
-  | 'rootPk.privateKeyEncrypted'
-  | 'network.id'
-  | 'account.name'
-  | 'account.passwordHash';
+type KeyVal = {
+  'active.PkAddress': string | null;
+  'derivationPath.lastIndex': number;
+  'rootPk.privateKeyEncrypted': string | null;
+  'network.id': string | null;
+  'account.name': string | null;
+  'account.passwordHash': string | null;
+};
 
 interface TaalAccountDB extends DBSchema {
   [storeNames.KEY_VAL]: {
@@ -46,7 +47,7 @@ class Db {
 
   private async _getDB() {
     if (!this._activeDbName) {
-      const accountId = ((await sharedDb.getKeyVal('activeAccountId')) as number) || 0;
+      const accountId = (await sharedDb.getKeyVal('activeAccountId')) || `0`;
       this._activeDbName = `${ACCOUNT_DB_NAME_PREFIX}-${accountId}`;
       this._db = null;
     }
@@ -102,12 +103,22 @@ class Db {
     }
   }
 
-  public async getKeyVal(key: KeyValAccountKey) {
+  // public async getKeyVal(key: KeyValAccountKey) {
+  //   const db = await this._getDB();
+  //   return db.get(storeNames.KEY_VAL, key);
+  // }
+
+  // public async setKeyVal(key: KeyValAccountKey, value: TaalAccountDB['keyVal']['value']) {
+  //   const db = await this._getDB();
+  //   return db.put(storeNames.KEY_VAL, value, key);
+  // }
+
+  public async getKeyVal<T extends keyof KeyVal>(key: T) {
     const db = await this._getDB();
-    return db.get(storeNames.KEY_VAL, key);
+    return db.get(storeNames.KEY_VAL, key) as Promise<KeyVal[typeof key]>;
   }
 
-  public async setKeyVal(key: KeyValAccountKey, value: TaalAccountDB['keyVal']['value']) {
+  public async setKeyVal<T extends keyof KeyVal>(key: T, value: KeyVal[typeof key]) {
     const db = await this._getDB();
     return db.put(storeNames.KEY_VAL, value, key);
   }

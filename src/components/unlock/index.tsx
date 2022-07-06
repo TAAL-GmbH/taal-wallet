@@ -18,7 +18,7 @@ const defaultValues = {
 export const Unlock: FC = () => {
   const onSubmit = async ({ password }: typeof defaultValues) => {
     const toast = createToast('Unlocking...');
-    const privateKeyEncrypted = (await db.getKeyVal('rootPk.privateKeyEncrypted')) as string;
+    const privateKeyEncrypted = await db.getKeyVal('rootPk.privateKeyEncrypted');
 
     if (!privateKeyEncrypted) {
       toast.error('No private key found');
