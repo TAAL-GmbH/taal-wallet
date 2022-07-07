@@ -19,6 +19,8 @@ import { getHistory } from '@/src/features/wocApiSlice';
 import { PKType } from '@/src/types';
 import { db } from '@/src/db';
 import { sharedDb } from '@/src/db/shared';
+import { addAccount, setActiveAccountId } from '@/src/features/accountSlice';
+import styled from 'styled-components';
 
 type Props = {
   className?: string;
@@ -26,6 +28,7 @@ type Props = {
 };
 
 const defaultValues = {
+  accountName: '',
   networkId: '',
   password: '',
   password2: '',
@@ -48,7 +51,7 @@ export const OnboardingForm: FC<Props> = ({ className, action }) => {
     }
   }, [action]);
 
-  const onSubmit = async ({ networkId, password, mnemonicPhrase }: typeof defaultValues) => {
+  const onSubmit = async ({ accountName, networkId, password, mnemonicPhrase }: typeof defaultValues) => {
     const toast = createToast('Creating Root Key...');
 
     if (!mnemonicPhrase) {
@@ -69,7 +72,7 @@ export const OnboardingForm: FC<Props> = ({ className, action }) => {
 
       await sharedDb.insertAccount({
         id: accountId,
-        name: `Account-${accountId}`, // TODO: add form field for name
+        name: accountName,
         networkId,
       });
 
@@ -83,6 +86,15 @@ export const OnboardingForm: FC<Props> = ({ className, action }) => {
         })
       );
       store.dispatch(setNetwork(network));
+      store.dispatch(setActiveAccountId(accountId));
+
+      store.dispatch(
+        addAccount({
+          id: accountId,
+          name: accountName,
+          networkId,
+        })
+      );
 
       toast.success('Root Key created');
 
@@ -121,12 +133,14 @@ export const OnboardingForm: FC<Props> = ({ className, action }) => {
     // TODO: this function fetches only first 20 wallets
     const walletList: PKType[] = [];
 
-    for (let i = 0; i < 20; i++) {
+    // TODO: there is request limit of 10 per second (?)
+    for (let i = 0; i < 10; i++) {
       walletList.push(createWallet(rootKey, i));
     }
 
     const historyFetchResultList = await Promise.all(walletList.map(wallet => getHistory(wallet.address)));
 
+    console.log({ historyFetchResultList });
     const addressWithHistoryList = historyFetchResultList
       .filter(({ data }) => data.length > 0)
       .map(({ originalArgs }) => originalArgs);
@@ -156,75 +170,94 @@ export const OnboardingForm: FC<Props> = ({ className, action }) => {
   };
 
   return (
-    <Form data-test-id="" onSubmit={onSubmit} className={className}>
-      <Row>
-        <FormInput
-          label="Password"
-          placeholder="Password is used to encrypt your wallet"
-          name="password"
-          type="password"
-          size="sm"
-          options={{
-            required: 'Password is required',
-            validate: value =>
-              value.length < PASSWORD_MIN_LENGTH
-                ? `Password must be at least ${PASSWORD_MIN_LENGTH} characters length`
-                : true,
-          }}
-          required
-        />
-      </Row>
-      <Row>
-        <FormInput
-          label="Repeat password"
-          placeholder="Please repeat your password"
-          name="password2"
-          type="password"
-          size="sm"
-          options={{
-            required: 'Please repeat password',
-            validateWithValues(value, values: typeof defaultValues) {
-              return value === values.password || "Passwords don't match";
-            },
-          }}
-          required
-        />
-      </Row>
-      <Row>
-        <FormSelect
-          label="Network"
-          name="networkId"
-          items={networkListOptions}
-          size="sm"
-          options={{ required: 'Please select network' }}
-        />
-      </Row>
+    <FormWrapper>
+      <Form data-test-id="" onSubmit={onSubmit} className={className}>
+        <Row>
+          <FormInput
+            label="Account Name"
+            placeholder="How would you call this account?"
+            name="accountName"
+            type="text"
+            size="sm"
+            options={{
+              required: 'Account name is required',
+            }}
+            required
+          />
+        </Row>
+        <Row>
+          <FormInput
+            label="Password"
+            placeholder="Password is used to encrypt your wallet"
+            name="password"
+            type="password"
+            size="sm"
+            options={{
+              required: 'Password is required',
+              validate: value =>
+                value.length < PASSWORD_MIN_LENGTH
+                  ? `Password must be at least ${PASSWORD_MIN_LENGTH} characters length`
+                  : true,
+            }}
+            required
+          />
+        </Row>
+        <Row>
+          <FormInput
+            label="Repeat password"
+            placeholder="Please repeat your password"
+            name="password2"
+            type="password"
+            size="sm"
+            options={{
+              required: 'Please repeat password',
+              validateWithValues(value, values: typeof defaultValues) {
+                return value === values.password || "Passwords don't match";
+              },
+            }}
+            required
+          />
+        </Row>
+        <Row>
+          <FormSelect
+            label="Network"
+            name="networkId"
+            items={networkListOptions}
+            size="sm"
+            options={{ required: 'Please select network' }}
+          />
+        </Row>
 
-      <Row>
-        <FormTextArea
-          name="mnemonicPhrase"
-          padding="md"
-          margin="0"
-          size="sm"
-          rows={3}
-          label={
-            action === 'createNew'
-              ? 'These are your 12 words, copy them and store them in a secure place:'
-              : 'Mnemonic phrase'
-          }
-          placeholder="Please input your 12 words mnemonic phrase"
-          readOnly={action === 'createNew'}
-          options={{
-            validate: value =>
-              value.trim().split(' ').length !== 12 ? 'Mnemonic phrase must be 12 words' : true,
-          }}
-        />
-      </Row>
-      <Row>
-        <Button type="submit" variant="primary">
-          Next
-        </Button>
-      </Row>
-    </Form>
+        <Row>
+          <FormTextArea
+            name="mnemonicPhrase"
+            padding="md"
+            margin="0"
+            size="sm"
+            rows={3}
+            label={
+              action === 'createNew'
+                ? 'These are your 12 words, copy them and store them in a secure place:'
+                : 'Mnemonic phrase'
+            }
+            placeholder="Please input your 12 words mnemonic phrase"
+            readOnly={action === 'createNew'}
+            options={{
+              validate: value =>
+                value.trim().split(' ').length !== 12 ? 'Mnemonic phrase must be 12 words' : true,
+            }}
+          />
+        </Row>
+        <Row>
+          <Button type="submit" variant="primary">
+            Next
+          </Button>
+        </Row>
+      </Form>
+    </FormWrapper>
   );
 };
+
+const FormWrapper = styled.div`
+  max-width: 400px;
+`;

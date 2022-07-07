@@ -9,7 +9,7 @@ import { store } from '@/src/store';
 import { db } from '@/src/db';
 import { isNull, isPopup, isUndefined } from '@/src/utils/generic';
 import { sharedDb } from '@/src/db/shared';
-import { AccountSelector } from '@/src/components/accountSelector';
+import { setAccountList, setActiveAccountId } from '@/src/features/accountSlice';
 
 // let background know we're connected
 chrome.runtime.connect();
@@ -17,6 +17,17 @@ chrome.runtime.connect();
 const Popup = () => {
   const { isInSync, isLocked, rootPk, activePk } = useAppSelector(state => state.pk);
   const [hasRootKey, setHasRootKey] = useState<boolean>(null);
+
+  useEffect(() => {
+    (async () => {
+      const accounts = await sharedDb.getAccountList();
+      store.dispatch(setAccountList(accounts));
+      const activeAccountIdFromDb = (await sharedDb.getKeyVal('activeAccountId')) || accounts[0]?.id;
+      if (activeAccountIdFromDb) {
+        store.dispatch(setActiveAccountId(activeAccountIdFromDb));
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     document.body.classList.add(isPopup() ? 'main-app-in-popup' : 'main-app-in-tab');
@@ -38,8 +49,6 @@ const Popup = () => {
     <Wrapper>
       <Toaster />
       <PageHead hasRootKey={hasRootKey} />
-
-      {hasRootKey && <AccountSelector />}
 
       <RouterComponent
         isInSync={isInSync}

@@ -2,14 +2,14 @@ import { FC, useState } from 'react';
 import styled from 'styled-components';
 import { navigateTo } from '@/src/utils/navigation';
 import { routes } from '@/src/constants/routes';
-import { HamburgerMenuIcon } from '../svg/hamburgerMenu';
-import { TopMenu } from '../topMenu';
 import { AppLogo } from '../appLogo';
 import { ExpandIcon } from '../svg/expandIcon';
 import { IconButton } from '../generic/icon-button';
 import { isPopup } from '@/src/utils/generic';
 import { useAppSelector } from '@/src/hooks';
 import { LockIcon } from '../svg/lockIcon';
+import { AccountMenu } from './accountMenu';
+import { MainMenu } from './mainMenu';
 
 const menuButtonHeight = '2.5rem';
 
@@ -20,6 +20,8 @@ type Props = {
 
 export const PageHead: FC<Props> = ({ className, hasRootKey }) => {
   const { isLocked } = useAppSelector(state => state.pk);
+  const { accountList } = useAppSelector(state => state.account);
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const openInTab = () => chrome.tabs.create({ url: window.location.href });
@@ -40,14 +42,9 @@ export const PageHead: FC<Props> = ({ className, hasRootKey }) => {
         </ExpandButton>
       )}
 
-      {isLocked ? (
-        hasRootKey && <LockIconStyled />
-      ) : (
-        <MenuButton onClick={() => setIsMenuOpen(current => !current)}>
-          <HamburgerMenuIcon />
-          {isMenuOpen && <MenuBox />}
-        </MenuButton>
-      )}
+      {accountList.length && <AccountMenu />}
+      {isLocked && accountList.length && <LockIconStyled />}
+      {!isLocked && <MainMenu />}
     </Wrapper>
   );
 };
@@ -84,19 +81,9 @@ const LockIconStyled = styled(LockIcon)`
   width: 1.4rem;
 `;
 
-const MenuButton = styled(IconButton)`
-  position: relative;
-`;
-
 const ExpandIconStyled = styled(ExpandIcon)`
   width: calc(${menuButtonHeight} * 0.5);
   height: calc(${menuButtonHeight} * 0.5);
-`;
-
-const MenuBox = styled(TopMenu)`
-  position: absolute;
-  top: 1.5rem;
-  right: 0;
 `;
 
 const Backdrop = styled.div`

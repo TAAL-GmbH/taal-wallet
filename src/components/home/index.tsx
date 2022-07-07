@@ -65,8 +65,6 @@ export const Home: FC<Props> = ({ className }) => {
           <HistoryIcon />
           Tokens
         </Button>
-        <Button onClick={() => navigateTo(routes.ONBOARDING_NEW)}>Add account</Button>
-        <Button onClick={() => navigateTo(routes.ONBOARDING_IMPORT)}>Import account</Button>
       </ButtonWrapper>
     </Wrapper>
   );

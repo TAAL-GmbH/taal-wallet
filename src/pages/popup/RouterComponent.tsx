@@ -73,11 +73,32 @@ export const RouterComponent: FC<Props> = ({ isInSync, hasRootKey, isLocked, has
   }
 
   if (isLocked) {
-    return <Unlock />;
+    return (
+      <Router hook={useHashLocation}>
+        <Route>
+          <Unlock />
+        </Route>
+        <Route path={`${routes.ONBOARDING_NEW}`}>
+          <OnboardingNew />
+        </Route>
+        <Route path={`${routes.ONBOARDING_IMPORT}`}>
+          <OnboardingImport />
+        </Route>
+      </Router>
+    );
   }
 
   if (!hasActivePk) {
-    return <PKList />;
+    return (
+      <Router hook={useHashLocation}>
+        <Route>
+          <PKList />
+        </Route>
+        <Route path={routes.DERIVE_PK}>
+          <DerivePk />
+        </Route>
+      </Router>
+    );
   }
 
   return (

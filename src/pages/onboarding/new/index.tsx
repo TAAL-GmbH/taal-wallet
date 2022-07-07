@@ -1,6 +1,9 @@
 import { FC } from 'react';
 import styled from 'styled-components';
 import { OnboardingForm } from '@/src/components/onboarding/onboardingForm';
+import { Heading } from '@/src/components/generic/heading';
+import { AnchorLink } from '@/src/components/anchorLink';
+import { routes } from '@/src/constants/routes';
 
 type Props = {
   className?: string;
@@ -9,7 +12,10 @@ type Props = {
 export const OnboardingNew: FC<Props> = ({ className }) => {
   return (
     <Wrapper className={className}>
-      <h1>Create a new Wallet</h1>
+      <Heading>Create a new Wallet</Heading>
+      <div>
+        or <AnchorLink href={routes.ONBOARDING_IMPORT}>import existing one</AnchorLink>
+      </div>
       <OnboardingForm action="createNew" />
     </Wrapper>
   );

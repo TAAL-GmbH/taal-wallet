@@ -11,7 +11,7 @@ export const Debug: FC = () => {
       {isDebugExpanded && (
         <>
           <pre onDoubleClick={() => setIsDebugExpanded(false)} style={{ marginTop: '6rem' }}>
-            {JSON.stringify(store.getState().pk, null, 2)}
+            {JSON.stringify(store.getState(), null, 2)}
           </pre>
         </>
       )}

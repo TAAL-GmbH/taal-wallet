@@ -12,7 +12,7 @@ const isValidOrigin = (origin: string) => {
 
 const shouldForward = (action: AnyAction) => {
   return (
-    action.type &&
+    action?.type &&
     (action.type.substr(0, 2) !== '@@' || action.type.startsWith('@@redux-ui')) &&
     action.type &&
     !action.type.startsWith('redux-form') &&
