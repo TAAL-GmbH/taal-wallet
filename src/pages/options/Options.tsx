@@ -28,7 +28,7 @@ export const Options: FC = () => {
 
       <Tabs>
         <li>
-          <AnchorLink href={`#${routes.ACL}`}>ACL</AnchorLink>
+          <AnchorLink href={`#${routes.ACL}`}>Access Control List</AnchorLink>
         </li>
       </Tabs>
 

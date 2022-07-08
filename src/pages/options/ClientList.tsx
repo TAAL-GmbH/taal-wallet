@@ -1,4 +1,5 @@
 import { Heading } from '@/src/components/generic/heading';
+import { GlobeIcon } from '@/src/components/svg/globeIcon';
 import { db } from '@/src/db';
 import { OriginType } from '@/src/types';
 import { FC, useEffect, useState } from 'react';
@@ -37,7 +38,8 @@ export const ClientList: FC<Props> = ({ className }) => {
       {clients.map(client => {
         return (
           <Li key={client.origin}>
-            <span>{client.origin}</span>
+            <GlobeIcon />
+            <Origin>{client.origin}</Origin>
             <RemoveCta onClick={() => deleteOrigin(client.origin)}>X</RemoveCta>
           </Li>
         );
@@ -55,12 +57,22 @@ const Li = styled.li`
   display: flex;
   flex: 1;
   justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
   padding: 0.4rem 0.5rem;
   margin: 0 -0.5rem;
 
   &:hover {
     background-color: #fafafa;
   }
+
+  svg {
+    height: 1.5rem;
+  }
+`;
+
+const Origin = styled.div`
+  flex-grow: 1;
 `;
 
 const RemoveCta = styled.button`

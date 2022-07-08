@@ -86,6 +86,7 @@ const config: Configuration = {
         API_NETWORK2: '"taalnet"',
         API_USERNAME: '"taal_private"',
         API_PASSWORD: '"dotheT@@l007"',
+        PASSWORD_MIN_LENGTH: 8,
       },
     }),
     new MakeManifestWebpackPlugin({ outDir }),

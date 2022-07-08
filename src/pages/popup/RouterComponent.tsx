@@ -14,7 +14,7 @@ import { useHashLocation } from '@/src/hooks/useHashLocation';
 import { isNull } from '@/src/utils/generic';
 import { FC, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Route, Router } from 'wouter';
+import { Route, Router, Switch } from 'wouter';
 import { Onboarding } from '../onboarding';
 import { OnboardingImport } from '../onboarding/import';
 import { OnboardingNew } from '../onboarding/new';
@@ -60,15 +60,17 @@ export const RouterComponent: FC<Props> = ({ isInSync, hasRootKey, isLocked, has
   if (!hasRootKey) {
     return (
       <Router hook={useHashLocation}>
-        <Route>
-          <Onboarding />
-        </Route>
-        <Route path={`${routes.ONBOARDING_NEW}`}>
-          <OnboardingNew />
-        </Route>
-        <Route path={`${routes.ONBOARDING_IMPORT}`}>
-          <OnboardingImport />
-        </Route>
+        <Switch>
+          <Route path={`${routes.ONBOARDING_NEW}`}>
+            <OnboardingNew />
+          </Route>
+          <Route path={`${routes.ONBOARDING_IMPORT}`}>
+            <OnboardingImport />
+          </Route>
+          <Route>
+            <Onboarding />
+          </Route>
+        </Switch>
       </Router>
     );
   }
@@ -76,15 +78,17 @@ export const RouterComponent: FC<Props> = ({ isInSync, hasRootKey, isLocked, has
   if (isLocked) {
     return (
       <Router hook={useHashLocation}>
-        <Route>
-          <Unlock />
-        </Route>
-        <Route path={`${routes.ONBOARDING_NEW}`}>
-          <OnboardingNew />
-        </Route>
-        <Route path={`${routes.ONBOARDING_IMPORT}`}>
-          <OnboardingImport />
-        </Route>
+        <Switch>
+          <Route path={`${routes.ONBOARDING_NEW}`}>
+            <OnboardingNew />
+          </Route>
+          <Route path={`${routes.ONBOARDING_IMPORT}`}>
+            <OnboardingImport />
+          </Route>
+          <Route>
+            <Unlock />
+          </Route>
+        </Switch>
       </Router>
     );
   }
@@ -92,11 +96,11 @@ export const RouterComponent: FC<Props> = ({ isInSync, hasRootKey, isLocked, has
   if (!hasActivePk) {
     return (
       <Router hook={useHashLocation}>
-        <Route>
-          <PKList />
-        </Route>
         <Route path={routes.DERIVE_PK}>
           <DerivePk />
+        </Route>
+        <Route>
+          <PKList />
         </Route>
       </Router>
     );
@@ -104,36 +108,38 @@ export const RouterComponent: FC<Props> = ({ isInSync, hasRootKey, isLocked, has
 
   return (
     <Router hook={useHashLocation}>
-      <Route path="/">
-        <Home />
-      </Route>
-      <Route path={`${routes.PK_LIST}`}>
-        <PKList />
-      </Route>
-      <Route path={`${routes.SEND_BSV}`}>
-        <SendBSV />
-      </Route>
-      <Route path={`${routes.RECEIVE_BSV}`}>
-        <ReceiveBSV />
-      </Route>
-      <Route path={routes.DERIVE_PK}>
-        <DerivePk />
-      </Route>
-      <Route path={routes.HISTORY}>
-        <History />
-      </Route>
-      <Route path={routes.TOKENS}>
-        <Tokens />
-      </Route>
-      <Route path={routes.WEB_PUSH}>
-        <WebPushSubscription />
-      </Route>
-      <Route path={`${routes.ONBOARDING_NEW}`}>
-        <OnboardingNew />
-      </Route>
-      <Route path={`${routes.ONBOARDING_IMPORT}`}>
-        <OnboardingImport />
-      </Route>
+      <Switch>
+        <Route path={`${routes.PK_LIST}`}>
+          <PKList />
+        </Route>
+        <Route path={`${routes.SEND_BSV}`}>
+          <SendBSV />
+        </Route>
+        <Route path={`${routes.RECEIVE_BSV}`}>
+          <ReceiveBSV />
+        </Route>
+        <Route path={routes.DERIVE_PK}>
+          <DerivePk />
+        </Route>
+        <Route path={routes.HISTORY}>
+          <History />
+        </Route>
+        <Route path={routes.TOKENS}>
+          <Tokens />
+        </Route>
+        <Route path={routes.WEB_PUSH}>
+          <WebPushSubscription />
+        </Route>
+        <Route path={`${routes.ONBOARDING_NEW}`}>
+          <OnboardingNew />
+        </Route>
+        <Route path={`${routes.ONBOARDING_IMPORT}`}>
+          <OnboardingImport />
+        </Route>
+        <Route>
+          <Home />
+        </Route>
+      </Switch>
     </Router>
   );
 };

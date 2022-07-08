@@ -51,12 +51,8 @@ export const Unlock: FC = () => {
           placeholder="Enter password"
           type="password"
           options={{
-            validate: value =>
-              value.length < PASSWORD_MIN_LENGTH
-                ? `Password must be at least ${PASSWORD_MIN_LENGTH} characters length`
-                : true,
+            required: 'Password is required',
           }}
-          required
           autoFocus
         />
         <Button type="submit">
