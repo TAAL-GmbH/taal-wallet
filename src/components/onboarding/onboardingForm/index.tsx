@@ -238,7 +238,7 @@ export const OnboardingForm: FC<Props> = ({ className, action }) => {
             rows={3}
             label={
               action === 'createNew'
-                ? 'These are your 12 words, copy them and store them in a secure place:'
+                ? 'Here is your 12 word seen phrase, it is incredibly important to take a note of this and keep it safe as without you may lose access to your wallet and the funds contained within:'
                 : 'Mnemonic phrase'
             }
             placeholder="Please input your 12 words mnemonic phrase"
