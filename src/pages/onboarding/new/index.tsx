@@ -4,6 +4,8 @@ import { OnboardingForm } from '@/src/components/onboarding/onboardingForm';
 import { Heading } from '@/src/components/generic/heading';
 import { AnchorLink } from '@/src/components/anchorLink';
 import { routes } from '@/src/constants/routes';
+import { BackButton } from '@/src/components/backButton';
+import { WalletPlusIcon } from '@/src/components/svg/walletPlusIcon';
 
 type Props = {
   className?: string;
@@ -12,7 +14,8 @@ type Props = {
 export const OnboardingNew: FC<Props> = ({ className }) => {
   return (
     <Wrapper className={className}>
-      <Heading>Create a new Wallet</Heading>
+      <BackButton />
+      <Heading icon={<WalletPlusIcon />}>Create a new Wallet</Heading>
       <div>
         or <AnchorLink href={routes.ONBOARDING_IMPORT}>import existing one</AnchorLink>
       </div>

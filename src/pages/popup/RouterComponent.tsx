@@ -34,7 +34,8 @@ export const RouterComponent: FC<Props> = ({ isInSync, hasRootKey, isLocked, has
   useEffect(() => {
     if (!isInSync || isNull(hasRootKey)) {
       reloadTimer = setTimeout(() => {
-        setShowReloadCta(true);
+        window.location.reload();
+        // setShowReloadCta(true);
       }, 1000);
     } else {
       clearTimeout(reloadTimer);

@@ -8,13 +8,16 @@ import { InfoIcon } from '../svg/infoIcon';
 import { QuickWalletSelector } from '../quickWalletSelector';
 import { Arrow } from '../svg/arrow';
 import { Heading } from '../generic/heading';
+import { BackButton } from '../backButton';
+import { CurrentAccount } from '../currentAccount';
 
 export const ReceiveBSV: FC = () => {
   const { activePk } = useAppSelector(state => state.pk);
 
   return (
     <Wrapper>
-      <QuickWalletSelector />
+      <CurrentAccount />
+      <BackButton />
       <Heading icon={<Arrow direction="downleft" />}>Receive BSV</Heading>
 
       <Subtitle>Your BSV address:</Subtitle>

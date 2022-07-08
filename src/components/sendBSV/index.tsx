@@ -13,6 +13,8 @@ import { Heading } from '../generic/heading';
 import { navigateTo } from '@/src/utils/navigation';
 import { routes } from '@/src/constants/routes';
 import { useBlockchain } from '@/src/hooks/useBlockchain';
+import { BackButton } from '../backButton';
+import { CurrentAccount } from '../currentAccount';
 
 type Props = {
   className?: string;
@@ -75,7 +77,9 @@ export const SendBSV: FC<Props> = ({ className }) => {
 
   return (
     <Wrapper className={className}>
-      <QuickWalletSelector />
+      <CurrentAccount />
+      <BackButton />
+
       <Heading icon={<Arrow direction="upright" />}>Send BSV</Heading>
       <Form options={{ defaultValues }} onSubmit={onSubmit} data-test-id="send-bsv-form">
         <Row>

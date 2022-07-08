@@ -14,6 +14,7 @@ import { QuickWalletSelector } from '../quickWalletSelector';
 import { Heading } from '../generic/heading';
 import { useBlockchain } from '@/src/hooks/useBlockchain';
 import { Tooltip } from '../generic/tooltip';
+import { CurrentAccount } from '../currentAccount';
 
 type Props = {
   className?: string;
@@ -26,11 +27,11 @@ type TokenType = {
 
 export const Home: FC<Props> = ({ className }) => {
   const { activePk } = useAppSelector(state => state.pk);
-  const { getBalance, airdrop } = useBlockchain();
+  const { getBalance } = useBlockchain();
 
   return (
     <Wrapper className={className}>
-      <QuickWalletSelector />
+      <CurrentAccount />
 
       <HeadingStyled
         icon={<BsvIcon />}

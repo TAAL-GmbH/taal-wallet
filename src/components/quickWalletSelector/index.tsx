@@ -63,7 +63,9 @@ const Wrapper = styled.div<{ isExpanded: boolean }>`
   font-size: 0.75rem;
   background-color: ${({ theme }) => theme.color.neutral[200]};
   padding: 0.5rem 1.5rem 0.3rem 0.6rem;
-  border-radius: 0.4rem;
+  margin: 0 0.2rem 0.5rem;
+  border-bottom-left-radius: 0.4rem;
+  border-bottom-right-radius: 0.4rem;
   position: relative;
 
   ${({ isExpanded }) =>

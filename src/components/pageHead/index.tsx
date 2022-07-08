@@ -10,7 +10,6 @@ import { useAppSelector } from '@/src/hooks';
 import { LockIcon } from '../svg/lockIcon';
 import { AccountMenu } from './accountMenu';
 import { MainMenu } from './mainMenu';
-import { CurrentAccount } from '../currentAccount';
 
 const menuButtonHeight = '2.5rem';
 
@@ -21,7 +20,7 @@ type Props = {
 
 export const PageHead: FC<Props> = ({ className, hasRootKey }) => {
   const { isLocked } = useAppSelector(state => state.pk);
-  const { accountList, activeAccountId } = useAppSelector(state => state.account);
+  const { accountList } = useAppSelector(state => state.account);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -44,11 +43,10 @@ export const PageHead: FC<Props> = ({ className, hasRootKey }) => {
           </ExpandButton>
         )}
 
-        {accountList.length && <AccountMenu />}
-        {isLocked && accountList.length && <LockIconStyled />}
+        {!!accountList.length && <AccountMenu />}
+        {isLocked && !!accountList.length && <LockIconStyled />}
         {!isLocked && <MainMenu />}
       </Wrapper>
-      {activeAccountId && <CurrentAccount />}
     </>
   );
 };

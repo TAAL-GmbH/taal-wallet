@@ -15,6 +15,8 @@ import { isNull } from '@/src/utils/generic';
 import { AnchorLink } from '../anchorLink';
 import { Dl, Li, Ul } from '@/components/generic/styled';
 import { Heading } from '../generic/heading';
+import { BackButton } from '../backButton';
+import { CurrentAccount } from '../currentAccount';
 
 type Props = {
   className?: string;
@@ -59,6 +61,8 @@ export const PKList: FC<Props> = ({ className }) => {
 
   return (
     <Wrapper className={className}>
+      <CurrentAccount />
+      <BackButton />
       <Heading icon={<WalletPlusIcon />}>Your Wallets</Heading>
 
       {!list.length && (

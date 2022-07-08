@@ -2,6 +2,7 @@ import { useAppSelector } from '@/src/hooks';
 import { FC } from 'react';
 import styled from 'styled-components';
 import { NetworkPill } from '../networkPill';
+import { QuickWalletSelector } from '../quickWalletSelector';
 import { AccountIcon } from '../svg/accountIcon';
 import { AccountNameForm } from './accountNameForm';
 
@@ -13,17 +14,24 @@ export const CurrentAccount: FC<Props> = ({ className }) => {
   const { accountMap, activeAccountId } = useAppSelector(state => state.account);
   const currentAccount = accountMap[activeAccountId];
 
+  if (!activeAccountId) {
+    return null;
+  }
+
   return (
-    <Wrapper className={className}>
-      <AccountIconBox>
-        <AccountIcon />
-        <NetworkPill>{accountMap[activeAccountId]?.networkId}</NetworkPill>
-      </AccountIconBox>
-      <AccountNameWrapper>
-        <Label>Current account: </Label>
-        {currentAccount && <AccountNameForm key={currentAccount.id} account={currentAccount} />}
-      </AccountNameWrapper>
-    </Wrapper>
+    <>
+      <Wrapper className={className}>
+        <AccountIconBox>
+          <AccountIcon />
+          <NetworkPill>{accountMap[activeAccountId]?.networkId}</NetworkPill>
+        </AccountIconBox>
+        <AccountNameWrapper>
+          <Label>Current account: </Label>
+          {currentAccount && <AccountNameForm key={currentAccount.id} account={currentAccount} />}
+        </AccountNameWrapper>
+      </Wrapper>
+      <QuickWalletSelector />
+    </>
   );
 };
 
@@ -32,7 +40,7 @@ const Wrapper = styled.div`
   align-items: center;
   gap: 1rem;
   padding: 0.2rem 0.8rem;
-  margin: 0 0 1rem;
+  /* margin: 0 0 0.25rem; */
   border: 1px solid ${({ theme }) => theme.color.neutral[500]};
   border-radius: 4px;
   background-color: ${({ theme }) => theme.color.neutral[100]};

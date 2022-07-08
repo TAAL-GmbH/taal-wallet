@@ -9,6 +9,8 @@ import { Tooltip } from '../generic/tooltip';
 import { IconButton } from '../generic/icon-button';
 import { RefreshIcon } from '../svg/refreshIcon';
 import { HistoryItemList } from './historyItemList';
+import { BackButton } from '../backButton';
+import { CurrentAccount } from '../currentAccount';
 
 type Props = {
   className?: string;
@@ -20,7 +22,8 @@ export const History: FC<Props> = ({ className }) => {
 
   return (
     <Wrapper className={className}>
-      <QuickWalletSelector />
+      <CurrentAccount />
+      <BackButton />
       <Heading
         icon={<HistoryIcon />}
         cta={

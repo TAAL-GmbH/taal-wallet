@@ -33,7 +33,7 @@ export const ClientList: FC<Props> = ({ className }) => {
     <Wrapper className={className}>
       <Heading>Websites with access to TAAL Wallet</Heading>
 
-      {!clients.length && <h3>No clients found</h3>}
+      {!clients.length && <h3>No websites found</h3>}
       {clients.map(client => {
         return (
           <Li key={client.origin}>

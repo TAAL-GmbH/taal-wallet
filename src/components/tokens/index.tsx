@@ -1,15 +1,15 @@
+import { FC } from 'react';
 import { useGetTokensQuery } from '@/src/features/wocApiSlice';
 import { useAppSelector } from '@/src/hooks';
-import { FC, ReactNode, useEffect } from 'react';
 import styled from 'styled-components';
+import { BackButton } from '../backButton';
 import { Heading } from '../generic/heading';
 import { IconButton } from '../generic/icon-button';
-import { Dl, Li, Ul } from '../generic/styled';
 import { Tooltip } from '../generic/tooltip';
-import { QuickWalletSelector } from '../quickWalletSelector';
 import { RefreshIcon } from '../svg/refreshIcon';
 import { TokenIcon } from '../svg/tokenIcon';
 import { TokenItemList } from './tokenItemList';
+import { CurrentAccount } from '../currentAccount';
 
 type Props = {
   className?: string;
@@ -23,7 +23,8 @@ export const Tokens: FC<Props> = ({ className }) => {
 
   return (
     <Wrapper className={className}>
-      <QuickWalletSelector />
+      <CurrentAccount />
+      <BackButton />
 
       <Heading
         icon={<TokenIcon />}
