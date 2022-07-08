@@ -159,7 +159,7 @@ export const derivePk = ({
     privateKeyHash: key.privateKey.toString(),
     publicKeyHash: key.publicKey.toString(),
     path: fullPath,
-    name: name || `Key-${pathSegments[5]}`,
+    name: name || `Wallet-${pathSegments[5]}`,
     balance: {
       updatedAt: null,
       amount: null,
