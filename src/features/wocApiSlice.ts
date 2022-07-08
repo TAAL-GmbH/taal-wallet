@@ -118,6 +118,7 @@ type Tx = {
 
 export type History = {
   height: number;
+  fee: number;
   tx_hash: string;
 };
 

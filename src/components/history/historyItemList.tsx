@@ -1,7 +1,6 @@
+import { FC } from 'react';
 import { History } from '@/src/features/wocApiSlice';
 import { useAppSelector } from '@/src/hooks';
-import { FC, ReactNode } from 'react';
-import styled from 'styled-components';
 import { Dl, Li, Ul } from '../generic/styled';
 import { PageLoading } from '../loadingPage';
 
@@ -25,11 +24,9 @@ export const HistoryItemList: FC<Props> = ({ list = [], isFetching }) => {
 
       {!!list.length && (
         <Ul>
-          {list.map(({ height, tx_hash: txHash }) => (
+          {list.map(({ tx_hash: txHash }) => (
             <Li key={txHash}>
               <Dl>
-                <dt>Height:</dt>
-                <dd>{height}</dd>
                 <dt>TX ID:</dt>
                 <dd>
                   <a href={`https://${network.wocNetwork}.whatsonchain.com/tx/${txHash}`} target="_blank">
