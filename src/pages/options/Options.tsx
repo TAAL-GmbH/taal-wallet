@@ -1,45 +1,80 @@
-import React, { FC } from 'react';
+import React, { FC, useEffect } from 'react';
 import { AppLogo } from '@/src/components/appLogo';
 import styled from 'styled-components';
 import { ClientList } from './ClientList';
+import { isPopup } from '@/src/utils/generic';
+import { useAppSelector } from '@/src/hooks';
+import { Route, Router } from 'wouter';
+import { useHashLocation } from '@/src/hooks/useHashLocation';
+import { AnchorLink } from '@/src/components/anchorLink';
+import { AccountSettings } from '@/src/components/accountSettings';
+import { Debug } from '@/src/components/debug/debug';
+
+const routes = {
+  ACL: '/',
+  ACCOUNT: '/account',
+};
 
 export const Options: FC = () => {
+  const { accountMap, activeAccountId } = useAppSelector(state => state.account);
+
+  useEffect(() => {
+    document.body.classList.add(isPopup() ? 'main-app-in-popup' : 'main-app-in-tab');
+  }, []);
+
   return (
     <Wrapper>
-      <Modal>
-        <AppLogo />
-        <section>
-          <h2>Websites with access to TAAL Wallet</h2>
-          <ClientList />
-        </section>
-      </Modal>
+      <AppLogo />
+
+      <Tabs>
+        <li>
+          <AnchorLink href={`#${routes.ACL}`}>ACL</AnchorLink>
+        </li>
+      </Tabs>
+
+      <section>
+        <Router hook={useHashLocation}>
+          <Route>
+            <ClientList />
+          </Route>
+        </Router>
+      </section>
+
+      <Debug />
     </Wrapper>
   );
 };
 
 const Wrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100vw;
-  height: 100vh;
-  background-color: ${({ theme }) => theme.color.bodyBg};
-
-  h1 {
-    font-size: 1.4rem;
-    margin-top: 0.4rem;
-  }
-
-  h2 {
-    font-size: 1.1rem;
-  }
+  padding: 2rem;
 `;
 
-const Modal = styled.div`
-  border-radius: 4px;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-  min-width: 400px;
-  min-height: 300px;
-  padding: 1rem;
-  background-color: #fff;
+const Tabs = styled.ul`
+  display: flex;
+  list-style: none;
+  flex-direction: row;
+  padding: 0;
+  margin-top: 2rem;
+  border-bottom: 1px solid ${({ theme }) => theme.color.neutral[200]};
+
+  li {
+    a {
+      display: block;
+      min-width: 150px;
+      text-align: center;
+      border-bottom: 3px solid transparent;
+      color: ${({ theme }) => theme.color.grey[500]};
+      font-size: 1.1rem;
+
+      &:hover {
+        text-decoration: none;
+      }
+
+      &.active {
+        font-weight: bold;
+        color: ${({ theme }) => theme.color.primary[500]};
+        border-color: ${({ theme }) => theme.color.primary[400]};
+      }
+    }
+  }
 `;

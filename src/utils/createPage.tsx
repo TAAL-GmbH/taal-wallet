@@ -50,12 +50,14 @@ const GlobalStyle = createGlobalStyle`
   #app {
     max-width: 800px;
     margin: 0 auto;
+    min-height: 100vh;
   }
   
   #app-container {
     background-color: #fafafa;
     margin-left: auto;
     margin-right: auto;
+    min-height: 100vh;
   }
 
   #tooptip-container {

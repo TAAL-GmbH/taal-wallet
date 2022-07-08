@@ -17,6 +17,9 @@ const accountSlice = createSlice({
   name: 'account',
   initialState,
   reducers: {
+    setState(state, { payload }: PayloadAction<Partial<State>>) {
+      Object.assign(state, payload);
+    },
     setAccountList(state, { payload }: PayloadAction<AccountType[]>) {
       if (payload?.length) {
         state.accountList = payload;
@@ -33,9 +36,16 @@ const accountSlice = createSlice({
     setActiveAccountId(state, { payload }: PayloadAction<string | null>) {
       state.activeAccountId = payload;
     },
+    updateAccountName(state, { payload }: PayloadAction<{ accountId: string; accountName: string }>) {
+      const accountInMap = state.accountMap[payload.accountId];
+      if (accountInMap) {
+        accountInMap.name = payload.accountName;
+      }
+      state.accountList = Object.values(state.accountMap);
+    },
   },
 });
 
-export const { setAccountList, addAccount, setActiveAccountId } = accountSlice.actions;
+export const { setAccountList, addAccount, setActiveAccountId, updateAccountName } = accountSlice.actions;
 
 export default accountSlice.reducer;

@@ -179,6 +179,7 @@ export const OnboardingForm: FC<Props> = ({ className, action }) => {
             name="accountName"
             type="text"
             size="sm"
+            maxLength={20}
             options={{
               required: 'Account name is required',
             }}

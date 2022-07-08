@@ -10,6 +10,7 @@ import { useAppSelector } from '@/src/hooks';
 import { LockIcon } from '../svg/lockIcon';
 import { AccountMenu } from './accountMenu';
 import { MainMenu } from './mainMenu';
+import { CurrentAccount } from '../currentAccount';
 
 const menuButtonHeight = '2.5rem';
 
@@ -20,32 +21,35 @@ type Props = {
 
 export const PageHead: FC<Props> = ({ className, hasRootKey }) => {
   const { isLocked } = useAppSelector(state => state.pk);
-  const { accountList } = useAppSelector(state => state.account);
+  const { accountList, activeAccountId } = useAppSelector(state => state.account);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const openInTab = () => chrome.tabs.create({ url: window.location.href });
 
   return (
-    <Wrapper className={className}>
-      <LogoWrapper>
-        <HomeButton onClick={() => navigateTo(routes.HOME)}>
-          <AppLogo />
-        </HomeButton>
-      </LogoWrapper>
+    <>
+      <Wrapper className={className}>
+        <LogoWrapper>
+          <HomeButton onClick={() => navigateTo(routes.HOME)}>
+            <AppLogo />
+          </HomeButton>
+        </LogoWrapper>
 
-      {isMenuOpen && <Backdrop onClick={() => setIsMenuOpen(false)} />}
+        {isMenuOpen && <Backdrop onClick={() => setIsMenuOpen(false)} />}
 
-      {isPopup() && (
-        <ExpandButton onClick={openInTab}>
-          <ExpandIconStyled />
-        </ExpandButton>
-      )}
+        {isPopup() && (
+          <ExpandButton onClick={openInTab}>
+            <ExpandIconStyled />
+          </ExpandButton>
+        )}
 
-      {accountList.length && <AccountMenu />}
-      {isLocked && accountList.length && <LockIconStyled />}
-      {!isLocked && <MainMenu />}
-    </Wrapper>
+        {accountList.length && <AccountMenu />}
+        {isLocked && accountList.length && <LockIconStyled />}
+        {!isLocked && <MainMenu />}
+      </Wrapper>
+      {activeAccountId && <CurrentAccount />}
+    </>
   );
 };
 
@@ -67,6 +71,7 @@ const HomeButton = styled.button`
   background-color: transparent;
   border: none;
   cursor: pointer;
+  padding: 0;
 `;
 
 const ExpandButton = styled(IconButton)`

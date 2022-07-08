@@ -24,12 +24,12 @@ const Wrapper = styled.div`
 const Logo = styled(TaalLogo)`
   background-color: ${({ theme }) => theme.color.primary[400]};
   padding: 0.25rem;
-  width: 70px;
+  width: 60px;
   fill: #fff;
 `;
 
 const Text = styled.span`
-  font-size: 1.8rem;
+  font-size: 1.4rem;
   font-weight: bold;
   position: relative;
   top: 0.2rem;

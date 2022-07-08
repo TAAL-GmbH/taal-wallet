@@ -11,14 +11,7 @@ const isValidOrigin = (origin: string) => {
 };
 
 const shouldForward = (action: AnyAction) => {
-  return (
-    action?.type &&
-    (action.type.substr(0, 2) !== '@@' || action.type.startsWith('@@redux-ui')) &&
-    action.type &&
-    !action.type.startsWith('redux-form') &&
-    !action.type.startsWith('persist/') &&
-    (!action.meta || !action.meta.local)
-  );
+  return /^(pk|account)\/.+/.test(action.type) && (!action.meta || !action.meta.local);
 };
 
 export const reduxSyncMiddleWare: Middleware = store => {
@@ -54,6 +47,15 @@ export const reduxSyncMiddleWare: Middleware = store => {
         reduxAction: {
           type: 'pk/setState',
           payload: store.getState().pk,
+        },
+        pagePath: BACKGROUND_PAGE_PATH,
+      });
+
+      bc.postMessage({
+        action: 'dispatch',
+        reduxAction: {
+          type: 'account/setState',
+          payload: store.getState().account,
         },
         pagePath: BACKGROUND_PAGE_PATH,
       });

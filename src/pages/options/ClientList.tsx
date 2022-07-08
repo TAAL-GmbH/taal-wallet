@@ -1,3 +1,4 @@
+import { Heading } from '@/src/components/generic/heading';
 import { db } from '@/src/db';
 import { OriginType } from '@/src/types';
 import { FC, useEffect, useState } from 'react';
@@ -28,12 +29,11 @@ export const ClientList: FC<Props> = ({ className }) => {
     return <div>Loading...</div>;
   }
 
-  if (!clients.length) {
-    return <div>No clients found</div>;
-  }
-
   return (
     <Wrapper className={className}>
+      <Heading>Websites with access to TAAL Wallet</Heading>
+
+      {!clients.length && <h3>No clients found</h3>}
       {clients.map(client => {
         return (
           <Li key={client.origin}>

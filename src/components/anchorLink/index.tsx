@@ -1,3 +1,4 @@
+import { useHashLocation } from '@/src/hooks/useHashLocation';
 import { FC, ReactNode } from 'react';
 import styled from 'styled-components';
 
@@ -9,6 +10,8 @@ type Props = {
 };
 
 export const AnchorLink: FC<Props> = ({ className, children, href: hrefRaw, onClick }) => {
+  const [location] = useHashLocation();
+
   const _onClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (hrefRaw === '#') {
       e.preventDefault();
@@ -19,8 +22,10 @@ export const AnchorLink: FC<Props> = ({ className, children, href: hrefRaw, onCl
   };
 
   const href = hrefRaw.startsWith('#') ? hrefRaw : `#${hrefRaw}`;
+  const classNames = [className, `#${location}` === href ? 'active' : false].filter(Boolean).join(' ');
+
   return (
-    <A className={className} href={href} onClick={_onClick}>
+    <A className={classNames} href={href} onClick={_onClick}>
       {children}
     </A>
   );

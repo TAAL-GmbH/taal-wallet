@@ -18,6 +18,10 @@ type Props = {
 export const AccountListItem: FC<Props> = ({ className, account, onClick }) => {
   const { activeAccountId } = useAppSelector(state => state.account);
 
+  if (!account?.id) {
+    return null;
+  }
+
   const isActive = activeAccountId === account.id;
 
   return (

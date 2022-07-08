@@ -7,10 +7,10 @@ import { PKType } from '../types';
 import { networkList } from '../constants/networkList';
 import { sharedDb } from '../db/shared';
 
-type PKDiffType = {
-  updated: RootState['pk'];
-  deleted: RootState['pk'];
-  added: RootState['pk'];
+type DiffType = {
+  updated: RootState['pk'] & RootState['account'];
+  deleted: RootState['pk'] & RootState['account'];
+  added: RootState['pk'] & RootState['account'];
 };
 
 export const initStoreSync = async () => {
@@ -23,10 +23,15 @@ export const initStoreSync = async () => {
    */
   const previousState: Partial<RootState> = {
     pk: store.getState().pk,
+    account: store.getState().account,
   };
 
   store.subscribe(async () => {
-    const { added, deleted, updated } = detailedDiff(previousState.pk, store.getState().pk) as PKDiffType;
+    const { pk, account } = store.getState();
+    const { added, deleted, updated } = detailedDiff(
+      { ...previousState.pk, ...previousState.account },
+      { ...pk, ...account }
+    ) as DiffType;
 
     // if (Object.keys(added).length || Object.keys(deleted).length || Object.keys(updated).length) {
     //   console.log('store.subscribe', {
@@ -89,7 +94,14 @@ export const initStoreSync = async () => {
       // TODO: change icon to locked
     }
 
+    if (updated.accountMap) {
+      Object.keys(updated.accountMap).forEach(async accountId => {
+        sharedDb.renameAccount(accountId, updated.accountMap[accountId].name);
+      });
+    }
+
     previousState.pk = store.getState().pk;
+    previousState.account = store.getState().account;
   });
 
   restoreDataFromDb();

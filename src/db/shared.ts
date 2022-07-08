@@ -66,6 +66,12 @@ class SharedDb {
     return Object.values(originsMap);
   }
 
+  public async renameAccount(accountId: string, newName: string) {
+    const db = await this._getDB();
+    const account = await db.get(storeNames.ACCOUNT_LIST, accountId);
+    return db.put(storeNames.ACCOUNT_LIST, { ...account, name: newName });
+  }
+
   public async getKeyVal<T extends keyof KeyVal>(key: T) {
     const db = await this._getDB();
     return db.get(storeNames.KEY_VAL, key) as Promise<KeyVal[typeof key]>;
