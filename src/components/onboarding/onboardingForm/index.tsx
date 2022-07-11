@@ -7,7 +7,6 @@ import { createToast } from '@/src/utils/toast';
 import { FormTextArea } from '@/src/components/generic/form/formTextArea';
 import { useForm } from '@/src/components/generic/form/useForm';
 import { FormInput } from '@/src/components/generic/form/formInput';
-import { PASSWORD_MIN_LENGTH } from '@/src/constants';
 import { FormSelect } from '@/src/components/generic/form/formSelect';
 import { networkList } from '@/src/constants/networkList';
 import { createHDPrivateKey, derivePk, generateMnemonic, rebuildMnemonic } from '@/src/utils/blockchain';
@@ -196,8 +195,8 @@ export const OnboardingForm: FC<Props> = ({ className, action }) => {
             options={{
               required: 'Password is required',
               validate: value =>
-                value.length < PASSWORD_MIN_LENGTH
-                  ? `Password must be at least ${PASSWORD_MIN_LENGTH} characters length`
+                value.length < process.env.PASSWORD_MIN_LENGTH
+                  ? `Password must be at least ${process.env.PASSWORD_MIN_LENGTH} characters length`
                   : true,
             }}
             required

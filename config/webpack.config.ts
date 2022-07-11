@@ -4,6 +4,7 @@ import CopyPluginWebpackPlugin from 'copy-webpack-plugin';
 import { MakeManifestWebpackPlugin } from '../src/utils/MakeManifestWebpackPlugin';
 import tsconfig from '../tsconfig.json';
 import { generateHtmlFiles } from './generateHtmlFiles';
+import 'dotenv/config';
 
 const alias: Record<string, string> = {};
 
@@ -86,7 +87,7 @@ const config: Configuration = {
         API_NETWORK2: '"taalnet"',
         API_USERNAME: '"taal_private"',
         API_PASSWORD: '"dotheT@@l007"',
-        PASSWORD_MIN_LENGTH: 8,
+        PASSWORD_MIN_LENGTH: process.env.PASSWORD_MIN_LENGTH || 8,
       },
     }),
     new MakeManifestWebpackPlugin({ outDir }),

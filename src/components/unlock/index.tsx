@@ -1,12 +1,10 @@
-import { PASSWORD_MIN_LENGTH } from '@/src/constants';
+import { FC } from 'react';
+import styled from 'styled-components';
 import { db } from '@/src/db';
 import { setRootPK } from '@/src/features/pkSlice';
-import { useAppSelector } from '@/src/hooks';
 import { store } from '@/src/store';
 import { decrypt } from '@/src/utils/crypt';
 import { createToast } from '@/src/utils/toast';
-import { FC } from 'react';
-import styled from 'styled-components';
 import { Button } from '../button';
 import { Form } from '../generic/form/form';
 import { FormInput } from '../generic/form/formInput';

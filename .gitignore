@@ -19,3 +19,4 @@ public/manifest.json
 #copied contentStyle
 public/contentStyle.css
 
+.env

@@ -43,6 +43,9 @@ This TAAL Web3 Wallet Chrome extensions using React and Typescript.
 6. To start a demo web client run `yarn demo`
 7. To enable push messages run `yarn server`
 
+### Optional
+1. Copy `sample.env` to `.env` and customize it by your needs
+
 ## Screenshots <a name="screenshots"></a>
 
 ### New Tab <a name="newtab"></a>
