@@ -7,6 +7,7 @@ import { PKList } from '@/src/components/pkList';
 import { ReceiveBSV } from '@/src/components/receiveBSV';
 import { SendBSV } from '@/src/components/sendBSV';
 import { Tokens } from '@/src/components/tokens';
+import { TosAgreement } from '@/src/components/tosAgreement';
 import { Unlock } from '@/src/components/unlock';
 import { WebPushSubscription } from '@/src/components/webPushSubscription';
 import { routes } from '@/src/constants/routes';
@@ -20,6 +21,8 @@ import { OnboardingImport } from '../onboarding/import';
 import { OnboardingNew } from '../onboarding/new';
 
 type Props = {
+  isInitialized: boolean;
+  isTosInAgreement: boolean;
   isInSync: boolean;
   hasRootKey: boolean;
   isLocked: boolean;
@@ -28,7 +31,14 @@ type Props = {
 
 let reloadTimer: ReturnType<typeof setTimeout> | null = null;
 
-export const RouterComponent: FC<Props> = ({ isInSync, hasRootKey, isLocked, hasActivePk }) => {
+export const RouterComponent: FC<Props> = ({
+  isInitialized,
+  isTosInAgreement,
+  isInSync,
+  hasRootKey,
+  isLocked,
+  hasActivePk,
+}) => {
   const [showReloadCta, setShowReloadCta] = useState(false);
 
   useEffect(() => {
@@ -53,8 +63,12 @@ export const RouterComponent: FC<Props> = ({ isInSync, hasRootKey, isLocked, has
   }
 
   // isNull(hasRootKey) === true means we're still fetching the root key from db
-  if (!isInSync || isNull(hasRootKey)) {
+  if (!isInitialized || !isInSync || isNull(hasRootKey)) {
     return <PageLoading />;
+  }
+
+  if (!isTosInAgreement) {
+    return <TosAgreement />;
   }
 
   if (!hasRootKey) {

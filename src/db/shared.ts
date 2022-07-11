@@ -11,6 +11,7 @@ export const storeNames = {
 } as const;
 
 type KeyVal = {
+  isTosInAgreement: boolean;
   activeAccountId: string;
   walletLockPeriod: number;
 };

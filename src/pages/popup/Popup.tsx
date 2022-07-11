@@ -17,6 +17,8 @@ chrome.runtime.connect();
 const Popup = () => {
   const { isInSync, isLocked, rootPk, activePk } = useAppSelector(state => state.pk);
   const [hasRootKey, setHasRootKey] = useState<boolean>(null);
+  const [isTosInAgreement, setIsTosInAgreement] = useState<boolean>(false);
+  const [isInitialized, setIsInitialized] = useState<boolean>(false);
 
   useEffect(() => {
     (async () => {
@@ -26,6 +28,8 @@ const Popup = () => {
       if (activeAccountIdFromDb) {
         store.dispatch(setActiveAccountId(activeAccountIdFromDb));
       }
+      setIsTosInAgreement(!!(await sharedDb.getKeyVal('isTosInAgreement')));
+      setIsInitialized(true);
     })();
   }, []);
 
@@ -51,6 +55,8 @@ const Popup = () => {
       <PageHead hasRootKey={hasRootKey} />
 
       <RouterComponent
+        isInitialized={isInitialized}
+        isTosInAgreement={isTosInAgreement}
         isInSync={isInSync}
         hasRootKey={hasRootKey}
         isLocked={isLocked}
