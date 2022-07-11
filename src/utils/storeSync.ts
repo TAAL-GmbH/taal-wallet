@@ -90,8 +90,10 @@ export const initStoreSync = async () => {
       db.setKeyVal('rootPk.privateKeyEncrypted', updated.rootPk.privateKeyEncrypted);
     }
 
-    if (updated.isLocked) {
-      // TODO: change icon to locked
+    if (!isUndefined(updated.isLocked)) {
+      chrome.action.setIcon({
+        path: updated.isLocked ? '/taal-round-locked4-128x128.png' : '/taal-round-128x128.png',
+      });
     }
 
     if (updated.accountMap) {
