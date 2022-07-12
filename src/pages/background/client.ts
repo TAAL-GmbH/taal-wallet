@@ -5,6 +5,7 @@ import { derivePk, restorePK } from '@/src/utils/blockchain';
 import { createDialog } from '@/src/utils/createDialog';
 import 'bsv/message';
 import bsv from 'bsv';
+const BN = require('bn.js');
 
 type Options = {
   port: chrome.runtime.Port;
@@ -177,8 +178,6 @@ export class Client {
       throw new Error('No action provided');
     }
 
-    // action !== 'pong' && console.log('onExternalMessage', action, payload);
-
     try {
       await this._checkPermissions();
     } catch (e) {
@@ -331,9 +330,50 @@ export class Client {
 
           return {
             action: 'signTx',
-            payload: signedTx.serialize(),
+            // @ts-ignore
+            payload: signedTx.serialize(true),
           };
         }
+     
+        case 'signPreimage': {
+          const result = await createDialog({
+            title: 'Do you want to sign this pre-image?',
+            body: `<pre>${JSON.stringify(payload, null, 2)}</pre>`,
+            options: [{ label: 'Yes', variant: 'primary', returnValue: 'yes' }, { label: 'No' }],
+          });
+
+          if (result.selectedOption !== 'yes') {
+            throw new Error('User rejected pre-image signing');
+          }
+
+          const { tx, sighash, script, i, satoshis } = payload as { tx: string; sighash: number; script: string, i: number, satoshis: any }
+
+          // @ts-ignore
+          const sighash2 = bsv.crypto.Signature.SIGHASH_ALL | bsv.crypto.Signature.SIGHASH_FORKID
+          // @ts-ignore
+          const t: bsv.Transaction = bsv.Transaction(tx)          
+          // @ts-ignore
+          const { privateKeyHash } = this._getKey();
+          const pk = new bsv.PrivateKey(privateKeyHash);
+          // @ts-ignore
+          const satsBN = BN.fromNumber(satoshis)
+          // @ts-ignore
+          let signature: bsv.TransactionSignature
+          try{
+            // @ts-expect-error sighash method is not typed in .d.ts
+            signature = bsv.Transaction.sighash.sign(t, pk, sighash2, i, script, satsBN);
+          } catch(e) {
+            console.log('error signing preimage')
+            console.log(e)
+            throw e
+          }
+
+          return {
+            action: 'signPreimage',
+            payload: signature.toTxFormat().toString('hex'),
+          };
+        }
+
         case 'signMessage': {
           const result = await createDialog({
             title: 'Do you want to sign this message?',
@@ -356,31 +396,7 @@ export class Client {
             payload: signedMsg.toString(),
           };
         }
-        case 'signPreimage': {
-          const result = await createDialog({
-            title: 'Do you want to sign this pre-image?',
-            body: `<pre>${JSON.stringify(payload, null, 2)}</pre>`,
-            options: [{ label: 'Yes', variant: 'primary', returnValue: 'yes' }, { label: 'No' }],
-          });
 
-          if (result.selectedOption !== 'yes') {
-            throw new Error('User rejected pre-image signing');
-          }
-
-          console.log('signPreimage', payload);
-          const { txHex, sighash, script, i, satoshis } = payload as any;
-
-          const tx = new bsv.Transaction(txHex);
-
-          // @ts-expect-error sighash method is not typed in .d.ts
-          const signedTx = bsv.Transaction.sighash.sign(tx, pk.pk.privateKey, sighash, i, script, satoshis);
-          console.log({ signature: signedTx.serialize(true) });
-
-          return {
-            action,
-            payload: signedTx,
-          };
-        }
         default: {
           return {
             action: 'error',
