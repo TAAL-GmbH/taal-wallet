@@ -20,6 +20,7 @@ import { db } from '@/src/db';
 import { sharedDb } from '@/src/db/shared';
 import { addAccount, setActiveAccountId } from '@/src/features/accountSlice';
 import styled from 'styled-components';
+import { useAppSelector } from '@/src/hooks';
 
 type Props = {
   className?: string;
@@ -35,6 +36,7 @@ const defaultValues = {
 };
 
 export const OnboardingForm: FC<Props> = ({ className, action }) => {
+  const { accountList } = useAppSelector(state => state.account);
   const mnemonic = useRef<Mnemonic>();
   const [networkListOptions] = useState(
     [{ label: 'Select network', value: '' }].concat(
@@ -181,8 +183,13 @@ export const OnboardingForm: FC<Props> = ({ className, action }) => {
             maxLength={20}
             options={{
               required: 'Account name is required',
+              validate: value => {
+                const existingAccount = accountList.find(item => item.name === value);
+                if (existingAccount) {
+                  return 'Account with this name already exists';
+                }
+              },
             }}
-            required
           />
         </Row>
         <Row>
