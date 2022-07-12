@@ -39,10 +39,12 @@ const Popup = () => {
     window.store = store;
     // @ts-ignore
     window.db = db;
+
     (async () => {
       const activeAccountId = await sharedDb.getKeyVal('activeAccountId');
+
       if (!isUndefined(activeAccountId)) {
-        setHasRootKey(!!(await db.getKeyVal('rootPk.privateKeyEncrypted')));
+        setHasRootKey(!!rootPk || !!(await db.getKeyVal('rootPk.privateKeyEncrypted')));
       } else {
         setHasRootKey(false);
       }

@@ -3,11 +3,9 @@ import { AppLogo } from '@/src/components/appLogo';
 import styled from 'styled-components';
 import { ClientList } from './ClientList';
 import { isPopup } from '@/src/utils/generic';
-import { useAppSelector } from '@/src/hooks';
 import { Route, Router } from 'wouter';
 import { useHashLocation } from '@/src/hooks/useHashLocation';
 import { AnchorLink } from '@/src/components/anchorLink';
-import { AccountSettings } from '@/src/components/accountSettings';
 import { Debug } from '@/src/components/debug/debug';
 
 const routes = {
@@ -16,8 +14,6 @@ const routes = {
 };
 
 export const Options: FC = () => {
-  const { accountMap, activeAccountId } = useAppSelector(state => state.account);
-
   useEffect(() => {
     document.body.classList.add(isPopup() ? 'main-app-in-popup' : 'main-app-in-tab');
   }, []);

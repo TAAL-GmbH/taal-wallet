@@ -34,8 +34,7 @@ export const SendBSV: FC<Props> = ({ className }) => {
   const { activePk, rootPk, network } = useAppSelector(state => state.pk);
   const { getBalance } = useBlockchain();
 
-  // TODO: type this
-  const onSubmit = async (values: any) => {
+  const onSubmit = async (values: typeof defaultValues) => {
     const { dstAddress, amount } = values;
 
     const toast = createToast('Sending BSV...');

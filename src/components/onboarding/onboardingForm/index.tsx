@@ -41,7 +41,7 @@ export const OnboardingForm: FC<Props> = ({ className, action }) => {
       networkList.map(({ label, id }) => ({ label, value: id }))
     )
   );
-  const { Form, methods } = useForm({ defaultValues });
+  const { Form, methods } = useForm({ defaultValues, mode: 'onBlur' });
 
   useEffect(() => {
     if (action === 'createNew') {
