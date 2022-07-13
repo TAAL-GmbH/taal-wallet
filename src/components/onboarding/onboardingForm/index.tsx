@@ -52,8 +52,11 @@ export const OnboardingForm: FC<Props> = ({ className, action }) => {
     }
   }, [action]);
 
-  const onSubmit = async ({ accountName, networkId, password, mnemonicPhrase }: typeof defaultValues) => {
+  const onSubmit = async (values: typeof defaultValues) => {
+    const { networkId, password, mnemonicPhrase } = values;
     const toast = createToast('Creating Root Key...');
+
+    const accountName = values.accountName.trim();
 
     if (!mnemonicPhrase) {
       toast.error('mnemonic is empty');
@@ -184,7 +187,9 @@ export const OnboardingForm: FC<Props> = ({ className, action }) => {
             options={{
               required: 'Account name is required',
               validate: value => {
-                const existingAccount = accountList.find(item => item.name === value);
+                const existingAccount = accountList.find(
+                  item => item.name.toLowerCase() === value.trim().toLowerCase()
+                );
                 if (existingAccount) {
                   return 'Account with this name already exists';
                 }
