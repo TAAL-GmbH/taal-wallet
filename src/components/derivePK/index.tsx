@@ -29,7 +29,7 @@ export const DerivePk: FC<Props> = ({ className }) => {
 
     try {
       const rootKey = restorePK(rootPk.privateKeyHash);
-      // @ts-ignore
+      const derivationPathLastIndex = (await db.getKeyVal('derivationPath.lastIndex')) || 0;
       const path = `0/0/${derivationPathLastIndex + 1}`;
 
       const {
