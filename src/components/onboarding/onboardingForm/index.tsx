@@ -180,7 +180,7 @@ export const OnboardingForm: FC<Props> = ({ className, action }) => {
       <Form data-test-id="" onSubmit={onSubmit} className={className}>
         <Row>
           <FormInput
-            label="Account Name"
+            label="Account name"
             placeholder="How would you call this account?"
             name="accountName"
             type="text"
