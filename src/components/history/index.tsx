@@ -34,7 +34,7 @@ export const History: FC<Props> = ({ className }) => {
           </Tooltip>
         }
       >
-        Your Wallet's history
+        Your wallet's history
       </Heading>
       <HistoryItemList list={list} isFetching={isFetching} />
     </Wrapper>

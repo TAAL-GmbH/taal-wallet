@@ -14,6 +14,7 @@ export const AccountList: FC<Props> = ({ className }) => {
   const { accountList } = useAppSelector(state => state.account);
 
   const onClick = async (accountId: string) => {
+    // TODO: check if background is responding
     await db.useAccount(accountId);
     store.dispatch(setActiveAccountId(accountId));
     await chrome.runtime.sendMessage({ action: 'bg:reloadFromDb' });

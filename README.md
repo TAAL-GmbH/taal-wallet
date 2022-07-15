@@ -16,7 +16,7 @@
 
 
 ## Intro <a name="intro"></a>
-This TAAL Web3 Wallet Chrome extensions using React and Typescript.
+This TAAL Wallet Chrome extensions using React and Typescript.
 > The focus was on improving the build speed and development experience with Vite.
 
 ## Features <a name="features"></a>

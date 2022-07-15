@@ -10,6 +10,7 @@ type Props = {
   onChange?: WatchObserver<{ [x: string]: unknown }>;
   hasDarkBg?: boolean;
   options?: UseFormProps;
+  isDisabled?: boolean;
   'data-test-id': string;
 };
 
@@ -36,6 +37,7 @@ export const useForm = (options?: UseFormProps) => {
         onSubmit,
         onChange,
         hasDarkBg,
+        isDisabled,
         'data-test-id': dataTestId,
       }: Props) {
         useEffect(() => {
@@ -54,7 +56,7 @@ export const useForm = (options?: UseFormProps) => {
               data-test-id={dataTestId}
               noValidate
             >
-              {children}
+              {isDisabled ? <fieldset disabled={true}>{children}</fieldset> : children}
             </FormElement>
           </FormProvider>
         );
@@ -85,4 +87,11 @@ const FormElement = styled.form<StyledProps>`
       `;
     }
   }}
+
+  fieldset[disabled] {
+    padding: 0;
+    margin: 0;
+    border: 0;
+    filter: saturate(0.4);
+  }
 `;

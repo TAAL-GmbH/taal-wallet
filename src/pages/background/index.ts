@@ -106,8 +106,8 @@ chrome.runtime.onConnectExternal.addListener(port => {
     chrome.notifications.create({
       type: 'basic',
       iconUrl: TAAL_ICON_URL,
-      title: 'TAAL Web3 Wallet',
-      message: `Webpage with origin ${port.sender?.origin} connected to TAAL's Web3 Wallet`,
+      title: 'TAAL Wallet',
+      message: `Webpage with origin ${port.sender?.origin} connected to TAAL Wallet`,
     });
   };
 

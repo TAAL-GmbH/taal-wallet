@@ -15,6 +15,7 @@ import { routes } from '@/src/constants/routes';
 import { useBlockchain } from '@/src/hooks/useBlockchain';
 import { BackButton } from '../backButton';
 import { CurrentAccount } from '../currentAccount';
+import { Note } from '../generic/note';
 
 type Props = {
   className?: string;
@@ -80,7 +81,15 @@ export const SendBSV: FC<Props> = ({ className }) => {
       <BackButton />
 
       <Heading icon={<Arrow direction="upright" />}>Send BSV</Heading>
-      <Form options={{ defaultValues }} onSubmit={onSubmit} data-test-id="send-bsv-form">
+
+      {!activePk?.balance.amount && <Note variant="accent">You don't have any funds to send.</Note>}
+
+      <Form
+        options={{ defaultValues }}
+        onSubmit={onSubmit}
+        data-test-id="send-bsv-form"
+        isDisabled={!activePk?.balance.amount}
+      >
         <Row>
           <FormInput
             name="dstAddress"
@@ -97,7 +106,7 @@ export const SendBSV: FC<Props> = ({ className }) => {
         <Row>
           <FormInput
             name="amount"
-            label={`Amount in Satoshis (max ${activePk?.balance.amount})`}
+            label={`Amount in satoshis (max ${activePk?.balance.amount})`}
             type="tel"
             size="sm"
             options={{
@@ -105,12 +114,12 @@ export const SendBSV: FC<Props> = ({ className }) => {
               required: true,
             }}
             max={activePk?.balance.amount}
-            placeholder="Amount in Satoshis"
+            placeholder="Amount in satoshis"
           />
         </Row>
         <ButtonRow>
           <ButtonStyled onClick={() => history.back()}>Cancel</ButtonStyled>
-          <ButtonStyled variant="primary" type="submit">
+          <ButtonStyled variant="primary" type="submit" isDisabled={!activePk?.balance.amount}>
             Send
           </ButtonStyled>
         </ButtonRow>

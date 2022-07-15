@@ -43,7 +43,7 @@ export const Home: FC<Props> = ({ className }) => {
           </Tooltip>
         }
       >
-        Balance{' '}
+        Balance:{' '}
         {typeof activePk?.balance?.amount === 'number'
           ? `${formatNumber(activePk?.balance?.amount)}${'\u00A0'}satoshis`
           : 'unknown'}

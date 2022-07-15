@@ -1,4 +1,5 @@
-import { Button } from '@/src/components/button';
+import { FC, useEffect } from 'react';
+import styled from 'styled-components';
 import { DerivePk } from '@/src/components/derivePK';
 import { History } from '@/src/components/history';
 import { Home } from '@/src/components/home';
@@ -13,8 +14,6 @@ import { WebPushSubscription } from '@/src/components/webPushSubscription';
 import { routes } from '@/src/constants/routes';
 import { useHashLocation } from '@/src/hooks/useHashLocation';
 import { isNull } from '@/src/utils/generic';
-import { FC, useEffect, useState } from 'react';
-import styled from 'styled-components';
 import { Route, Router, Switch } from 'wouter';
 import { Onboarding } from '../onboarding';
 import { OnboardingImport } from '../onboarding/import';
@@ -39,8 +38,6 @@ export const RouterComponent: FC<Props> = ({
   isLocked,
   hasActivePk,
 }) => {
-  const [showReloadCta, setShowReloadCta] = useState(false);
-
   useEffect(() => {
     if (!isInSync || isNull(hasRootKey)) {
       reloadTimer = setTimeout(() => {
@@ -51,16 +48,6 @@ export const RouterComponent: FC<Props> = ({
       clearTimeout(reloadTimer);
     }
   }, [isInSync, hasRootKey]);
-
-  if (showReloadCta) {
-    return (
-      <ErrorMessage>
-        <div>Oops, something went wrong!</div>
-        <Button onClick={() => chrome.runtime.reload()}>Reload wallet</Button>
-        <pre>{JSON.stringify({ isInSync, hasRootKey }, null, 2)}</pre>
-      </ErrorMessage>
-    );
-  }
 
   // isNull(hasRootKey) === true means we're still fetching the root key from db
   if (!isInitialized || !isInSync || isNull(hasRootKey)) {

@@ -27,7 +27,7 @@ export const AccountNameForm: FC<Props> = ({ className, account }) => {
       return;
     }
     if (isLocked) {
-      toast.error('Please unlock your wallet');
+      toast.error('Please unlock your TAAL Wallet');
       return;
     }
     store.dispatch(updateAccountName({ accountId: account.id, accountName }));

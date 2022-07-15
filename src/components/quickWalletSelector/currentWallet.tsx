@@ -75,7 +75,7 @@ export const CurrentWallet: FC<Props> = ({ onClose }) => {
         </dd>
         {activePk.balance?.updatedAt && (
           <>
-            <dt>Updated:</dt>
+            <dt>Updated at:</dt>
             <dd>{dayjs(activePk.balance.updatedAt).format('YYYY-MM-DD HH:mm:ss')}</dd>
           </>
         )}

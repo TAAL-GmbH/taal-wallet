@@ -97,7 +97,7 @@ export const PKList: FC<Props> = ({ className }) => {
                 </dd>
                 {item.balance.updatedAt && (
                   <>
-                    <dt>Updated:</dt>
+                    <dt>Updated at:</dt>
                     <dd>{dayjs(item.balance.updatedAt).format('YYYY-MM-DD HH:mm:ss')}</dd>
                   </>
                 )}

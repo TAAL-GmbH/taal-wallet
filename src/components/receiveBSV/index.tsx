@@ -32,7 +32,7 @@ export const ReceiveBSV: FC = () => {
       </QRCodeWrapper>
 
       <Note variant="warning" icon={<InfoIcon />} padding="sm md">
-        Only works with BSV. Sending other cryptos will result in the loss of funds.
+        It works only with BSV. If you send any other cryptos, it will result in the loss of funds.
       </Note>
     </Wrapper>
   );

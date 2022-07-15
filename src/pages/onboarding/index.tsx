@@ -16,27 +16,22 @@ export const Onboarding: FC<Props> = ({ className }) => {
       <h1>
         <small>Welcome to</small>
         <br />
-        TAAL Web3 wallet
+        TAAL Wallet
       </h1>
       <p>Looks like it's your first run on this device.</p>
 
       <Option>
         <WalletPlusIcon />
-        <Short>I want to create a new Wallet</Short>
-        <Button
-          onClick={() => navigateTo(routes.ONBOARDING_NEW)}
-          variant="success"
-        >
+        <Short>I want to create a new wallet</Short>
+        <Button onClick={() => navigateTo(routes.ONBOARDING_NEW)} variant="success">
           Create a Wallet
         </Button>
       </Option>
 
       <Option>
         <ImportIcon />
-        <Short>I have a Secret recovery phrase</Short>
-        <Button onClick={() => navigateTo(routes.ONBOARDING_IMPORT)}>
-          Import Wallet
-        </Button>
+        <Short>I have a secret recovery phrase</Short>
+        <Button onClick={() => navigateTo(routes.ONBOARDING_IMPORT)}>Import wallet</Button>
       </Option>
     </Wrapper>
   );

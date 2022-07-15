@@ -170,7 +170,7 @@ class WalletCommunicator {
 
   private _addBlockingWarning() {
     const getMessage = cmd =>
-      `Don't use ${cmd} with TAAL Web3 Wallet client as it will cause the wallet to disconnect`;
+      `Don't use ${cmd} with TAAL Wallet client as it will cause the TAAL Wallet to disconnect`;
 
     (proxiedAlert => {
       window.alert = () => {

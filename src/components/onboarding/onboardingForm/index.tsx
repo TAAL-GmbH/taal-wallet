@@ -21,6 +21,8 @@ import { sharedDb } from '@/src/db/shared';
 import { addAccount, setActiveAccountId } from '@/src/features/accountSlice';
 import styled from 'styled-components';
 import { useAppSelector } from '@/src/hooks';
+import { Note } from '../../generic/note';
+import { InfoIcon } from '../../svg/infoIcon';
 
 type Props = {
   className?: string;
@@ -247,18 +249,21 @@ export const OnboardingForm: FC<Props> = ({ className, action }) => {
             margin="0"
             size="sm"
             rows={3}
-            label={
-              action === 'createNew'
-                ? 'Here is your 12 words seen phrase, it is incredibly important to take a note of this and keep it safe as without you may lose access to your wallet and the funds contained within:'
-                : 'Mnemonic phrase'
-            }
-            placeholder="Please input your 12 words mnemonic phrase"
+            label={'Secret phrase'}
+            placeholder="Please input your 12 words secret phrase"
             readOnly={action === 'createNew'}
             options={{
               validate: value =>
-                value.trim().split(' ').length !== 12 ? 'Mnemonic phrase must be 12 words' : true,
+                value.trim().split(' ').length !== 12 ? 'Secret phrase must be 12 words' : true,
             }}
           />
+
+          {action === 'createNew' && (
+            <Note icon={<InfoIcon />} variant="warning" margin="sm 0 md" padding="sm md">
+              Here is your 12 words seen phrase, it is incredibly important to take a note of this and keep it
+              safe as without you may lose access to your wallet and the funds contained within.
+            </Note>
+          )}
         </Row>
         <Row>
           <Button type="submit" variant="primary">

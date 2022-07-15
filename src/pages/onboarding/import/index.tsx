@@ -15,7 +15,7 @@ export const OnboardingImport: FC<Props> = ({ className }) => {
   return (
     <Wrapper className={className}>
       <BackButton />
-      <Heading icon={<ImportIcon />}>Import your Wallet</Heading>
+      <Heading icon={<ImportIcon />}>Import an existing wallet</Heading>
       <div>
         or <AnchorLink href={routes.ONBOARDING_NEW}>create a new one</AnchorLink>
       </div>
