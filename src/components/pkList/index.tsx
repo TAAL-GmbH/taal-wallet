@@ -46,14 +46,14 @@ export const PKList: FC<Props> = ({ className }) => {
   const deriveCta = (
     <ButtonStyled onClick={() => navigateTo(routes.DERIVE_PK)}>
       <WalletPlusIcon />
-      Create a new Wallet
+      Create a new wallet
     </ButtonStyled>
   );
 
   if (!list || !list.length) {
     return (
       <div>
-        <h3>No Wallets found</h3>
+        <h3>No wallets found</h3>
         {deriveCta}
       </div>
     );
@@ -63,11 +63,11 @@ export const PKList: FC<Props> = ({ className }) => {
     <Wrapper className={className}>
       <CurrentAccount />
       <BackButton />
-      <Heading icon={<WalletPlusIcon />}>Your Wallets</Heading>
+      <Heading icon={<WalletPlusIcon />}>Your wallets</Heading>
 
       {!list.length && (
         <div>
-          <p>No Wallets found.</p>
+          <p>No wallets found.</p>
         </div>
       )}
 

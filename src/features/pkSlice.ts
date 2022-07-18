@@ -51,6 +51,14 @@ const pkSlice = createSlice({
       }
       state.map[action.payload.address] = action.payload;
     },
+    appendPKList(state, action: PayloadAction<PKType[]>) {
+      action.payload.forEach(pk => {
+        if (state.map[pk.address]) {
+          console.warn('Key already exists', pk);
+        }
+        state.map[pk.address] = pk;
+      });
+    },
     deletePK(state, action: PayloadAction<string>) {
       if (state.map[action.payload]) {
         throw new Error('Key does not exists');
@@ -89,6 +97,7 @@ export const {
   setState,
   replacePKMap,
   appendPK,
+  appendPKList,
   deletePK,
   lockWallet,
   setRootPK,

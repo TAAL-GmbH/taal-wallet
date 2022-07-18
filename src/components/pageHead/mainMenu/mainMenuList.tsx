@@ -31,7 +31,7 @@ export const MainMenuList: FC<Props> = ({ className }) => {
       action: routes.HOME,
       icon: <HomeIcon />,
     },
-    'Select Wallet': { action: routes.PK_LIST, icon: <WalletPlusIcon /> },
+    'Select wallet': { action: routes.PK_LIST, icon: <WalletPlusIcon /> },
     // 'Get Balance': { action: getBalance, icon: <RefreshIcon /> },
     'Send BSV': { action: routes.SEND_BSV, icon: <Arrow /> },
     'Receive BSV': { action: routes.RECEIVE_BSV, icon: <Arrow direction="left" /> },
@@ -46,7 +46,7 @@ export const MainMenuList: FC<Props> = ({ className }) => {
   }
 
   if (!isLocked) {
-    menuItems['Lock Wallet'] = { action: () => store.dispatch(lockWallet()), icon: <LockIcon /> };
+    menuItems['Lock wallet'] = { action: () => store.dispatch(lockWallet()), icon: <LockIcon /> };
   }
 
   return (

@@ -6,6 +6,7 @@ import { isNull, isUndefined } from './generic';
 import { PKType } from '../types';
 import { networkList } from '../constants/networkList';
 import { sharedDb } from '../db/shared';
+import { setAccountList, setActiveAccountId } from '../features/accountSlice';
 
 type DiffType = {
   updated: RootState['pk'] & RootState['account'];
@@ -114,16 +115,23 @@ export const restoreDataFromDb = async () => {
    * The following code it to restore data from indexedDB -> redux state
    */
 
-  const activeAccountId = await sharedDb.getKeyVal('activeAccountId');
-  if (isUndefined(activeAccountId)) {
-    return;
-  }
+  // const activeAccountId = await sharedDb.getKeyVal('activeAccountId');
+  // console.debug('restoreDataFromDb', { activeAccountId });
+  // if (isUndefined(activeAccountId)) {
+  //   return;
+  // }
 
-  const [networkId, pkMap, activePkAddress] = await Promise.all([
+  const [networkId, pkMap, activePkAddress, accountList, activeAccountId] = await Promise.all([
     db.getKeyVal('network.id'),
     db.getPkMap(),
     db.getKeyVal('active.PkAddress'),
+    sharedDb.getAccountList(),
+    sharedDb.getKeyVal('activeAccountId'),
   ]);
+  console.debug('restoreDataFromDb', { networkId, pkMap, activePkAddress, accountList, activeAccountId });
+
+  store.dispatch(setAccountList(accountList));
+  store.dispatch(setActiveAccountId(activeAccountId || accountList[0]?.id));
 
   store.dispatch(
     setState({

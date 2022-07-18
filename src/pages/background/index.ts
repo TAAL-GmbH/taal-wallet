@@ -24,7 +24,6 @@ self.addEventListener('push', onPushMessage);
 chrome.runtime.onInstalled.addListener(({ previousVersion, reason }) => {
   // console.log('onInstalled', { previousVersion, reason })
 });
-chrome.runtime.onUpdateAvailable.addListener((...args) => console.log('onUpdateAvailable', args));
 
 chrome.alarms.onAlarm.addListener(({ name }) => {
   switch (name) {
@@ -35,10 +34,10 @@ chrome.alarms.onAlarm.addListener(({ name }) => {
   }
 });
 
-// internal one-time connection handling
-chrome.runtime.onConnect.addListener(async externalPort => {
+// internal long-lived connection handling
+chrome.runtime.onConnect.addListener(async internalPort => {
   // add alarm on popup window close
-  externalPort.onDisconnect.addListener(async () => {
+  internalPort.onDisconnect.addListener(async () => {
     const walletLockPeriod = (await sharedDb.getKeyVal('walletLockPeriod')) || 30;
     chrome.alarms.create(alarms.WALLET_LOCK, { delayInMinutes: walletLockPeriod });
   });
@@ -47,10 +46,15 @@ chrome.runtime.onConnect.addListener(async externalPort => {
   chrome.alarms.clear(alarms.WALLET_LOCK);
 });
 
-// internal long-lived connection handling
+// internal one-time connection handling
 chrome.runtime.onMessage.addListener(({ action, payload }, sender, sendResponse) => {
+  console.log('chrome.runtime.onMessage', { action, payload });
   (async () => {
     switch (action) {
+      case 'bg:ping': {
+        sendResponse('pong');
+        break;
+      }
       case 'bg:setAccount': {
         await db.useAccount(payload);
         // let's clean up the state as we have switched to new account
@@ -63,13 +67,13 @@ chrome.runtime.onMessage.addListener(({ action, payload }, sender, sendResponse)
             isLocked: true,
           })
         );
-        sendResponse('account set');
+        sendResponse('account-set');
         break;
       }
 
       case 'bg:reloadFromDb': {
         await restoreDataFromDb();
-        sendResponse('restored data from db');
+        sendResponse('data-restored');
         break;
       }
     }

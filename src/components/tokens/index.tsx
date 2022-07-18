@@ -36,7 +36,7 @@ export const Tokens: FC<Props> = ({ className }) => {
           </Tooltip>
         }
       >
-        Your Tokens
+        Your tokens
       </Heading>
 
       <TokenItemList list={tokenList} isFetching={isFetching} />

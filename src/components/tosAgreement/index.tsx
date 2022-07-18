@@ -12,7 +12,7 @@ export const TosAgreement: FC = () => {
 
   return (
     <Wrapper>
-      <Heading>Terms of Service agreement</Heading>
+      <Heading>Terms of service agreement</Heading>
       <ol>
         <li>
           <ol>

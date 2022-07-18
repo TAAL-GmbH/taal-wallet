@@ -16,22 +16,10 @@ chrome.runtime.connect();
 
 const Popup = () => {
   const { isInSync, isLocked, rootPk, activePk } = useAppSelector(state => state.pk);
+  const { activeAccountId, accountList } = useAppSelector(state => state.account);
   const [hasRootKey, setHasRootKey] = useState<boolean>(null);
   const [isTosInAgreement, setIsTosInAgreement] = useState<boolean>(false);
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
-
-  useEffect(() => {
-    (async () => {
-      const accounts = await sharedDb.getAccountList();
-      store.dispatch(setAccountList(accounts));
-      const activeAccountIdFromDb = (await sharedDb.getKeyVal('activeAccountId')) || accounts[0]?.id;
-      if (activeAccountIdFromDb) {
-        store.dispatch(setActiveAccountId(activeAccountIdFromDb));
-      }
-      setIsTosInAgreement(!!(await sharedDb.getKeyVal('isTosInAgreement')));
-      setIsInitialized(true);
-    })();
-  }, []);
 
   useEffect(() => {
     document.body.classList.add(isPopup() ? 'main-app-in-popup' : 'main-app-in-tab');
@@ -41,15 +29,40 @@ const Popup = () => {
     window.db = db;
 
     (async () => {
-      const activeAccountId = await sharedDb.getKeyVal('activeAccountId');
+      // const accounts = await sharedDb.getAccountList();
+      // console.log('accountMap', JSON.stringify(accountMap));
+      // store.dispatch(setAccountList(accounts));
+      // console.log('accountMap', JSON.stringify(accountList));
 
-      if (!isUndefined(activeAccountId)) {
+      // const firstAccountId = accountList[0]?.id;
+      // const activeAccountIdFromDb = await sharedDb.getKeyVal('activeAccountId');
+
+      // if (activeAccountIdFromDb || firstAccountId) {
+      //   store.dispatch(setActiveAccountId(activeAccountIdFromDb || firstAccountId));
+      // }
+
+      setIsTosInAgreement(!!(await sharedDb.getKeyVal('isTosInAgreement')));
+      setIsInitialized(true);
+    })();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      const activeAccountIdFromDb = await sharedDb.getKeyVal('activeAccountId');
+
+      // console.log({
+      //   activeAccountId,
+      //   rootPk: !!rootPk,
+      //   privateKeyEncrypted: await db.getKeyVal('rootPk.privateKeyEncrypted'),
+      // });
+
+      if (!isUndefined(activeAccountIdFromDb)) {
         setHasRootKey(!!rootPk || !!(await db.getKeyVal('rootPk.privateKeyEncrypted')));
       } else {
         setHasRootKey(false);
       }
     })();
-  }, [isLocked, rootPk]);
+  }, [isLocked, rootPk, activeAccountId]);
 
   return (
     <Wrapper>
@@ -63,9 +76,21 @@ const Popup = () => {
         hasRootKey={hasRootKey}
         isLocked={isLocked}
         hasActivePk={!isNull(activePk)}
+        activeAccountId={activeAccountId}
       />
 
-      <Debug />
+      <Debug
+        extra={[
+          {
+            isInitialized,
+            isTosInAgreement,
+            isInSync,
+            hasRootKey,
+            isLocked,
+            hasActivePk: !isNull(activePk),
+          },
+        ]}
+      />
     </Wrapper>
   );
 };

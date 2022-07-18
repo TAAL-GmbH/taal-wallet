@@ -103,16 +103,6 @@ class Db {
     }
   }
 
-  // public async getKeyVal(key: KeyValAccountKey) {
-  //   const db = await this._getDB();
-  //   return db.get(storeNames.KEY_VAL, key);
-  // }
-
-  // public async setKeyVal(key: KeyValAccountKey, value: TaalAccountDB['keyVal']['value']) {
-  //   const db = await this._getDB();
-  //   return db.put(storeNames.KEY_VAL, value, key);
-  // }
-
   public async getKeyVal<T extends keyof KeyVal>(key: T) {
     const db = await this._getDB();
     return db.get(storeNames.KEY_VAL, key) as Promise<KeyVal[typeof key]>;

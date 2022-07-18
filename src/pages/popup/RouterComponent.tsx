@@ -18,6 +18,7 @@ import { Route, Router, Switch } from 'wouter';
 import { Onboarding } from '../onboarding';
 import { OnboardingImport } from '../onboarding/import';
 import { OnboardingNew } from '../onboarding/new';
+import { ErrorPage } from '@/src/components/errorPage';
 
 type Props = {
   isInitialized: boolean;
@@ -26,6 +27,7 @@ type Props = {
   hasRootKey: boolean;
   isLocked: boolean;
   hasActivePk: boolean;
+  activeAccountId: string;
 };
 
 let reloadTimer: ReturnType<typeof setTimeout> | null = null;
@@ -37,17 +39,23 @@ export const RouterComponent: FC<Props> = ({
   hasRootKey,
   isLocked,
   hasActivePk,
+  activeAccountId,
 }) => {
   useEffect(() => {
     if (!isInSync || isNull(hasRootKey)) {
       reloadTimer = setTimeout(() => {
         window.location.reload();
-        // setShowReloadCta(true);
       }, 1000);
     } else {
       clearTimeout(reloadTimer);
     }
   }, [isInSync, hasRootKey]);
+
+  const [location] = useHashLocation();
+
+  if (location === routes.ERROR) {
+    return <ErrorPage />;
+  }
 
   // isNull(hasRootKey) === true means we're still fetching the root key from db
   if (!isInitialized || !isInSync || isNull(hasRootKey)) {
@@ -56,6 +64,10 @@ export const RouterComponent: FC<Props> = ({
 
   if (!isTosInAgreement) {
     return <TosAgreement />;
+  }
+
+  if (activeAccountId && !hasRootKey) {
+    return <ErrorPage>Invalid account</ErrorPage>;
   }
 
   if (!hasRootKey) {
@@ -144,13 +156,3 @@ export const RouterComponent: FC<Props> = ({
     </Router>
   );
 };
-
-const ErrorMessage = styled.div`
-  font-size: 1rem;
-  margin: 4rem 0 2rem;
-  text-align: center;
-
-  > div {
-    margin-bottom: 1rem;
-  }
-`;

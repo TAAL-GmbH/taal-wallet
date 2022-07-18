@@ -242,9 +242,9 @@ export class Client {
         to access TAAL Wallet?
         <h4>This will allow the client to:</h4>
         <ul>
-          <li>Read you Wallet address</li>
-          <li>Read you Wallet balance</li>
-          <li>Read you Public key</li>
+          <li>Read you wallet address</li>
+          <li>Read you wallet balance</li>
+          <li>Read you public key</li>
         </ul>
       `,
       resizeWindow: true,
@@ -334,7 +334,7 @@ export class Client {
             payload: signedTx.serialize(true),
           };
         }
-     
+
         case 'signPreimage': {
           const result = await createDialog({
             title: 'Do you want to sign this pre-image?',
@@ -346,26 +346,32 @@ export class Client {
             throw new Error('User rejected pre-image signing');
           }
 
-          const { tx, sighash, script, i, satoshis } = payload as { tx: string; sighash: number; script: string, i: number, satoshis: any }
+          const { tx, sighash, script, i, satoshis } = payload as {
+            tx: string;
+            sighash: number;
+            script: string;
+            i: number;
+            satoshis: any;
+          };
 
           // @ts-ignore
-          const sighash2 = bsv.crypto.Signature.SIGHASH_ALL | bsv.crypto.Signature.SIGHASH_FORKID
+          const sighash2 = bsv.crypto.Signature.SIGHASH_ALL | bsv.crypto.Signature.SIGHASH_FORKID;
           // @ts-ignore
-          const t: bsv.Transaction = bsv.Transaction(tx)          
+          const t: bsv.Transaction = bsv.Transaction(tx);
           // @ts-ignore
           const { privateKeyHash } = this._getKey();
           const pk = new bsv.PrivateKey(privateKeyHash);
           // @ts-ignore
-          const satsBN = BN.fromNumber(satoshis)
+          const satsBN = BN.fromNumber(satoshis);
           // @ts-ignore
-          let signature: bsv.TransactionSignature
-          try{
+          let signature: bsv.TransactionSignature;
+          try {
             // @ts-expect-error sighash method is not typed in .d.ts
             signature = bsv.Transaction.sighash.sign(t, pk, sighash2, i, script, satsBN);
-          } catch(e) {
-            console.log('error signing preimage')
-            console.log(e)
-            throw e
+          } catch (e) {
+            console.log('error signing preimage');
+            console.log(e);
+            throw e;
           }
 
           return {

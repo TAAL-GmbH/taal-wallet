@@ -7,7 +7,6 @@ import { derivePk, isValidAddress, restorePK, sendBSV } from '@/src/utils/blockc
 import { Form } from '../generic/form/form';
 import { FormInput } from '../generic/form/formInput';
 import { Row } from '../generic/row';
-import { QuickWalletSelector } from '../quickWalletSelector';
 import { Arrow } from '../svg/arrow';
 import { Heading } from '../generic/heading';
 import { navigateTo } from '@/src/utils/navigation';

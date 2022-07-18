@@ -20,3 +20,4 @@ public/manifest.json
 public/contentStyle.css
 
 .env
+*.psd

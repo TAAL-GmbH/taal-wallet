@@ -9,5 +9,6 @@ export const routes: Record<string, string> = Object.freeze({
   DERIVE_PK: 'derive-pk',
   HISTORY: 'history',
   TOKENS: 'tokens',
+  ERROR: 'error',
   WEB_PUSH: 'web-push',
 });

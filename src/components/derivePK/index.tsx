@@ -21,7 +21,7 @@ export const DerivePk: FC<Props> = ({ className }) => {
   const { rootPk } = useAppSelector(state => state.pk);
 
   const onSubmit = async data => {
-    const toast = createToast('Creating a new Wallet...');
+    const toast = createToast('Creating a new wallet...');
     if (!rootPk) {
       toast.error('Please select a root PK');
       return;
@@ -63,7 +63,7 @@ export const DerivePk: FC<Props> = ({ className }) => {
 
   return (
     <Wrapper className={className}>
-      <h1>Create a New Wallet</h1>
+      <h1>Create a new wallet</h1>
       <Form onSubmit={onSubmit} options={{ defaultValues: { name: '' } }} data-test-id="">
         <Row>
           <FormInput name="name" label="Name" />

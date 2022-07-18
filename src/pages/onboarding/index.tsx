@@ -24,7 +24,7 @@ export const Onboarding: FC<Props> = ({ className }) => {
         <WalletPlusIcon />
         <Short>I want to create a new wallet</Short>
         <Button onClick={() => navigateTo(routes.ONBOARDING_NEW)} variant="success">
-          Create a Wallet
+          Create a wallet
         </Button>
       </Option>
 

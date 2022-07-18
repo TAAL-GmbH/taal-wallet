@@ -1,28 +1,18 @@
 import { FC, useEffect, useRef, useState } from 'react';
-import { HDPrivateKey, Mnemonic } from 'bsv';
+import styled from 'styled-components';
+import { Mnemonic } from 'bsv';
 import { Button } from '@/src/components/button';
-import { navigateTo } from '@/src/utils/navigation';
-import { routes } from '@/src/constants/routes';
-import { createToast } from '@/src/utils/toast';
 import { FormTextArea } from '@/src/components/generic/form/formTextArea';
 import { useForm } from '@/src/components/generic/form/useForm';
 import { FormInput } from '@/src/components/generic/form/formInput';
 import { FormSelect } from '@/src/components/generic/form/formSelect';
 import { networkList } from '@/src/constants/networkList';
-import { createHDPrivateKey, derivePk, generateMnemonic, rebuildMnemonic } from '@/src/utils/blockchain';
-import { store } from '@/src/store';
-import { appendPK, setActivePk, setNetwork, setRootPK } from '@/src/features/pkSlice';
-import { encrypt } from '@/src/utils/crypt';
+import { generateMnemonic } from '@/src/utils/blockchain';
 import { Row } from '@/components/generic/row';
-import { getHistory } from '@/src/features/wocApiSlice';
-import { PKType } from '@/src/types';
-import { db } from '@/src/db';
-import { sharedDb } from '@/src/db/shared';
-import { addAccount, setActiveAccountId } from '@/src/features/accountSlice';
-import styled from 'styled-components';
 import { useAppSelector } from '@/src/hooks';
 import { Note } from '../../generic/note';
 import { InfoIcon } from '../../svg/infoIcon';
+import { useFactory } from '@/src/hooks/useFactory';
 
 type Props = {
   className?: string;
@@ -38,14 +28,15 @@ const defaultValues = {
 };
 
 export const OnboardingForm: FC<Props> = ({ className, action }) => {
-  const { accountList } = useAppSelector(state => state.account);
   const mnemonic = useRef<Mnemonic>();
+  const { createAccount } = useFactory();
+  const { accountList } = useAppSelector(state => state.account);
+  const { Form, methods } = useForm({ defaultValues, mode: 'onBlur' });
   const [networkListOptions] = useState(
     [{ label: 'Select network', value: '' }].concat(
       networkList.map(({ label, id }) => ({ label, value: id }))
     )
   );
-  const { Form, methods } = useForm({ defaultValues, mode: 'onBlur' });
 
   useEffect(() => {
     if (action === 'createNew') {
@@ -54,125 +45,14 @@ export const OnboardingForm: FC<Props> = ({ className, action }) => {
     }
   }, [action]);
 
-  const onSubmit = async (values: typeof defaultValues) => {
-    const { networkId, password, mnemonicPhrase } = values;
-    const toast = createToast('Creating Root Key...');
-
-    const accountName = values.accountName.trim();
-
-    if (!mnemonicPhrase) {
-      toast.error('mnemonic is empty');
-      return;
-    }
-
-    try {
-      const network = networkList.find(item => item.id === networkId);
-
-      const { pkInstance: rootKey } = createHDPrivateKey({
-        networkId,
-        password,
-        mnemonic: action === 'createNew' ? mnemonic.current : rebuildMnemonic(mnemonicPhrase.trim()),
-      });
-
-      const accountId = `${Date.now()}`;
-
-      await sharedDb.insertAccount({
-        id: accountId,
-        name: accountName,
-        networkId,
-      });
-
-      // it's important to await for background to switch database
-      await db.useAccount(accountId, true);
-
-      store.dispatch(
-        setRootPK({
-          privateKeyHash: rootKey.toString(),
-          privateKeyEncrypted: encrypt(rootKey.toString(), password),
-        })
-      );
-      store.dispatch(setNetwork(network));
-      store.dispatch(setActiveAccountId(accountId));
-
-      store.dispatch(
-        addAccount({
-          id: accountId,
-          name: accountName,
-          networkId,
-        })
-      );
-
-      toast.success('Root Key created');
-
-      let lastAddress: string;
-
-      if (action === 'createNew') {
-        const toast = createToast('Creating Wallet...');
-        const newWallet = createWallet(rootKey);
-        store.dispatch(appendPK(newWallet));
-        lastAddress = newWallet.address;
-        toast.success('Wallet created');
-      } else {
-        // Restoring wallets
-        const toast = createToast('Restoring Wallets...');
-        const walletList = await getWalletsWithHistory(rootKey);
-
-        if (!walletList.length) {
-          walletList.push(createWallet(rootKey));
-        }
-
-        walletList.forEach(wallet => store.dispatch(appendPK(wallet)));
-        lastAddress = walletList[walletList.length - 1].address;
-        toast.success(`${walletList.length} Wallet(s) restored`);
-      }
-
-      store.dispatch(setActivePk(lastAddress));
-
-      navigateTo(routes.HOME);
-    } catch (err) {
-      console.error('onboardingForm', err);
-      toast.error(err.message);
-    }
-  };
-
-  const getWalletsWithHistory = async (rootKey: HDPrivateKey): Promise<PKType[]> => {
-    // TODO: this function fetches only first 20 wallets
-    const walletList: PKType[] = [];
-
-    // TODO: there is request limit of 10 per second (?)
-    for (let i = 0; i < 10; i++) {
-      walletList.push(createWallet(rootKey, i));
-    }
-
-    const historyFetchResultList = await Promise.all(walletList.map(wallet => getHistory(wallet.address)));
-
-    console.log({ historyFetchResultList });
-    const addressWithHistoryList = historyFetchResultList
-      .filter(({ data }) => data.length > 0)
-      .map(({ originalArgs }) => originalArgs);
-
-    return walletList.filter(({ address }) => addressWithHistoryList.includes(address));
-  };
-
-  const createWallet = (rootKey: HDPrivateKey, index = 0): PKType => {
-    if (!rootKey) {
-      throw new Error('rootKey is empty');
-    }
-
-    const { address, name, path } = derivePk({
-      rootKey,
-      path: `0'/0/${index}`,
+  const onSubmit = async ({ accountName, networkId, password, mnemonicPhrase }: typeof defaultValues) => {
+    await createAccount({
+      accountName,
+      networkId,
+      password,
+      mnemonicPhrase,
+      action,
     });
-
-    return {
-      address,
-      name,
-      path,
-      balance: {
-        amount: null,
-        updatedAt: null,
-      },
-    };
   };
 
   return (
@@ -253,6 +133,7 @@ export const OnboardingForm: FC<Props> = ({ className, action }) => {
             placeholder="Please input your 12 words secret phrase"
             readOnly={action === 'createNew'}
             options={{
+              required: 'Secret phrase is required',
               validate: value =>
                 value.trim().split(' ').length !== 12 ? 'Secret phrase must be 12 words' : true,
             }}
@@ -260,8 +141,8 @@ export const OnboardingForm: FC<Props> = ({ className, action }) => {
 
           {action === 'createNew' && (
             <Note icon={<InfoIcon />} variant="warning" margin="sm 0 md" padding="sm md">
-              Here is your 12 words seen phrase, it is incredibly important to take a note of this and keep it
-              safe as without you may lose access to your wallet and the funds contained within.
+              The secret phrase is your 12 words seen phrase, it is important to keep it safe and without it
+              you may lose access to your wallet and the funds in it.
             </Note>
           )}
         </Row>

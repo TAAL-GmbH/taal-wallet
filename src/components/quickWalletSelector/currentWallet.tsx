@@ -82,7 +82,7 @@ export const CurrentWallet: FC<Props> = ({ onClose }) => {
       </Dl>
       <ButtonStyled onClick={() => navigateTo(routes.PK_LIST)} margin="xs 0">
         <WalletPlusIcon />
-        Select another Wallet
+        Select another wallet
       </ButtonStyled>
     </>
   );
