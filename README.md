@@ -17,10 +17,11 @@
 
 ## Intro <a name="intro"></a>
 This TAAL Wallet Chrome extensions using React and Typescript.
-> The focus was on improving the build speed and development experience with Vite.
 
 ## Features <a name="features"></a>
 - [React 18](https://reactjs.org/)
+- [Redux Toolkit](https://redux-toolkit.js.org/)
+- [BSV Javascript library](https://github.com/moneybutton/bsv)
 - [TypeScript](https://www.typescriptlang.org/)
 - [Webpack](https://webpack.js.org/)
 - [ESLint](https://eslint.org/)
