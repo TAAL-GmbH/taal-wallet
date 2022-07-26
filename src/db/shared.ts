@@ -73,6 +73,16 @@ class SharedDb {
     return db.put(storeNames.ACCOUNT_LIST, { ...account, name: newName });
   }
 
+  public async getAccount(accountId: string) {
+    const db = await this._getDB();
+    return db.get(storeNames.ACCOUNT_LIST, accountId);
+  }
+
+  public async deleteAccount(accountId: string) {
+    const db = await this._getDB();
+    return db.delete(storeNames.ACCOUNT_LIST, accountId);
+  }
+
   public async getKeyVal<T extends keyof KeyVal>(key: T) {
     const db = await this._getDB();
     return db.get(storeNames.KEY_VAL, key) as Promise<KeyVal[typeof key]>;

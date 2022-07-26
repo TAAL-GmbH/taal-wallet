@@ -1,8 +1,7 @@
 import { FC, ReactNode } from 'react';
 import { routes } from '@/src/constants/routes';
-import { store } from '@/src/store';
 import { lockWallet } from '@/src/features/pkSlice';
-import { useAppSelector } from '@/src/hooks';
+import { useAppDispatch, useAppSelector } from '@/src/hooks';
 import { HomeIcon } from '../../svg/homeIcon';
 import { Arrow } from '../../svg/arrow';
 import { CogIcon } from '../../svg/cogIcon';
@@ -24,6 +23,7 @@ type MenuItem = {
 
 export const MainMenuList: FC<Props> = ({ className }) => {
   const { isLocked, network } = useAppSelector(state => state.pk);
+  const dispatch = useAppDispatch();
   const { airdrop } = useBlockchain();
 
   const menuItems: Record<string, MenuItem> = {
@@ -46,7 +46,7 @@ export const MainMenuList: FC<Props> = ({ className }) => {
   }
 
   if (!isLocked) {
-    menuItems['Lock wallet'] = { action: () => store.dispatch(lockWallet()), icon: <LockIcon /> };
+    menuItems['Lock wallet'] = { action: () => dispatch(lockWallet()), icon: <LockIcon /> };
   }
 
   return (

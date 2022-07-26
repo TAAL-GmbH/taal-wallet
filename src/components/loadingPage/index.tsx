@@ -43,6 +43,7 @@ const Wrapper = styled.div`
   gap: 1rem;
   align-items: center;
   justify-content: center;
+  pointer-events: all;
 
   span {
     font-size: 1rem;

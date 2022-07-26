@@ -1,4 +1,4 @@
-export const routes: Record<string, string> = Object.freeze({
+export const routes: Record<string, string> = {
   HOME: '/',
   ONBOARDING: 'onboarding',
   ONBOARDING_NEW: 'onboarding/new',
@@ -11,4 +11,4 @@ export const routes: Record<string, string> = Object.freeze({
   TOKENS: 'tokens',
   ERROR: 'error',
   WEB_PUSH: 'web-push',
-});
+};

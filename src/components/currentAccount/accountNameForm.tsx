@@ -1,7 +1,6 @@
 import { FC, FormEventHandler, useState } from 'react';
 import { updateAccountName } from '@/src/features/accountSlice';
-import { useAppSelector } from '@/src/hooks';
-import { store } from '@/src/store';
+import { useAppDispatch, useAppSelector } from '@/src/hooks';
 import toast from 'react-hot-toast';
 import styled from 'styled-components';
 import { IconButton } from '../generic/icon-button';
@@ -16,8 +15,9 @@ type Props = {
 
 export const AccountNameForm: FC<Props> = ({ className, account }) => {
   const [isFormVisible, setIsFormVisible] = useState(false);
-  const { isLocked } = useAppSelector(state => state.pk);
   const [accountName, setAccountName] = useState(account.name);
+  const { isLocked } = useAppSelector(state => state.pk);
+  const dispatch = useAppDispatch();
 
   const onSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -30,7 +30,7 @@ export const AccountNameForm: FC<Props> = ({ className, account }) => {
       toast.error('Please unlock your TAAL Wallet');
       return;
     }
-    store.dispatch(updateAccountName({ accountId: account.id, accountName }));
+    dispatch(updateAccountName({ accountId: account.id, accountName }));
     setIsFormVisible(false);
 
     toast.success('Account name updated successfully');

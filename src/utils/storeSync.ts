@@ -34,11 +34,17 @@ export const initStoreSync = async () => {
       { ...pk, ...account }
     ) as DiffType;
 
-    // if (Object.keys(added).length || Object.keys(deleted).length || Object.keys(updated).length) {
-    //   console.log('store.subscribe', {
-    //     added,
-    //     deleted,
-    //     updated,
+    // const changes = [
+    //   Object.keys(added).length && 'added',
+    //   Object.keys(deleted).length && 'deleted',
+    //   Object.keys(updated).length && 'updated',
+    // ].filter(Boolean);
+
+    // if (changes.length) {
+    //   console.log(`store ${changes.join(', ')}`, {
+    //     ...(added || {}),
+    //     ...(deleted || {}),
+    //     ...(updated || {}),
     //   });
     // }
 
@@ -77,8 +83,7 @@ export const initStoreSync = async () => {
     if (updated.activePk) {
       if (!isUndefined(updated.activePk?.address)) {
         db.setKeyVal('active.PkAddress', updated.activePk?.address);
-      }
-      if (isNull(updated.activePk)) {
+      } else if (isNull(updated.activePk)) {
         db.setKeyVal('active.PkAddress', null);
       }
     }
@@ -128,7 +133,7 @@ export const restoreDataFromDb = async () => {
     sharedDb.getAccountList(),
     sharedDb.getKeyVal('activeAccountId'),
   ]);
-  console.debug('restoreDataFromDb', { networkId, pkMap, activePkAddress, accountList, activeAccountId });
+  // console.debug('restoreDataFromDb', { networkId, pkMap, activePkAddress, accountList, activeAccountId });
 
   store.dispatch(setAccountList(accountList));
   store.dispatch(setActiveAccountId(activeAccountId || accountList[0]?.id));

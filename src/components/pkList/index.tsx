@@ -2,7 +2,7 @@ import { FC } from 'react';
 import styled from 'styled-components';
 import { routes } from '@/src/constants/routes';
 import { setActivePk } from '@/src/features/pkSlice';
-import { useAppSelector } from '@/src/hooks';
+import { useAppDispatch, useAppSelector } from '@/src/hooks';
 import { navigateTo } from '@/src/utils/navigation';
 import { Button } from '@/src/components/button';
 import { store } from '@/src/store';
@@ -24,9 +24,10 @@ type Props = {
 
 export const PKList: FC<Props> = ({ className }) => {
   const { map } = useAppSelector(state => state.pk);
+  const dispatch = useAppDispatch();
 
   const setCurrentPK = (pk: PKType) => {
-    store.dispatch(setActivePk(pk.address));
+    dispatch(setActivePk(pk.address));
     history.back();
   };
 

@@ -18,7 +18,7 @@ type Props = {
 
 export const History: FC<Props> = ({ className }) => {
   const { activePk } = useAppSelector(state => state.pk);
-  const { data: list, isFetching, refetch } = useGetHistoryQuery(activePk.address);
+  const { data: list, isFetching, refetch } = useGetHistoryQuery({ address: activePk.address });
 
   return (
     <Wrapper className={className}>

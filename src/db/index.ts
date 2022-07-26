@@ -1,10 +1,10 @@
-import { openDB, DBSchema, IDBPDatabase, StoreNames } from 'idb';
+import { openDB, DBSchema, IDBPDatabase, StoreNames, deleteDB } from 'idb';
 import { OriginType, PKType } from '../types';
 import { isBackgroundScript } from '../utils/generic';
 import { sharedDb } from './shared';
 
 const CURRENT_DB_VERSION = 1;
-const ACCOUNT_DB_NAME_PREFIX = `Account`;
+export const ACCOUNT_DB_NAME_PREFIX = `Account`;
 
 export const storeNames = {
   KEY_VAL: 'keyVal',
@@ -71,6 +71,11 @@ class Db {
   private async _getStore<T extends StoreNames<TaalAccountDB>>(storeName: T) {
     const db = await this._getDB();
     return db.transaction(storeName).objectStore(storeName);
+  }
+
+  public async deleteAccountDb(accountId: string) {
+    const dbName = `${ACCOUNT_DB_NAME_PREFIX}-${accountId}`;
+    return deleteDB(dbName);
   }
 
   public async useAccount(accountId: string, create?: boolean) {

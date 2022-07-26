@@ -5,6 +5,7 @@ import {
   fetchBaseQuery,
   FetchBaseQueryError,
 } from '@reduxjs/toolkit/query/react';
+import { networkList } from '../constants/networkList';
 import { RootState, store } from '../store';
 import { WocApiError } from '../utils/errors/wocApiError';
 import { isObject } from '../utils/generic';
@@ -20,7 +21,11 @@ const dynamicBaseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryE
   api,
   extraOptions
 ) => {
-  const { id: networkId, wocNetwork } = (api.getState() as RootState).pk.network;
+  const networkIdFromParams = isObject(args) && 'params' in args && args.params.__networkId;
+  const networkIdFromState = (api.getState() as RootState)?.pk?.network?.id;
+  const networkId = networkIdFromParams || networkIdFromState;
+
+  const { wocNetwork } = networkList.find(({ id }) => id === networkId);
   const origin = networkId === 'taalnet' ? ORIGIN_TALLNET : ORIGIN;
 
   let baseUrl: string;
@@ -140,8 +145,13 @@ export const wocApiSlice = createApi({
     getUnspent: builder.query<Unspent[], string>({
       query: address => `/address/${address}/unspent`,
     }),
-    getHistory: builder.query<History[], string>({
-      query: address => `/address/${address}/history`,
+    getHistory: builder.query<History[], { address: string; networkId?: string }>({
+      query: ({ address, networkId }) => {
+        return {
+          url: `/address/${address}/history`,
+          params: { __networkId: networkId },
+        };
+      },
     }),
     getTokens: builder.query<{ address: string; tokens: Token[] }, string>({
       query: address => `/address/${address}/tokens`,

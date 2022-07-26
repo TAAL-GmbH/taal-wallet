@@ -42,6 +42,15 @@ const pkSlice = createSlice({
     setState(state, { payload }: PayloadAction<Partial<State>>) {
       Object.assign(state, payload);
     },
+    clearState(state) {
+      Object.assign(state, {
+        map: {},
+        rootPk: null,
+        activePk: null,
+        network: null,
+        isLocked: true,
+      });
+    },
     replacePKMap(state, action: PayloadAction<PKMap>) {
       state.map = action.payload;
     },
@@ -80,7 +89,12 @@ const pkSlice = createSlice({
       state.network = action.payload;
     },
     setActivePk(state, action: PayloadAction<string | null>) {
-      state.activePk = state.map[action.payload];
+      if (state.map[action.payload]) {
+        state.activePk = state.map[action.payload];
+      } else {
+        console.error(`PK ${action.payload} does not exists`, { state, payload: action.payload });
+        throw new Error(`PK ${action.payload} does not exists`);
+      }
     },
     setBalance(state, action: PayloadAction<{ address: string; amount: number }>) {
       setStateBalance(state, action.payload.address, action.payload.amount);
@@ -95,6 +109,7 @@ const pkSlice = createSlice({
 
 export const {
   setState,
+  clearState,
   replacePKMap,
   appendPK,
   appendPKList,
@@ -106,5 +121,7 @@ export const {
   setBalance,
   setBatchBalance,
 } = pkSlice.actions;
+
+export const pkActions = pkSlice.actions;
 
 export default pkSlice.reducer;

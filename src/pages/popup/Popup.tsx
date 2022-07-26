@@ -9,14 +9,14 @@ import { store } from '@/src/store';
 import { db } from '@/src/db';
 import { isNull, isPopup, isUndefined } from '@/src/utils/generic';
 import { sharedDb } from '@/src/db/shared';
-import { setAccountList, setActiveAccountId } from '@/src/features/accountSlice';
+import { AccountCreationStatus } from '@/src/components/accountCreationStatus';
 
 // let background know we're connected
 chrome.runtime.connect();
 
 const Popup = () => {
   const { isInSync, isLocked, rootPk, activePk } = useAppSelector(state => state.pk);
-  const { activeAccountId, accountList } = useAppSelector(state => state.account);
+  const { activeAccountId } = useAppSelector(state => state.account);
   const [hasRootKey, setHasRootKey] = useState<boolean>(null);
   const [isTosInAgreement, setIsTosInAgreement] = useState<boolean>(false);
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
@@ -29,18 +29,6 @@ const Popup = () => {
     window.db = db;
 
     (async () => {
-      // const accounts = await sharedDb.getAccountList();
-      // console.log('accountMap', JSON.stringify(accountMap));
-      // store.dispatch(setAccountList(accounts));
-      // console.log('accountMap', JSON.stringify(accountList));
-
-      // const firstAccountId = accountList[0]?.id;
-      // const activeAccountIdFromDb = await sharedDb.getKeyVal('activeAccountId');
-
-      // if (activeAccountIdFromDb || firstAccountId) {
-      //   store.dispatch(setActiveAccountId(activeAccountIdFromDb || firstAccountId));
-      // }
-
       setIsTosInAgreement(!!(await sharedDb.getKeyVal('isTosInAgreement')));
       setIsInitialized(true);
     })();
@@ -49,12 +37,6 @@ const Popup = () => {
   useEffect(() => {
     (async () => {
       const activeAccountIdFromDb = await sharedDb.getKeyVal('activeAccountId');
-
-      // console.log({
-      //   activeAccountId,
-      //   rootPk: !!rootPk,
-      //   privateKeyEncrypted: await db.getKeyVal('rootPk.privateKeyEncrypted'),
-      // });
 
       if (!isUndefined(activeAccountIdFromDb)) {
         setHasRootKey(!!rootPk || !!(await db.getKeyVal('rootPk.privateKeyEncrypted')));
@@ -68,6 +50,8 @@ const Popup = () => {
     <Wrapper>
       <Toaster />
       <PageHead hasRootKey={hasRootKey} />
+
+      <AccountCreationStatus />
 
       <RouterComponent
         isInitialized={isInitialized}

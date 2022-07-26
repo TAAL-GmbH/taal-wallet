@@ -4,7 +4,7 @@ import { Button } from '../button';
 import { Form } from '../generic/form/form';
 import { FormInput } from '../generic/form/formInput';
 import { Row } from '../generic/row';
-import { useAppSelector } from '@/src/hooks';
+import { useAppDispatch, useAppSelector } from '@/src/hooks';
 import { createToast } from '@/src/utils/toast';
 import { db } from '@/src/db';
 import { navigateTo } from '@/src/utils/navigation';
@@ -19,6 +19,7 @@ type Props = {
 
 export const DerivePk: FC<Props> = ({ className }) => {
   const { rootPk } = useAppSelector(state => state.pk);
+  const dispatch = useAppDispatch();
 
   const onSubmit = async data => {
     const toast = createToast('Creating a new wallet...');
@@ -30,7 +31,7 @@ export const DerivePk: FC<Props> = ({ className }) => {
     try {
       const rootKey = restorePK(rootPk.privateKeyHash);
       const derivationPathLastIndex = (await db.getKeyVal('derivationPath.lastIndex')) || 0;
-      const path = `0/0/${derivationPathLastIndex + 1}`;
+      const path = `0'/0/${derivationPathLastIndex + 1}`;
 
       const {
         address,
@@ -42,7 +43,7 @@ export const DerivePk: FC<Props> = ({ className }) => {
         path,
       });
 
-      store.dispatch(
+      dispatch(
         appendPK({
           address,
           name,
@@ -53,7 +54,7 @@ export const DerivePk: FC<Props> = ({ className }) => {
           },
         })
       );
-      store.dispatch(setActivePk(address));
+      dispatch(setActivePk(address));
 
       navigateTo(routes.HOME);
     } catch (err) {

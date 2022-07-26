@@ -1,5 +1,6 @@
 import { FC, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import toast from 'react-hot-toast';
 import { Mnemonic } from 'bsv';
 import { Button } from '@/src/components/button';
 import { FormTextArea } from '@/src/components/generic/form/formTextArea';
@@ -12,7 +13,9 @@ import { Row } from '@/components/generic/row';
 import { useAppSelector } from '@/src/hooks';
 import { Note } from '../../generic/note';
 import { InfoIcon } from '../../svg/infoIcon';
-import { useFactory } from '@/src/hooks/useFactory';
+import { isBackgroundPageResponding } from '@/src/utils/communication';
+import { navigateTo } from '@/src/utils/navigation';
+import { routes } from '@/src/constants/routes';
 
 type Props = {
   className?: string;
@@ -29,7 +32,6 @@ const defaultValues = {
 
 export const OnboardingForm: FC<Props> = ({ className, action }) => {
   const mnemonic = useRef<Mnemonic>();
-  const { createAccount } = useFactory();
   const { accountList } = useAppSelector(state => state.account);
   const { Form, methods } = useForm({ defaultValues, mode: 'onBlur' });
   const [networkListOptions] = useState(
@@ -43,16 +45,29 @@ export const OnboardingForm: FC<Props> = ({ className, action }) => {
       mnemonic.current = generateMnemonic();
       methods.setValue('mnemonicPhrase', mnemonic.current.phrase);
     }
+    isBackgroundPageResponding().then(result => console.log('isBackgroundPageResponding', result));
   }, [action]);
 
   const onSubmit = async ({ accountName, networkId, password, mnemonicPhrase }: typeof defaultValues) => {
-    await createAccount({
-      accountName,
-      networkId,
-      password,
-      mnemonicPhrase,
-      action,
+    if (!(await isBackgroundPageResponding())) {
+      return navigateTo(routes.ERROR);
+    }
+    const result = await chrome.runtime.sendMessage({
+      action: 'bg:createAccount',
+      payload: {
+        accountName,
+        networkId,
+        password,
+        mnemonicPhrase,
+        action,
+      },
     });
+    if (result.success) {
+      toast.success('Account created successfully');
+      navigateTo(routes.HOME);
+    } else {
+      toast.error(result?.error?.message || 'Error creating account');
+    }
   };
 
   return (

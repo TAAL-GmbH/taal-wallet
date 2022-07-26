@@ -4,15 +4,25 @@ import { onPushMessage } from './pushMessageHandler';
 import { initStoreSync, restoreDataFromDb } from '@/src/utils/storeSync';
 import { alarms, TAAL_ICON_URL } from '@/src/constants';
 import { db } from '@/src/db';
-import { lockWallet, setState } from '@/src/features/pkSlice';
+import { clearState, lockWallet } from '@/src/features/pkSlice';
 import { clientList } from './clientListController';
 import { sharedDb } from '@/src/db/shared';
+import { AccountFactory } from '@/src/utils/accountFactory';
 
 // @ ts-expect-error ignore this
 globalThis['clientList'] = clientList;
 
 // @ ts-expect-error ignore this
 globalThis['store'] = store;
+
+// @ ts-expect-error ignore this
+globalThis['AccountFactory'] = AccountFactory;
+
+// @ ts-expect-error ignore this
+globalThis['db'] = db;
+
+// @ ts-expect-error ignore this
+globalThis['sharedDb'] = sharedDb;
 
 initStoreSync();
 
@@ -55,18 +65,15 @@ chrome.runtime.onMessage.addListener(({ action, payload }, sender, sendResponse)
         sendResponse('pong');
         break;
       }
+      case 'bg:createAccount': {
+        const af = new AccountFactory();
+        sendResponse(await af.createAccount(payload));
+        break;
+      }
       case 'bg:setAccount': {
         await db.useAccount(payload);
         // let's clean up the state as we have switched to new account
-        store.dispatch(
-          setState({
-            map: {},
-            rootPk: null,
-            activePk: null,
-            network: null,
-            isLocked: true,
-          })
-        );
+        store.dispatch(clearState());
         sendResponse('account-set');
         break;
       }

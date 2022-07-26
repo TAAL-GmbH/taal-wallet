@@ -1,16 +1,39 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AccountType } from '../types';
 
+type AccountEvent = {
+  type?: 'error' | 'success' | 'info' | 'warning';
+  message: string;
+  showToUser?: boolean;
+  timestamp: number;
+};
+
 type State = {
   accountList: AccountType[];
   accountMap: Record<string, AccountType>;
   activeAccountId: string | null;
+  eventList: AccountEvent[];
+  creation: {
+    isCreating: boolean;
+    isHistoryFetching: boolean;
+    restoredWalletsCount: number;
+    derivationPathLastIndex: number;
+  };
+};
+
+const creationInitialState: State['creation'] = {
+  isCreating: false,
+  isHistoryFetching: false,
+  restoredWalletsCount: 0,
+  derivationPathLastIndex: 0,
 };
 
 const initialState: State = {
   accountList: [],
   accountMap: {},
   activeAccountId: null,
+  eventList: [],
+  creation: creationInitialState,
 };
 
 const accountSlice = createSlice({
@@ -43,9 +66,49 @@ const accountSlice = createSlice({
       }
       state.accountList = Object.values(state.accountMap);
     },
+    accountEvent(state, { payload }: PayloadAction<Omit<AccountEvent, 'timestamp'>>) {
+      state.eventList = [
+        ...state.eventList,
+        {
+          type: 'info' as AccountEvent['type'],
+          ...payload,
+          timestamp: Date.now(),
+        },
+      ].slice(-200);
+    },
+    setIsCreating(state, { payload }: PayloadAction<boolean>) {
+      if (payload) {
+        state.eventList = [];
+        state.creation = {
+          ...creationInitialState,
+          isCreating: true,
+        };
+      } else {
+        state.creation.isCreating = false;
+      }
+    },
+    setIsHistoryFetching(state, { payload }: PayloadAction<boolean>) {
+      state.creation.isHistoryFetching = payload;
+    },
+    setRestoredWalletsCount(state, { payload }: PayloadAction<number>) {
+      state.creation.restoredWalletsCount = payload;
+    },
+    setAccountCreationDerivationPathLastIndex(state, { payload }: PayloadAction<number>) {
+      state.creation.derivationPathLastIndex = payload;
+    },
   },
 });
 
-export const { setAccountList, addAccount, setActiveAccountId, updateAccountName } = accountSlice.actions;
+export const {
+  setAccountList,
+  addAccount,
+  setActiveAccountId,
+  updateAccountName,
+  accountEvent,
+  setIsCreating,
+  setIsHistoryFetching,
+  setRestoredWalletsCount,
+  setAccountCreationDerivationPathLastIndex,
+} = accountSlice.actions;
 
 export default accountSlice.reducer;

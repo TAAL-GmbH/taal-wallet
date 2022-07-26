@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import React, { FC } from 'react';
 import styled from 'styled-components';
 import { Button } from '../button';
 import { useAppSelector } from '@/src/hooks';
@@ -10,7 +10,6 @@ import { RefreshIcon } from '../svg/refreshIcon';
 import { Arrow } from '../svg/arrow';
 import { BsvIcon } from '../svg/bsvIcon';
 import { HistoryIcon } from '../svg/historyIcon';
-import { QuickWalletSelector } from '../quickWalletSelector';
 import { Heading } from '../generic/heading';
 import { useBlockchain } from '@/src/hooks/useBlockchain';
 import { Tooltip } from '../generic/tooltip';
@@ -18,11 +17,6 @@ import { CurrentAccount } from '../currentAccount';
 
 type Props = {
   className?: string;
-};
-
-type TokenType = {
-  balance: number;
-  symbol: string;
 };
 
 export const Home: FC<Props> = ({ className }) => {
