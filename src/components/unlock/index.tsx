@@ -25,19 +25,20 @@ export const Unlock: FC = () => {
 
     if (!privateKeyEncrypted) {
       toast.error('No private key found');
+      return;
     }
 
     try {
       const decrypted = decrypt(privateKeyEncrypted, password);
-      dispatch(setRootPK({ privateKeyHash: decrypted, privateKeyEncrypted }));
-
       if (decrypted) {
+        dispatch(setRootPK({ privateKeyHash: decrypted, privateKeyEncrypted }));
         toast.success('Unlocked');
       }
     } catch (err) {
-      // TODO: create error messages map
-      console.error(err);
-      toast.error(err);
+      const errorMap = {
+        'unable to decrypt data': 'Incorrect password',
+      };
+      toast.error(errorMap[err.message] || err.message);
     }
   };
 
@@ -45,7 +46,7 @@ export const Unlock: FC = () => {
     <Wrapper>
       <Heading icon={<LockIcon />}>Your account is locked</Heading>
 
-      <Form options={{ defaultValues }} onSubmit={onSubmit} data-test-id="">
+      <Form options={{ defaultValues, mode: 'onSubmit' }} onSubmit={onSubmit} data-test-id="">
         <FormInput
           name="password"
           label="Enter password to unlock your wallet"
