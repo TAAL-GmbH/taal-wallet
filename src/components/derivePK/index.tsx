@@ -18,7 +18,7 @@ type Props = {
 };
 
 export const DerivePk: FC<Props> = ({ className }) => {
-  const { rootPk } = useAppSelector(state => state.pk);
+  const { rootPk, map: walletList } = useAppSelector(state => state.pk);
   const dispatch = useAppDispatch();
 
   const onSubmit = async data => {
@@ -39,7 +39,7 @@ export const DerivePk: FC<Props> = ({ className }) => {
         path: fullPath,
       } = derivePk({
         rootKey,
-        name: data.name,
+        name: data.name.trim(),
         path,
       });
 
@@ -67,7 +67,23 @@ export const DerivePk: FC<Props> = ({ className }) => {
       <h1>Create a new wallet</h1>
       <Form onSubmit={onSubmit} options={{ defaultValues: { name: '' } }} data-test-id="">
         <Row>
-          <FormInput name="name" label="Name" />
+          <FormInput
+            name="name"
+            label="Name"
+            maxLength={40}
+            options={{
+              required: 'Wallet name is required',
+              validate: value => {
+                console.log('validate wallet name', value, Object.values(walletList));
+                const existingWallet = Object.values(walletList).find(
+                  item => item.name.toLowerCase() === value.trim().toLowerCase()
+                );
+                if (existingWallet) {
+                  return 'Wallet with this name already exists';
+                }
+              },
+            }}
+          />
         </Row>
         <Button type="submit" variant="primary">
           Next
