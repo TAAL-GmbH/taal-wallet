@@ -109,7 +109,13 @@ export const SendBSV: FC<Props> = ({ className }) => {
             type="tel"
             size="sm"
             options={{
-              validate: amount => amount <= activePk?.balance.amount,
+              validate: amount => {
+                if (parseInt(amount) <= 0) {
+                  return 'Amount must be a positive number';
+                } else if (parseInt(amount) >= activePk?.balance.amount) {
+                  return 'Not enough funds';
+                }
+              },
               required: true,
             }}
             max={activePk?.balance.amount}
