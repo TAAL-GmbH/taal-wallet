@@ -156,7 +156,7 @@ export const OnboardingForm: FC<Props> = ({ className, action }) => {
 
           {action === 'createNew' && (
             <Note icon={<InfoIcon />} variant="warning" margin="sm 0 md" padding="sm md">
-              The secret phrase is your 12 words seen phrase, it is important to keep it safe and without it
+              The secret phrase is your 12 words seed phrase, it is important to keep it safe and without it
               you may lose access to your wallet and the funds in it.
             </Note>
           )}
