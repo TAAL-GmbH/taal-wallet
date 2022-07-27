@@ -15,6 +15,7 @@ import { useBlockchain } from '@/src/hooks/useBlockchain';
 import { BackButton } from '../backButton';
 import { CurrentAccount } from '../currentAccount';
 import { Note } from '../generic/note';
+import { InfoIcon } from '../svg/infoIcon';
 
 type Props = {
   className?: string;
@@ -129,6 +130,11 @@ export const SendBSV: FC<Props> = ({ className }) => {
           </ButtonStyled>
         </ButtonRow>
       </Form>
+
+      <Note variant="warning" icon={<InfoIcon />} padding="sm md">
+        It works only with BSV. If you send to any other crypto wallet and/or another network, it will result
+        in the loss of funds.
+      </Note>
     </Wrapper>
   );
 };
