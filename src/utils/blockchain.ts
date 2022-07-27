@@ -8,6 +8,14 @@ import { networkList } from '../constants/networkList';
 
 const SATS_PER_BITCOIN = 1e8;
 
+type SendBsvOptions = {
+  srcAddress: string;
+  dstAddress: string;
+  privateKeyHash: string;
+  network: string;
+  amount: number;
+};
+
 // const sighash = bsv.crypto.Signature.SIGHASH_ALL | bsv.crypto.Signature.SIGHASH_FORKID;
 
 export const isValidAddress = (addr: string, network: string) => {
@@ -22,37 +30,26 @@ export const isValidAddress = (addr: string, network: string) => {
 export const bitcoinToSatoshis = (amount: number) => Math.round(amount * SATS_PER_BITCOIN);
 export const satoshisToBitcoin = (amount: number) => amount / SATS_PER_BITCOIN;
 
-export const sendBSV = async ({
+export const createBSVTransferTransaction = async ({
   srcAddress,
   dstAddress,
   privateKeyHash,
   network,
   amount,
-}: {
-  srcAddress: string;
-  dstAddress: string;
-  privateKeyHash: string;
-  network: string;
-  amount: number;
-}): Promise<ApiResponse<string>> => {
+}: SendBsvOptions) => {
   if (!isValidAddress(srcAddress, network)) {
     throw new Error(`Invalid source address: ${srcAddress}`);
   }
   if (!isValidAddress(dstAddress, network)) {
     throw new Error(`Invalid destination address: ${dstAddress}`);
   }
-
   const { data: unspentList } = await getUnspent(srcAddress);
-
   if (!unspentList?.length) {
     throw new Error('No funds available');
   }
-
   const { tx_hash: txId, tx_pos: outputIndex, value: satoshis } = unspentList[0];
-
   const { data: unspentTx } = await getTx(txId);
   const script = unspentTx?.vout[outputIndex].scriptPubKey.hex;
-
   const utxo = new bsv.Transaction.UnspentOutput({
     txId,
     outputIndex,
@@ -60,21 +57,37 @@ export const sendBSV = async ({
     script,
     satoshis,
   });
+  return (
+    new bsv.Transaction()
+      .from(utxo)
+      .to(dstAddress, amount)
+      // TODO: create new address for change
+      .change(srcAddress)
+      .sign(privateKeyHash)
+  );
+};
 
-  console.log({
-    txId,
-    outputIndex,
-    address: srcAddress,
-    script,
-    satoshis,
+export const sendBSV = async ({
+  srcAddress,
+  dstAddress,
+  privateKeyHash,
+  network,
+  amount,
+}: SendBsvOptions): Promise<ApiResponse<string>> => {
+  if (!isValidAddress(srcAddress, network)) {
+    throw new Error(`Invalid source address: ${srcAddress}`);
+  }
+  if (!isValidAddress(dstAddress, network)) {
+    throw new Error(`Invalid destination address: ${dstAddress}`);
+  }
+
+  const tx = await createBSVTransferTransaction({
+    srcAddress,
+    dstAddress,
+    privateKeyHash,
+    network,
+    amount,
   });
-
-  const tx = new bsv.Transaction()
-    .from(utxo)
-    .to(dstAddress, amount)
-    // TODO: create new address for change
-    .change(srcAddress)
-    .sign(privateKeyHash);
 
   try {
     const result = await broadcast(tx.toString());

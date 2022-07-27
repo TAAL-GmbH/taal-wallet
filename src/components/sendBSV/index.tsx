@@ -106,14 +106,15 @@ export const SendBSV: FC<Props> = ({ className }) => {
         <Row>
           <FormInput
             name="amount"
-            label={`Amount in satoshis (max ${activePk?.balance.amount})`}
+            label={`Amount in satoshis (max ${activePk?.balance.amount}-fees)`}
             type="tel"
             size="sm"
             options={{
-              validate: amount => {
-                if (parseInt(amount) <= 0) {
+              validate: amountStr => {
+                const amount = parseInt(amountStr, 10);
+                if (amount <= 0) {
                   return 'Amount must be a positive number';
-                } else if (parseInt(amount) >= activePk?.balance.amount) {
+                } else if (amount >= activePk?.balance.amount - 500) {
                   return 'Not enough funds';
                 }
               },
@@ -131,6 +132,9 @@ export const SendBSV: FC<Props> = ({ className }) => {
         </ButtonRow>
       </Form>
 
+      <Note variant="grey" icon={<InfoIcon />} padding="sm md">
+        The actual available amount will differ due to the network fees.
+      </Note>
       <Note variant="warning" icon={<InfoIcon />} padding="sm md">
         It works only with BSV. If you send to any other crypto wallet and/or another network, it will result
         in the loss of funds.
