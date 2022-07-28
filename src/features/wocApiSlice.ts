@@ -64,7 +64,7 @@ type Token = {
   tokenBalance: number;
 };
 
-type Unspent = {
+export type Unspent = {
   height: number;
   tx_hash: string;
   tx_pos: number;
