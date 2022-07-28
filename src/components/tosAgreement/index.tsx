@@ -184,7 +184,7 @@ export const TosAgreement: FC = () => {
         accordance with, all applicable Data Protection Laws and data privacy Laws.
       </p>
       <ListItem as="h2" num="10.">
-        10. Limitation of Liability
+        Limitation of Liability
       </ListItem>
       <ListItem num="10.1.">
         Except as provided in Section 10.2 below, Taal shall not be liable to Licensee or any third party,
@@ -331,7 +331,10 @@ export const TosAgreement: FC = () => {
       </ListItem>
 
       <h2 style={{ fontSize: '2rem' }}>Annex 1</h2>
-      <a href="https://app.gitbook.com/o/oKs2jhJRmplTxslrCdPt/s/JxpbrzHQe89v1HWg3vbN/core-products/taal-wallet">
+      <a
+        href="https://app.gitbook.com/o/oKs2jhJRmplTxslrCdPt/s/JxpbrzHQe89v1HWg3vbN/core-products/taal-wallet"
+        target="_blank"
+      >
         Documentation of TAAL Wallet
       </a>
       <ButtonWrapper>
@@ -346,33 +349,7 @@ export const TosAgreement: FC = () => {
   );
 };
 
-const Wrapper = styled.div`
-  /* ol {
-    counter-reset: section;
-    padding-left: 32px;
-    list-style-type: none;
-  }
-
-  ol li {
-    counter-increment: section;
-  }
-
-  ol li:before {
-    content: counters(section, '.') ' ';
-    display: inline-block;
-    width: 30px;
-    margin-left: -30px;
-    font-weight: bold;
-    font-size: 110%;
-    font-family: cursive;
-  } */
-`;
-
-const OL = styled.ol`
-  li::marker {
-    color: red;
-  }
-`;
+const Wrapper = styled.div``;
 
 const ButtonWrapper = styled.div`
   display: flex;
