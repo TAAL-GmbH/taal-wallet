@@ -74,7 +74,6 @@ export const DerivePk: FC<Props> = ({ className }) => {
             options={{
               required: 'Wallet name is required',
               validate: value => {
-                console.log('validate wallet name', value, Object.values(walletList));
                 const existingWallet = Object.values(walletList).find(
                   item => item.name.toLowerCase() === value.trim().toLowerCase()
                 );

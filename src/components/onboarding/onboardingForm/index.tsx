@@ -45,7 +45,6 @@ export const OnboardingForm: FC<Props> = ({ className, action }) => {
       mnemonic.current = generateMnemonic();
       methods.setValue('mnemonicPhrase', mnemonic.current.phrase);
     }
-    isBackgroundPageResponding().then(result => console.log('isBackgroundPageResponding', result));
   }, [action]);
 
   const onSubmit = async ({ accountName, networkId, password, mnemonicPhrase }: typeof defaultValues) => {

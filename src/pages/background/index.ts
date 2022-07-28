@@ -58,7 +58,6 @@ chrome.runtime.onConnect.addListener(async internalPort => {
 
 // internal one-time connection handling
 chrome.runtime.onMessage.addListener(({ action, payload }, sender, sendResponse) => {
-  console.log('chrome.runtime.onMessage', { action, payload });
   (async () => {
     switch (action) {
       case 'bg:ping': {
