@@ -43,7 +43,7 @@ export const createBSVTransferTransaction = async ({
   if (!isValidAddress(dstAddress, network)) {
     throw new Error(`Invalid destination address: ${dstAddress}`);
   }
-  const { data: unspentList } = await getUnspent(srcAddress);
+  const { data: unspentList } = await getUnspent(srcAddress, { forceRefetch: true });
   if (!unspentList?.length) {
     throw new Error('No funds available');
   }

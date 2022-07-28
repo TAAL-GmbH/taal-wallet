@@ -112,8 +112,8 @@ export const SendBSV: FC<Props> = ({ className }) => {
             options={{
               validate: amountStr => {
                 const amount = parseInt(amountStr, 10);
-                if (amount <= 0) {
-                  return 'Amount must be a positive number';
+                if (amount <= 0 || /^\d+$/.test(amountStr) === false) {
+                  return 'Amount must be a positive integer';
                 } else if (amount >= activePk?.balance.amount - 500) {
                   return 'Not enough funds';
                 }
