@@ -112,6 +112,7 @@ export const initStoreSync = async () => {
     previousState.account = store.getState().account;
   });
 
+  // initial run
   restoreDataFromDb();
 };
 

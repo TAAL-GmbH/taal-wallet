@@ -3,6 +3,7 @@ import { Middleware, AnyAction } from '@reduxjs/toolkit';
 const BACKGROUND_PAGE_PATH = 'background.js';
 
 const extensionId = chrome.runtime.id;
+
 const pagePath = typeof window === 'undefined' ? BACKGROUND_PAGE_PATH : window?.location.pathname;
 const isBackgroundPage = pagePath === BACKGROUND_PAGE_PATH;
 
@@ -19,7 +20,7 @@ export const reduxSyncMiddleWare: Middleware = store => {
 
   bc.onmessage = ({ data, origin }) => {
     if (!isValidOrigin(origin)) {
-      throw new Error('Invalid sender origin');
+      throw new Error(`Invalid sender origin: ${origin}`);
     }
     if (data.pagePath === pagePath) {
       return; // ignore from self

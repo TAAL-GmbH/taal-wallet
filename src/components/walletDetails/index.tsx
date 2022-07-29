@@ -1,6 +1,6 @@
 import { FC, useState } from 'react';
 import dayjs from 'dayjs';
-import { getBalance } from '@/src/features/wocApiSlice';
+import { getBalance } from '@/src/features/wocApi';
 import { PKType } from '@/src/types';
 import { formatNumber, isNull } from '@/src/utils/generic';
 import { createToast } from '@/src/utils/toast';

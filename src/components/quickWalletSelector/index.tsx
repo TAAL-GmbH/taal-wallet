@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components';
 import { useAppSelector } from '@/src/hooks';
 import { formatNumber, isNull } from '@/src/utils/generic';
 import { createToast } from '@/src/utils/toast';
-import { getBalance } from '@/src/features/wocApiSlice';
+import { getBalance } from '@/src/features/wocApi';
 import { CurrentWallet } from './currentWallet';
 
 type Props = {

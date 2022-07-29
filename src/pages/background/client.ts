@@ -1,5 +1,5 @@
 import { db } from '@/src/db';
-import { getBalance, getUnspent } from '@/src/features/wocApiSlice';
+import { getBalance, getUnspent } from '@/src/features/wocApi';
 import { store } from '@/src/store';
 import { derivePk, restorePK } from '@/src/utils/blockchain';
 import { createDialog } from '@/src/utils/createDialog';

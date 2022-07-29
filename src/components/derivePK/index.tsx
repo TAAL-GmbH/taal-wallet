@@ -10,7 +10,6 @@ import { db } from '@/src/db';
 import { navigateTo } from '@/src/utils/navigation';
 import { routes } from '@/src/constants/routes';
 import { derivePk, restorePK } from '@/src/utils/blockchain';
-import { store } from '@/src/store';
 import { appendPK, setActivePk } from '@/src/features/pkSlice';
 
 type Props = {

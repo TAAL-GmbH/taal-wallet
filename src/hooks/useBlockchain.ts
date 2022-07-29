@@ -1,6 +1,6 @@
 import { useAppSelector } from '.';
 import { db } from '../db';
-import * as woc from '../features/wocApiSlice';
+import * as wocApi from '../features/wocApi';
 import { store } from '../store';
 import { isNull } from '../utils/generic';
 import { createToast } from '../utils/toast';
@@ -15,7 +15,7 @@ export const useBlockchain = () => {
       toast.error('Please select an address');
       return;
     }
-    const result = await woc.getBalance([activePk.address]).catch(err => {
+    const result = await wocApi.getBalance([activePk.address]).catch(err => {
       toast.error(err);
       return null;
     });
@@ -26,7 +26,7 @@ export const useBlockchain = () => {
 
   const airdrop = async () => {
     const toast = createToast('Requesting Airdrop...');
-    const success = await woc.airdrop(activePk.address).catch(toast.error);
+    const success = await wocApi.airdrop(activePk.address).catch(toast.error);
 
     if (success) {
       setTimeout(getBalance, 5000);

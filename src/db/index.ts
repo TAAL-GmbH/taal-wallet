@@ -89,7 +89,7 @@ class Db {
       throw new Error(`Account #${accountId} not found!`);
     }
 
-    sharedDb.setKeyVal('activeAccountId', accountId);
+    await sharedDb.setKeyVal('activeAccountId', accountId);
     this._activeDbName = dbName;
     this._db = null;
 

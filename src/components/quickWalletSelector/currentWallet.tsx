@@ -8,7 +8,7 @@ import { navigateTo } from '@/src/utils/navigation';
 import { routes } from '@/src/constants/routes';
 import { WalletPlusIcon } from '../svg/walletPlusIcon';
 import { WalletDetails } from '../walletDetails';
-import { getBalance } from '@/src/features/wocApiSlice';
+import { getBalance } from '@/src/features/wocApi';
 
 type Props = {
   onClose: () => void;

@@ -16,6 +16,8 @@ import { InfoIcon } from '../../svg/infoIcon';
 import { isBackgroundPageResponding } from '@/src/utils/communication';
 import { navigateTo } from '@/src/utils/navigation';
 import { routes } from '@/src/constants/routes';
+import { db } from '@/src/db';
+import { CreateAccountReturnType } from '@/src/utils/accountFactory';
 
 type Props = {
   className?: string;
@@ -49,9 +51,10 @@ export const OnboardingForm: FC<Props> = ({ className, action }) => {
 
   const onSubmit = async ({ accountName, networkId, password, mnemonicPhrase }: typeof defaultValues) => {
     if (!(await isBackgroundPageResponding())) {
+      console.error('background page is not responding');
       return navigateTo(routes.ERROR);
     }
-    const result = await chrome.runtime.sendMessage({
+    const result: CreateAccountReturnType = await chrome.runtime.sendMessage({
       action: 'bg:createAccount',
       payload: {
         accountName,
@@ -61,7 +64,12 @@ export const OnboardingForm: FC<Props> = ({ className, action }) => {
         action,
       },
     });
-    if (result.success) {
+
+    console.log('account creation result', result);
+
+    if (result.success === true) {
+      // don't forget to switch database to new account
+      await db.useAccount(result.data.accountId);
       toast.success('Account created successfully');
       navigateTo(routes.HOME);
     } else {

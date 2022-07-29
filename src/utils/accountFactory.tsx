@@ -11,8 +11,8 @@ import {
   setIsHistoryFetching,
   setRestoredWalletsCount,
 } from '../features/accountSlice';
-import { appendPKList, clearState, setActivePk, setNetwork, setRootPK } from '../features/pkSlice';
-import { getHistory } from '../features/wocApiSlice';
+import { appendPKList, clearState, setActivePk, setNetwork, setRootPK, setState } from '../features/pkSlice';
+import { getHistory } from '../features/wocApi';
 import { store } from '../store';
 import { PKType } from '../types';
 import { createHDPrivateKey, derivePk, rebuildMnemonic } from '../utils/blockchain';
@@ -39,13 +39,29 @@ type CreateAccountOptions = {
   action: 'importExisting' | 'createNew';
 };
 
+export type CreateAccountReturnType =
+  | {
+      success: true;
+      data: {
+        accountId: string;
+        accountName: string;
+        networkId: string;
+      };
+    }
+  | {
+      success: false;
+      error: {
+        message: string;
+      };
+    };
+
 const logEvent = (options: Parameters<typeof accountEvent>[0]) => store.dispatch(accountEvent(options));
 
 export class AccountFactory {
   private noHistoryCount = 0;
   private walletList: PKType[] = [];
 
-  public createAccount = async (values: CreateAccountOptions) => {
+  public createAccount = async (values: CreateAccountOptions): Promise<CreateAccountReturnType> => {
     const { networkId, password, mnemonicPhrase, action } = values;
     const accountName = values.accountName.trim();
 
@@ -117,6 +133,11 @@ export class AccountFactory {
         }, 500);
         return {
           success: true,
+          data: {
+            accountId,
+            accountName,
+            networkId,
+          },
         };
       } else {
         throw new Error('Failed to create account');
@@ -161,7 +182,6 @@ export class AccountFactory {
       message: `Switching to new account #${accountId}`,
     });
 
-    // it's important to await for background to switch database
     // this will write 'activeAccountId' to db
     await db.useAccount(accountId, true);
 
@@ -178,6 +198,15 @@ export class AccountFactory {
         isNull(s.pk.activePk) &&
         isNull(s.pk.network)
     );
+
+    const isWalletUnlocked = await dispatchAndValidate(
+      setState({
+        isLocked: false,
+      }),
+      s => s.pk.isLocked === false
+    );
+
+    console.log({ isWalletUnlocked });
 
     const isValidActiveAccountIdInDb = await waitForTruthy(
       async () => (await sharedDb.getKeyVal('activeAccountId')) === accountId

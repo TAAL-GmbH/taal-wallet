@@ -70,9 +70,11 @@ chrome.runtime.onMessage.addListener(({ action, payload }, sender, sendResponse)
         break;
       }
       case 'bg:setAccount': {
-        await db.useAccount(payload);
-        // let's clean up the state as we have switched to new account
-        store.dispatch(clearState());
+        if (store.getState().account.activeAccountId !== payload) {
+          await db.useAccount(payload);
+          // let's clean up the state as we have switched to new account
+          store.dispatch(clearState());
+        }
         sendResponse('account-set');
         break;
       }

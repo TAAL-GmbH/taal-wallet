@@ -1,7 +1,7 @@
 import bsv, { Mnemonic } from 'bsv';
 import 'bsv/mnemonic';
-import { broadcast, getTx, getUnspent, Unspent } from '../features/wocApiSlice';
-import { ApiResponse, ErrorCodeEnum, PKFullType, PKType } from '../types';
+import { broadcast, getTx, getUnspent } from '../features/wocApi';
+import { ApiResponse, ErrorCodeEnum, PKFullType } from '../types';
 import { WocApiError } from './errors/wocApiError';
 import { getErrorMessage } from './generic';
 import { networkList } from '../constants/networkList';
@@ -47,28 +47,33 @@ export const createBSVTransferTransaction = async ({
   if (!unspentList?.length) {
     throw new Error('No funds available');
   }
-  let totalUtxoAmount:number = 0
-  let utxos: bsv.Transaction.UnspentOutput[] = []
+  let totalUtxoAmount: number = 0;
+  let utxos: bsv.Transaction.UnspentOutput[] = [];
 
   // loop through all unspent outputs and add to utxo list until we have enough value
   const { data: unspentTx } = await getTx(unspentList[0].tx_hash);
   const script = unspentTx?.vout[unspentList[0].tx_pos].scriptPubKey.hex;
 
-  for (let i=0;i< unspentList.length; i++){
-    let unspent: Unspent = unspentList[i]
-    if (totalUtxoAmount<amount) {
-      
-      totalUtxoAmount+= unspent.value
-      utxos.push(new bsv.Transaction.UnspentOutput({
-        txId: unspent.tx_hash,
-        outputIndex: unspent.tx_pos,
-        address: srcAddress,
-        script,
-        satoshis: unspent.value,
-      }))
+  for (let i = 0; i < unspentList.length; i++) {
+    let unspent = unspentList[i];
+    if (totalUtxoAmount < amount) {
+      totalUtxoAmount += unspent.value;
+      utxos.push(
+        new bsv.Transaction.UnspentOutput({
+          txId: unspent.tx_hash,
+          outputIndex: unspent.tx_pos,
+          address: srcAddress,
+          script,
+          satoshis: unspent.value,
+        })
+      );
     } else {
-      break
+      break;
     }
+  }
+
+  if (totalUtxoAmount < amount) {
+    throw new Error('Insufficient funds');
   }
 
   return (
