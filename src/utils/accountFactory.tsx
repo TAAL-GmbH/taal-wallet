@@ -60,6 +60,12 @@ const logEvent = (options: Parameters<typeof accountEvent>[0]) => store.dispatch
 export class AccountFactory {
   private noHistoryCount = 0;
   private walletList: PKType[] = [];
+  private timeoutMultiplier = 1;
+
+  // used for tests only
+  public setTimeoutMultiplier(multiplier: number) {
+    this.timeoutMultiplier = multiplier;
+  }
 
   public createAccount = async (values: CreateAccountOptions): Promise<CreateAccountReturnType> => {
     const { networkId, password, mnemonicPhrase, action } = values;
@@ -130,7 +136,7 @@ export class AccountFactory {
         });
         setTimeout(() => {
           store.dispatch(setIsCreating(false));
-        }, 500);
+        }, this.timeoutMultiplier * 500);
         return {
           success: true,
           data: {
@@ -199,14 +205,12 @@ export class AccountFactory {
         isNull(s.pk.network)
     );
 
-    const isWalletUnlocked = await dispatchAndValidate(
+    await dispatchAndValidate(
       setState({
         isLocked: false,
       }),
       s => s.pk.isLocked === false
     );
-
-    console.log({ isWalletUnlocked });
 
     const isValidActiveAccountIdInDb = await waitForTruthy(
       async () => (await sharedDb.getKeyVal('activeAccountId')) === accountId
@@ -235,7 +239,7 @@ export class AccountFactory {
     }
 
     // let's wait for PK to written to db
-    await delay(200);
+    await delay(this.timeoutMultiplier * 200);
 
     const isValidPkEncryptedInDb = await waitForTruthy(
       async () => (await db.getKeyVal('rootPk.privateKeyEncrypted')) === privateKeyEncrypted
@@ -261,7 +265,7 @@ export class AccountFactory {
     }
 
     // let's wait for network to be set in db
-    await delay(500);
+    await delay(this.timeoutMultiplier * 500);
 
     const isValidNetworkIdInDb = await waitForTruthy(
       async () => (await db.getKeyVal('network.id')) === networkId
@@ -300,7 +304,7 @@ export class AccountFactory {
       throw new Error('Failed to dispatch account');
     }
 
-    delay(500);
+    delay(this.timeoutMultiplier * 500);
 
     const isValidAccountInDb = await waitForTruthy(async () => {
       const accountFromDb = await sharedDb.getAccount(accountId);
@@ -332,7 +336,7 @@ export class AccountFactory {
     await dispatchAndValidate(setActivePk(lastAddress), s => s.pk.activePk.address === lastAddress);
 
     // wait for PkAddress to be set in db
-    await delay(200);
+    await delay(this.timeoutMultiplier * 200);
 
     const isValidActivePkAddressInDb = await waitForTruthy(
       async () => (await db.getKeyVal('active.PkAddress')) === lastAddress
@@ -351,8 +355,9 @@ export class AccountFactory {
   }
 
   private async getWalletsWithHistory({ rootKey, networkId }: { rootKey: HDPrivateKey; networkId: string }) {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       let i = 0;
+
       const fn = async () => {
         if (this.noHistoryCount === EMPTY_WALLETS_SLOT_COUNT) {
           resolve(true);
@@ -377,9 +382,10 @@ export class AccountFactory {
           }
           store.dispatch(setAccountCreationDerivationPathLastIndex(i));
           i++;
-          setTimeout(fn, 200);
+          setTimeout(fn, this.timeoutMultiplier * 200);
         }
       };
+
       fn();
     });
   }
@@ -409,7 +415,7 @@ export class AccountFactory {
         break;
       } else {
         retryCount++;
-        await delay(500);
+        await delay(this.timeoutMultiplier * 500);
       }
     }
 

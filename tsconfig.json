@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "types": ["node"],
     "lib": ["esnext", "dom", "WebWorker"],
     "allowJs": false,
     "skipLibCheck": true,

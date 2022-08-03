@@ -90,38 +90,44 @@ chrome.runtime.onMessage.addListener(({ action, payload }, sender, sendResponse)
   return true;
 });
 
-// external webpage connection handling
-chrome.runtime.onConnectExternal.addListener(port => {
-  let client: Client | null = new Client({ port });
+export const initBackground = () => {
+  // external webpage connection handling
+  chrome.runtime.onConnectExternal.addListener(port => {
+    let client: Client | null = new Client({ port });
 
-  chrome.runtime.onMessage.addListener(client.onInternalMessage);
+    chrome.runtime.onMessage.addListener(client.onInternalMessage);
 
-  chrome.notifications.onClicked.addListener(() => chrome.runtime.openOptionsPage(console.log));
+    chrome.notifications.onClicked.addListener(() => chrome.runtime.openOptionsPage(console.log));
 
-  const onPortDisconnect = async () => {
-    console.log('port disconnected');
-    port.onDisconnect.removeListener(onPortDisconnect);
-    clientList.remove(client);
-    client && port.onMessage.removeListener(client.onExternalMessage);
-    client && chrome.runtime.onMessage.removeListener(client.onInternalMessage);
-    await client?.destroy();
-    client = null;
-    console.log('client destroyed', globalThis.performance);
-  };
+    const onPortDisconnect = async () => {
+      port.onDisconnect.removeListener(onPortDisconnect);
+      clientList.remove(client);
+      client && port.onMessage.removeListener(client.onExternalMessage);
+      client && chrome.runtime.onMessage.removeListener(client.onInternalMessage);
+      await client?.destroy();
+      client = null;
+      // console.log('client destroyed', globalThis.performance);
+    };
 
-  port.onDisconnect.addListener(onPortDisconnect);
-  port.onMessage.addListener(client.onExternalMessage);
+    port.onDisconnect.addListener(onPortDisconnect);
+    port.onMessage.addListener(client.onExternalMessage);
 
-  client.onAuthorized = () => {
-    clientList.add(client);
+    client.onAuthorized = () => {
+      clientList.add(client);
 
-    chrome.notifications.create({
-      type: 'basic',
-      iconUrl: TAAL_ICON_URL,
-      title: 'TAAL Wallet',
-      message: `Webpage with origin ${port.sender?.origin} connected to TAAL Wallet`,
-    });
-  };
+      chrome.notifications.create({
+        type: 'basic',
+        iconUrl: TAAL_ICON_URL,
+        title: 'TAAL Wallet',
+        message: `Webpage with origin ${port.sender?.origin} connected to TAAL Wallet`,
+      });
+    };
 
-  // TODO: make sure this function is destroyed when the port is closed
-});
+    // TODO: make sure this function is destroyed when the port is closed
+  });
+};
+
+// don't init in test env
+if (process.env.NODE_ENV !== 'test') {
+  initBackground();
+}

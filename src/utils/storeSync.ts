@@ -15,7 +15,7 @@ type DiffType = {
 };
 
 export const initStoreSync = async () => {
-  if (typeof window !== 'undefined') {
+  if (process.env.NODE_ENV !== 'test' && typeof window !== 'undefined') {
     throw new Error('initStoreSync must be run in background.js only');
   }
 

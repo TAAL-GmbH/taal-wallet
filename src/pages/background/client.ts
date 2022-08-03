@@ -463,7 +463,7 @@ export class Client {
 
   public async destroy() {
     // TODO: unsubscribe and prepare for garbage collection
-    console.log(`client ${this._origin} destroyed`);
+    // console.log(`client ${this._origin} destroyed`);
     this._unsubscribeRedux();
 
     this._clearTimers();

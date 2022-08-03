@@ -68,7 +68,10 @@ class WalletCommunicator {
 
   public disconnect() {
     this._port.disconnect();
-    this._onDisconnect();
+    // onDisconnect event is fired only when background disconnects first
+    if (process.env.NODE_ENV !== 'test') {
+      this._onDisconnect();
+    }
   }
 
   private _onDisconnect(payload?: chrome.runtime.Port | { reason?: string }) {
@@ -89,11 +92,12 @@ class WalletCommunicator {
   }
 
   private _onMessage(msg: MessagePayload) {
-    if (msg.action === 'ping') {
+    if (msg.action === 'ping' && this.isConnected()) {
       this.postMessage({ action: 'pong' });
       return;
     }
-    if (msg.action === 'disconnect') {
+
+    if (msg.action === 'disconnect' && this.isConnected()) {
       this._onDisconnect(msg.payload);
       return;
     }
@@ -105,7 +109,11 @@ class WalletCommunicator {
         this._resolveRequest(msg);
       }
     }
-    this._subscriptions[msg.action]?.forEach(cb => cb(msg.payload));
+
+    // exclude 'disconnect' event as it's handled separately
+    if (msg.action !== 'disconnect') {
+      this._subscriptions[msg.action]?.forEach(cb => cb(msg.payload));
+    }
   }
 
   private _resolveRequest({ payload, requestId }: MessagePayload) {
@@ -132,8 +140,13 @@ class WalletCommunicator {
 
   public postMessage(msg: MessagePayload) {
     if (!this._connected) {
-      throw new Error("can't post message before connected");
+      throw new Error(`can't post message before connected: ${JSON.stringify(msg)}`);
     }
+
+    // if (msg.action === 'disconnect') {
+    //   console.error('disconnecting');
+    // }
+    // console.log('posting message', msg);
 
     this._port.postMessage(msg);
   }
