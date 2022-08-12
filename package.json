@@ -1,7 +1,7 @@
 {
   "name": "taal-wallet",
-  "version": "0.0.1",
-  "description": "TAAL Wallet Chrome extension",
+  "version": "0.0.2",
+  "description": "The TAAL Wallet allows users to manage their own keys and sign transactions on the BSV network",
   "license": "MIT",
   "repository": {
     "type": "git",

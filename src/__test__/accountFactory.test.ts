@@ -1,15 +1,13 @@
-import { PKFullType } from './../types/index';
-import { createHDPrivateKey, derivePk, restorePK } from './../utils/blockchain';
 jest.mock('../features/wocApi');
 jest.mock('../db/index.ts');
 jest.mock('../db/shared.ts');
 
+import { derivePk, restorePK } from './../utils/blockchain';
 import { AccountFactory } from '../utils/accountFactory';
 import { initStoreSync } from '../utils/storeSync';
 import * as wocApi from '../features/wocApi';
 import { store } from '../store';
 import { appendPK } from '../features/pkSlice';
-import { useAppDispatch } from '../hooks';
 import { dispatchAndValidate } from '../utils/dispatchAndValidate';
 
 const accountName = 'AccountName';
@@ -19,10 +17,9 @@ const mnemonicPhrase = 'cherry target client slush annual width front opera toge
 // const action = 'importExisting'; // 'createNew';
 const action = 'createNew';
 
-
 describe('accountFactory', () => {
   let af: AccountFactory;
-  let dateNowSpy;
+  let dateNowSpy: jest.SpyInstance<number>;
 
   beforeAll(() => {
     dateNowSpy = jest.spyOn(Date, 'now').mockImplementation(() => 1234567890000);
@@ -99,7 +96,6 @@ describe('accountFactory', () => {
       expect(state1.pk.rootPk.privateKeyEncrypted).toBeDefined;
       const rootKey = restorePK(state1.pk.rootPk.privateKeyHash);
       const path = "m/44'/236'/0'/0/1";
-      const dispatch = useAppDispatch();
 
       const {
         address,
@@ -119,12 +115,11 @@ describe('accountFactory', () => {
             updatedAt: null,
           },
         }),
-        s => s.pk.rootPk?.privateKeyHash === privateKeyHash
+        s => s.pk.rootPk?.privateKeyHash === rootKey.toString()
       );
       console.log('accountmap' + JSON.stringify(state1.account.accountMap));
       console.log('rootpk' + JSON.stringify(state1.pk.rootPk));
       console.log('map' + JSON.stringify(state1.pk.map));
-
     });
 
     it('should import an existing account', async () => {
