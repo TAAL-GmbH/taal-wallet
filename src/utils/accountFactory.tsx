@@ -196,7 +196,7 @@ export class AccountFactory {
     });
 
     // we need to clear state if we switch account on background
-    dispatchAndValidate(
+   await dispatchAndValidate(
       clearState(),
       s =>
         Object.keys(s.pk.map).length === 0 &&
@@ -422,7 +422,7 @@ export class AccountFactory {
     return result;
   }
 
-  private createWallet(rootKey: HDPrivateKey, index = 0): PKType {
+  public createWallet(rootKey: HDPrivateKey, index = 0): PKType {
     if (!rootKey) {
       throw new Error('rootKey is empty');
     }
