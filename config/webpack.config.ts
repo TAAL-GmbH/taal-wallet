@@ -14,12 +14,13 @@ Object.entries(tsconfig.compilerOptions.paths).forEach(item => {
   alias[key] = path.resolve(__dirname, '..', val);
 });
 
+const isProd = process.env.NODE_ENV === 'production';
 const publicDir = path.resolve(__dirname, '..', 'public');
-const outDir = path.resolve(__dirname, '..', 'dist');
+const outDir = path.resolve(__dirname, '..', isProd ? 'dist-prod' : 'dist-dev');
 const pagesDir = path.resolve(__dirname, '..', 'src', 'pages');
 
 const config: Configuration = {
-  mode: 'development',
+  mode: isProd ? 'production' : 'development',
   entry: {
     background: `${pagesDir}/background/index.ts`,
     content: './src/pages/content/index.ts',
@@ -27,11 +28,11 @@ const config: Configuration = {
     options: './src/pages/options/index.tsx',
     dialog: './src/pages/dialog/index.tsx',
   },
-  devtool: 'cheap-source-map',
+  devtool: !isProd && 'cheap-source-map',
   externals: {
     // crypto: 'crypto',
   },
-  watch: true,
+  watch: !isProd,
   module: {
     rules: [
       {
@@ -71,7 +72,7 @@ const config: Configuration = {
   },
   output: {
     filename: '[name]/index.js',
-    path: path.resolve(__dirname, '..', 'dist/src/pages/'),
+    path: path.resolve(outDir, 'src/pages/'),
   },
   plugins: [
     new ProvidePlugin({

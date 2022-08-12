@@ -8,7 +8,8 @@
     "url": "https://github.com/TAAL-GmbH/taal-wallet"
   },
   "scripts": {
-    "dev": "webpack -c ./config/webpack.config.ts",
+    "dev": "NODE_ENV=development webpack -c ./config/webpack.config.ts",
+    "build": "webpack --node-env production -c ./config/webpack.config.ts",
     "demo": "webpack serve -c ./config/webpack.demo.config.ts",
     "server": "cd ./server && ts-node ./index.ts",
     "tsc": "tsc --noEmit=true",

@@ -1,9 +1,11 @@
 import packageJson from '../package.json';
 import { ManifestType } from '@/src/manifest-type';
 
+const isProd = process.env.NODE_ENV === 'production';
+
 const manifest: ManifestType = {
   manifest_version: 3,
-  name: 'TAAL Wallet',
+  name: isProd ? 'TAAL Wallet' : '[DEV] TAAL Wallet',
   version: packageJson.version,
   description: packageJson.description,
   options_page: 'src/pages/options/index.html',
