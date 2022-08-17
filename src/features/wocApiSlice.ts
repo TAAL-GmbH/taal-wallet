@@ -14,7 +14,7 @@ import { setBatchBalance } from './pkSlice';
 const ORIGIN = 'https://api.whatsonchain.com';
 const ORIGIN_TALLNET = 'https://taalnet.whatsonchain.com';
 const BASE_PATH = '/v1/bsv';
-const AUTH_HEADER = `Basic ${btoa('taal_private:dotheT@@l007')}`;
+const AUTH_HEADER = 'Basic dGFhbF9wcml2YXRlOmRvdGhlVEBAbDAwNw';
 
 const dynamicBaseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> = async (
   args,
