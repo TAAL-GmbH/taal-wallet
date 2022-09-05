@@ -23,8 +23,8 @@ const manifest: ManifestType = {
   },
   web_accessible_resources: [
     {
-      resources: ['taal-round-128x128.png', 'taal-round-34x34.png'],
-      matches: [],
+      resources: ['taal-round-128x128.png', 'taal-round-34x34.png', 'info.json'],
+      matches: ['<all_urls>'],
     },
   ],
 };

@@ -2,6 +2,7 @@ import { Configuration, ProvidePlugin, DefinePlugin } from 'webpack';
 import path from 'path';
 import CopyPluginWebpackPlugin from 'copy-webpack-plugin';
 import { MakeManifestWebpackPlugin } from '../src/utils/MakeManifestWebpackPlugin';
+import { ExtractInfoWebpackPlugin } from '../src/utils/ExtractInfoWebpackPlugin';
 import tsconfig from '../tsconfig.json';
 import { generateHtmlFiles } from './generateHtmlFiles';
 import 'dotenv/config';
@@ -92,6 +93,7 @@ const config: Configuration = {
       },
     }),
     new MakeManifestWebpackPlugin({ outDir }),
+    new ExtractInfoWebpackPlugin({ outDir }),
     new CopyPluginWebpackPlugin({
       patterns: [{ from: publicDir, to: outDir }],
     }),

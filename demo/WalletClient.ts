@@ -2,7 +2,7 @@ import bsv from 'bsv';
 
 type Options = {
   name: string;
-  extensionId: string;
+  extensionId?: string;
 };
 
 type MessagePayload = {
@@ -25,6 +25,8 @@ type Unspent = {
   value: number;
 };
 
+const defaultExtensionId = 'engokokaoeppkmchbkjeoeimiffobcke';
+
 class WalletCommunicator {
   private _extensionId: string;
   private _name: string;
@@ -33,7 +35,7 @@ class WalletCommunicator {
   private _requestMap: Record<number, RequestObject<any>> = {};
   private _subscriptions: Record<string, ((payload: unknown) => void)[]> = {};
 
-  constructor({ name, extensionId }: Options) {
+  constructor({ name, extensionId = defaultExtensionId }: Options) {
     if (!name) {
       throw new Error('name is required');
     }
@@ -45,7 +47,10 @@ class WalletCommunicator {
     this._onMessage = this._onMessage.bind(this);
     this._onConnect = this._onConnect.bind(this);
     this._onDisconnect = this._onDisconnect.bind(this);
-    this._addBlockingWarning();
+
+    if (typeof window !== 'undefined') {
+      this._addBlockingWarning();
+    }
 
     this.on('connect', this._onConnect);
     this.on('diconnect', this._onDisconnect);
@@ -140,13 +145,17 @@ class WalletCommunicator {
 
   public postMessage(msg: MessagePayload) {
     if (!this._connected) {
-      throw new Error(`can't post message before connected: ${JSON.stringify(msg)}`);
+      const reason = 'Wallet not connected';
+      if (msg.requestId) {
+        this._rejectRequest({
+          action: 'error',
+          payload: { reason },
+          requestId: msg.requestId,
+        });
+      }
+      this._subscriptions['error']?.forEach(cb => cb({ action: 'error', reason }));
+      return;
     }
-
-    // if (msg.action === 'disconnect') {
-    //   console.error('disconnecting');
-    // }
-    // console.log('posting message', msg);
 
     this._port.postMessage(msg);
   }

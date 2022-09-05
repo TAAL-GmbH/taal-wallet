@@ -12,7 +12,7 @@ const btnInvalidAction: HTMLButtonElement = document.querySelector('#btn-invalid
 
 const wallet = new WalletClient({
   name: 'chuck-norris',
-  extensionId: 'engokokaoeppkmchbkjeoeimiffobcke',
+  extensionId: 'fdankaefdgldeaheancncgnikjkpnndo',
 });
 
 wallet.on('balance', (balance: number) => {
