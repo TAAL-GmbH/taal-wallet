@@ -21,7 +21,7 @@ const defaultOptions: Partial<CreateDialogOptions> = {
 export const createDialog = async (options: CreateDialogOptions): Promise<CreateDialogReturnType> => {
   const id = Date.now() + Math.random();
   const bc = new BroadcastChannel(`dialog-${id}`);
-  const { timeout, width, height } = { ...options, ...defaultOptions };
+  const { timeout, width, height } = { ...defaultOptions, ...options };
 
   let resolveRef: (value: unknown) => void;
   let rejectRef: (value: unknown) => void;

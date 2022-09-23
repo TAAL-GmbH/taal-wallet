@@ -19,6 +19,7 @@ import { createHDPrivateKey, derivePk, rebuildMnemonic } from '../utils/blockcha
 import { encrypt } from '../utils/crypt';
 import { dispatchAndValidate } from '../utils/dispatchAndValidate';
 import { delay, isNull } from '../utils/generic';
+import { initStoreSync } from './storeSync';
 import { waitForTruthy } from './waitForTruthy';
 
 const EMPTY_WALLETS_SLOT_COUNT = 20;
@@ -79,6 +80,24 @@ export class AccountFactory {
 
     const previousAccountId = store.getState().account.activeAccountId;
     const accountId = `${Date.now()}`;
+
+    // write activeAccountId to db if it's first account
+    // otherwise it will be written in final stage
+    if (!(await sharedDb.getAccountList()).length) {
+      await sharedDb.setKeyVal('activeAccountId', accountId);
+      const isValidActiveAccountIdInDb = await waitForTruthy(
+        async () => (await sharedDb.getKeyVal('activeAccountId')) === accountId
+      );
+      if (isValidActiveAccountIdInDb) {
+        logEvent({
+          type: 'success',
+          message: 'activeAccountId written to db',
+        });
+      } else {
+        throw new Error('Failed to write activeAccountId to db');
+      }
+      initStoreSync();
+    }
 
     logEvent({
       message: `Creating account with id: Account-${accountId}`,
@@ -188,7 +207,7 @@ export class AccountFactory {
       message: `Switching to new account #${accountId}`,
     });
 
-    // this will write 'activeAccountId' to db
+    // if this is NOT first account, this will write 'activeAccountId' to db
     await db.useAccount(accountId, true);
 
     logEvent({
@@ -196,7 +215,7 @@ export class AccountFactory {
     });
 
     // we need to clear state if we switch account on background
-   await dispatchAndValidate(
+    await dispatchAndValidate(
       clearState(),
       s =>
         Object.keys(s.pk.map).length === 0 &&
@@ -238,7 +257,7 @@ export class AccountFactory {
       throw new Error('Failed to dispatch Root PK');
     }
 
-    // let's wait for PK to written to db
+    // let's wait for PK to be written to db
     await delay(this.timeoutMultiplier * 200);
 
     const isValidPkEncryptedInDb = await waitForTruthy(

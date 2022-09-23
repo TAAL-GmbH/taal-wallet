@@ -23,12 +23,12 @@ type Props = {
 
 type FormInputs = {
   dstAddress: string;
-  amount: number;
+  satoshis: number;
 };
 
 const defaultValues: FormInputs = {
   dstAddress: '',
-  amount: null,
+  satoshis: null,
 };
 
 export const SendBSV: FC<Props> = ({ className }) => {
@@ -36,7 +36,7 @@ export const SendBSV: FC<Props> = ({ className }) => {
   const { getBalance } = useBlockchain();
 
   const onSubmit = async (values: typeof defaultValues) => {
-    const { dstAddress, amount } = values;
+    const { dstAddress, satoshis } = values;
 
     const toast = createToast('Sending BSV...');
     if (!activePk?.address) {
@@ -54,7 +54,7 @@ export const SendBSV: FC<Props> = ({ className }) => {
       const { success, data, error } = await sendBSV({
         srcAddress: activePk.address,
         dstAddress,
-        amount: Number(amount),
+        satoshis: Number(satoshis),
         privateKeyHash: pk.privateKeyHash,
         network: network.envName,
       });

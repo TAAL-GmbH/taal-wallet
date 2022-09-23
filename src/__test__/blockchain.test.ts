@@ -17,7 +17,7 @@ describe('blockchain.js', () => {
           dstAddress,
           privateKeyHash,
           network,
-          amount: 1,
+          satoshis: 1,
         });
 
       await expect(fn).rejects.toThrowError('Invalid source address: invalid');
@@ -30,7 +30,7 @@ describe('blockchain.js', () => {
           dstAddress: 'invalid',
           privateKeyHash,
           network,
-          amount: 1,
+          satoshis: 1,
         });
 
       await expect(fn).rejects.toThrowError('Invalid destination address: invalid');
@@ -43,7 +43,7 @@ describe('blockchain.js', () => {
           dstAddress: 'mfuva4vmYVEnjXVMapE38xaK4UTj',
           privateKeyHash,
           network,
-          amount: 1,
+          satoshis: 1,
         });
 
       await expect(fn).rejects.toThrowError('Invalid destination address: mfuva4vmYVEnjXVMapE38xaK4UTj');
@@ -56,10 +56,12 @@ describe('blockchain.js', () => {
           dstAddress: 'mfuva4vmYVEnjXVMapE38xaK4UTjVMapE38xaK4UTjmYVEn',
           privateKeyHash,
           network,
-          amount: 1,
+          satoshis: 1,
         });
 
-      await expect(fn).rejects.toThrowError('Invalid destination address: mfuva4vmYVEnjXVMapE38xaK4UTjVMapE38xaK4UTjmYVEn');
+      await expect(fn).rejects.toThrowError(
+        'Invalid destination address: mfuva4vmYVEnjXVMapE38xaK4UTjVMapE38xaK4UTjmYVEn'
+      );
     });
 
     it('should throw an error when srcAddress is too short', async () => {
@@ -69,7 +71,7 @@ describe('blockchain.js', () => {
           dstAddress,
           privateKeyHash,
           network,
-          amount: 1,
+          satoshis: 1,
         });
 
       await expect(fn).rejects.toThrowError('Invalid source address: mfuva4vmYVEnjXVMapE38xaK4UTj');
@@ -82,10 +84,12 @@ describe('blockchain.js', () => {
           dstAddress,
           privateKeyHash,
           network,
-          amount: 1,
+          satoshis: 1,
         });
 
-      await expect(fn).rejects.toThrowError('Invalid source address: mfuva4vmYVEnjXVMapE38xaK4UTjVMapE38xaK4UTjmYVEn');
+      await expect(fn).rejects.toThrowError(
+        'Invalid source address: mfuva4vmYVEnjXVMapE38xaK4UTjVMapE38xaK4UTjmYVEn'
+      );
     });
 
     // validate that send amount cannot be zero, validation in front end?
@@ -96,7 +100,7 @@ describe('blockchain.js', () => {
           dstAddress,
           privateKeyHash,
           network,
-          amount: 0,
+          satoshis: 0,
         });
       await expect(fn).rejects.toThrowError('Amount must not be zero');
     });
@@ -108,7 +112,7 @@ describe('blockchain.js', () => {
           dstAddress,
           privateKeyHash,
           network,
-          amount: 1500000,
+          satoshis: 1500000,
         })
       ).toObject();
       expect(result).toEqual(
@@ -122,17 +126,17 @@ describe('blockchain.js', () => {
 
     // why is this broadcasting successfully, should inputs not be spent?
     it('should return valid result which can then be broadcast', async () => {
-      const tx = 
-        await createBSVTransferTransaction({
-          srcAddress,
-          dstAddress,
-          privateKeyHash,
-          network,
-          amount: 1500,
-        })
-      const result = await wocApi.broadcast(tx.toString())
-      expect(JSON.stringify(result)).toContain('cd73522be888ca665ccc5218fd79f5c8217acd4ede208f6b3c77700baa0964c2')
-
+      const tx = await createBSVTransferTransaction({
+        srcAddress,
+        dstAddress,
+        privateKeyHash,
+        network,
+        satoshis: 1500,
+      });
+      const result = await wocApi.broadcast(tx.toString());
+      expect(JSON.stringify(result)).toContain(
+        'cd73522be888ca665ccc5218fd79f5c8217acd4ede208f6b3c77700baa0964c2'
+      );
     });
 
     it('should return result with one input', async () => {
@@ -142,7 +146,7 @@ describe('blockchain.js', () => {
           dstAddress,
           privateKeyHash,
           network,
-          amount: 900000,
+          satoshis: 900000,
         })
       ).toObject();
 
@@ -156,7 +160,7 @@ describe('blockchain.js', () => {
           dstAddress,
           privateKeyHash,
           network,
-          amount: 1500000,
+          satoshis: 1500000,
         })
       ).toObject();
       expect(result.inputs.length).toEqual(2);
@@ -169,7 +173,7 @@ describe('blockchain.js', () => {
           dstAddress,
           privateKeyHash,
           network,
-          amount: 2500000,
+          satoshis: 2500000,
         })
       ).toObject();
       expect(result.inputs.length).toEqual(3);
@@ -183,7 +187,7 @@ describe('blockchain.js', () => {
         dstAddress,
         privateKeyHash,
         network,
-        amount: 1500000,
+        satoshis: 1500000,
       });
       expect(wocApi.broadcast).toBeCalledWith(
         '0100000002a44e5de57128bee24735354461353c285d272688fd93595757e65823b3c6ad06010000006b483045022100b762f19d1e16ed90360738841165910cdbf28b3ef75966f7ad14ec2b0125df9d02207856f706093bfa238d7078932980f9ed1dcbf785ca33f1bebd66b9e0f2936642412103f9723305aa1c61e1e487663608c0a879e2a44f80f40a2a81eb89f088d74e2906fffffffffa649f339877ed4e1b2ae850ef1e11472ae185aa4ffda0a90706b3ae5e616c43010000006a47304402207bd6fb4ba7ac2772659a9921cd32e0701b03e622ed6830020cd221a78d6f0d110220621e7b57db0c10a5f3b5be2de7ad1aa1c95774487b7502cf8623ccad13877b85412103f9723305aa1c61e1e487663608c0a879e2a44f80f40a2a81eb89f088d74e2906ffffffff0260e31600000000001976a914045820caa3865456b5a659cf5d1a167de93adafa88ac9c900700000000001976a91411392aa71fb203ee7145e1cf46771a08c8d923f688ac00000000'

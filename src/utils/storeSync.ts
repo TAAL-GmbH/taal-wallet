@@ -14,10 +14,26 @@ type DiffType = {
   added: RootState['pk'] & RootState['account'];
 };
 
+let isStoreSyncInitialized = false;
+
 export const initStoreSync = async () => {
   if (process.env.NODE_ENV !== 'test' && typeof window !== 'undefined') {
     throw new Error('initStoreSync must be run in background.js only');
   }
+
+  const activeAccountId = await sharedDb.getKeyVal('activeAccountId');
+  if (!activeAccountId) {
+    console.info('No active account. First run? Skipping store sync');
+    return;
+  }
+
+  // we don't initialize storeSync before first account gets created
+  // and we call initStoreSync on account creation also
+  if (isStoreSyncInitialized) {
+    return;
+  }
+  console.log('initializing store sync');
+  isStoreSyncInitialized = true;
 
   /**
    * The following code it to keep in sync redux state -> chrome.storage.pk
@@ -134,15 +150,17 @@ export const restoreDataFromDb = async () => {
     sharedDb.getAccountList(),
     sharedDb.getKeyVal('activeAccountId'),
   ]);
-  // console.debug('restoreDataFromDb', { networkId, pkMap, activePkAddress, accountList, activeAccountId });
+  console.debug('restoreDataFromDb', { networkId, pkMap, activePkAddress, accountList, activeAccountId });
 
   store.dispatch(setAccountList(accountList));
   store.dispatch(setActiveAccountId(activeAccountId || accountList[0]?.id));
 
+  console.log('swithing network', networkId);
+
   store.dispatch(
     setState({
       network: networkList.find(network => network.id === networkId),
-      activePk: activePkAddress ? pkMap[activePkAddress as string] : null,
+      activePk: activePkAddress ? pkMap[activePkAddress] : null,
       map: pkMap,
       rootPk: null,
     })

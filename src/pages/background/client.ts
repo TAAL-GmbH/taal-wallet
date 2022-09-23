@@ -1,7 +1,7 @@
 import { db } from '@/src/db';
 import { getBalance, getUnspent } from '@/src/features/wocApi';
 import { store } from '@/src/store';
-import { derivePk, restorePK } from '@/src/utils/blockchain';
+import { derivePk, mergeSplit, restorePK } from '@/src/utils/blockchain';
 import { createDialog } from '@/src/utils/createDialog';
 import 'bsv/message';
 import bsv from 'bsv';
@@ -15,6 +15,7 @@ type Msg = {
   action: string;
   payload: unknown;
   requestId: number;
+  timeout?: number;
 };
 
 export class Client {
@@ -52,6 +53,7 @@ export class Client {
           payload: state.pk.activePk?.address,
         });
       }
+
       if (state.pk.activePk?.balance !== storeCache?.pk.activePk?.balance) {
         this._postMessage({
           action: 'balance',
@@ -59,15 +61,45 @@ export class Client {
         });
       }
 
+      if (state.pk.network?.envName && state.pk.network.envName !== storeCache?.pk.network?.envName) {
+        this._postMessage({
+          action: 'network',
+          payload: state.pk.network.envName,
+        });
+      }
+
+      // on account change
+      if (
+        state.account.activeAccountId &&
+        storeCache?.account.activeAccountId &&
+        state.account.activeAccountId !== storeCache?.account.activeAccountId
+      ) {
+        console.log({
+          state: state.account.activeAccountId,
+          cache: storeCache?.account.activeAccountId,
+        });
+        this._postMessage<{ reason: string }>({
+          action: 'disconnect',
+          payload: {
+            reason: 'Account changed',
+          },
+        });
+      }
+
+      // on unlock
       if (
         state.pk.rootPk?.privateKeyHash &&
         state.pk.rootPk?.privateKeyHash !== storeCache?.pk.rootPk?.privateKeyHash
       ) {
         const { publicKeyHash } = this._getKey();
-        return {
-          action: 'publicKey',
+        this._postMessage<string>({
+          action: 'rootPublicKey',
+          payload: this._getRootKey().publicKey.toString(),
+        });
+        this._postMessage({
+          action: 'rootPublicKey',
           payload: publicKeyHash.toString(),
-        };
+        });
       }
 
       if (state.pk.isLocked) {
@@ -88,10 +120,15 @@ export class Client {
     });
   }
 
-  private _postMessage(
+  private _getRootKey() {
+    const { privateKeyHash: rootPrivateKeyHash } = store.getState().pk.rootPk;
+    return restorePK(rootPrivateKeyHash);
+  }
+
+  private _postMessage<T>(
     msg: {
       action: string;
-      payload?: unknown;
+      payload?: T;
       requestId?: number;
     },
     sendUnauthorized = false
@@ -171,7 +208,7 @@ export class Client {
       return;
     }
 
-    const { action, payload, requestId } = msg;
+    const { action, payload, requestId, timeout } = msg;
 
     // reject requests without action
     if (!action) {
@@ -202,7 +239,7 @@ export class Client {
     }
 
     try {
-      const result = await this._handleExternalAction({ action, payload });
+      const result = await this._handleExternalAction({ action, payload, timeout });
       this._postMessage({
         ...result,
         requestId,
@@ -254,7 +291,11 @@ export class Client {
     return result.selectedOption === 'yes';
   }
 
-  private async _handleExternalAction({ action, payload }: Pick<Msg, 'action' | 'payload'>) {
+  private async _handleExternalAction({
+    action,
+    payload,
+    timeout,
+  }: Pick<Msg, 'action' | 'payload' | 'timeout'>) {
     const state = store.getState();
     const address = state.pk.activePk?.address;
 
@@ -279,6 +320,12 @@ export class Client {
           return {
             action: 'address',
             payload: store.getState().pk.activePk?.address,
+          };
+        }
+        case 'getNetwork': {
+          return {
+            action: 'network',
+            payload: store.getState().pk.network.envName,
           };
         }
         case 'getPublicKey': {
@@ -306,10 +353,29 @@ export class Client {
           };
         }
         case 'getUnspent': {
-          const { data } = await getUnspent(address);
+          // const { data } = await getUnspent(address);
+          const { data } = await getUnspent(address, { forceRefetch: true });
           return {
             action: 'unspent',
             payload: data,
+          };
+        }
+        case 'mergeSplit': {
+          const { satoshis, minChange } = payload as { satoshis: number; minChange: number };
+          const pk = store.getState().pk;
+          const { privateKeyHash } = this._getKey();
+
+          const result = await mergeSplit({
+            satoshis,
+            minChange,
+            network: pk.network.envName,
+            myAddress: pk.activePk.address,
+            privateKeyHash,
+          });
+
+          return {
+            action: 'mergeSplit',
+            payload: result,
           };
         }
         case 'signTx': {
@@ -317,6 +383,7 @@ export class Client {
             title: 'Do you want to sign this transaction?',
             body: `<pre>${JSON.stringify(payload, null, 2)}</pre>`,
             options: [{ label: 'Yes', variant: 'primary', returnValue: 'yes' }, { label: 'No' }],
+            timeout,
           });
 
           if (result.selectedOption !== 'yes') {
@@ -340,6 +407,7 @@ export class Client {
             title: 'Do you want to sign this pre-image?',
             body: `<pre>${JSON.stringify(payload, null, 2)}</pre>`,
             options: [{ label: 'Yes', variant: 'primary', returnValue: 'yes' }, { label: 'No' }],
+            timeout,
           });
 
           if (result.selectedOption !== 'yes') {
@@ -356,21 +424,18 @@ export class Client {
 
           // @ts-ignore
           const sighash2 = bsv.crypto.Signature.SIGHASH_ALL | bsv.crypto.Signature.SIGHASH_FORKID;
-          // @ts-ignore
-          const t: bsv.Transaction = bsv.Transaction(tx);
-          // @ts-ignore
+          const t = new bsv.Transaction(tx);
           const { privateKeyHash } = this._getKey();
           const pk = new bsv.PrivateKey(privateKeyHash);
-          // @ts-ignore
+
           const satsBN = BN.fromNumber(satoshis);
-          // @ts-ignore
+          // @ts-expect-error TransactionSignature not defined
           let signature: bsv.TransactionSignature;
           try {
             // @ts-expect-error sighash method is not typed in .d.ts
             signature = bsv.Transaction.sighash.sign(t, pk, sighash2, i, script, satsBN);
           } catch (e) {
-            console.log('error signing preimage');
-            console.log(e);
+            console.error('error signing preimage', e);
             throw e;
           }
 
@@ -385,6 +450,7 @@ export class Client {
             title: 'Do you want to sign this message?',
             body: `<pre>${payload}</pre>`,
             options: [{ label: 'Yes', variant: 'primary', returnValue: 'yes' }, { label: 'No' }],
+            timeout,
           });
 
           if (result.selectedOption !== 'yes') {
@@ -447,6 +513,7 @@ export class Client {
     const path = activePk?.path;
 
     if (!rootPk?.privateKeyHash || !path) {
+      console.error("Can't get private key hash", { rootPk, path });
       throw new Error("Can't get private key hash");
     }
 

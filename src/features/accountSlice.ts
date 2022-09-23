@@ -53,7 +53,9 @@ const accountSlice = createSlice({
       }
     },
     addAccount(state, { payload }: PayloadAction<AccountType>) {
-      state.accountList.push(payload);
+      if (!state.accountList.find(account => account.id === payload.id)) {
+        state.accountList.push(payload);
+      }
       state.accountMap[payload.id] = payload;
     },
     setActiveAccountId(state, { payload }: PayloadAction<string | null>) {

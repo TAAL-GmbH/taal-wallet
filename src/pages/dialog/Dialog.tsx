@@ -1,14 +1,18 @@
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useRef, useState } from 'react';
 import styled, { css } from 'styled-components';
 import xss from 'xss';
 import { Button } from '@/src/components/button';
 import { DialogData } from '@/src/types';
 
 let bc: BroadcastChannel;
+let remainingTimeInterval: ReturnType<typeof setInterval>;
 
 export const Dialog: FC = () => {
   const dialogId = new URLSearchParams(location.search).get('id');
   const [dialogData, setDialogData] = useState<DialogData | null>(null);
+  const [timeRemaining, setTimeRemaining] = useState(0);
+  const [isTimeouted, setIsTimeouted] = useState(false);
+  const timeoutRef = useRef(0);
 
   useEffect(() => {
     if (!dialogId) {
@@ -24,9 +28,17 @@ export const Dialog: FC = () => {
           const timeout = (data?.payload as DialogData)?.timeout;
 
           if (timeout > 0) {
+            timeoutRef.current = timeout;
+            setTimeRemaining(timeout / 1000);
+
+            remainingTimeInterval = setInterval(() => {
+              setTimeRemaining(prev => prev - 1);
+            }, 1000);
+
             setTimeout(() => {
               // TODO: show expired message
-              window.close();
+              // window.close();
+              setIsTimeouted(true);
             }, timeout);
           }
         }
@@ -41,11 +53,13 @@ export const Dialog: FC = () => {
           },
         });
       };
+      return () => clearInterval(remainingTimeInterval);
     }
   }, []);
 
   useEffect(() => {
     if (dialogData?.resizeWindow) {
+      // TODO: implement or remove this
       // window.resizeTo(dialogData.width, dialogData.height);
     }
   }, [dialogData]);
@@ -72,25 +86,33 @@ export const Dialog: FC = () => {
   }
 
   return (
-    <Wrapper fitView={dialogData.fitView}>
+    <Wrapper fitView={dialogData.fitView} isTimeouted={isTimeouted}>
+      {timeRemaining > 0 && <TimeRemaining>Time remaining: {timeRemaining} seconds</TimeRemaining>}
+      {isTimeouted && <TimeRemaining>Time is up! Please restart this process.</TimeRemaining>}
       <h1>{dialogData.title}</h1>
 
       {!!dialogData.body && <Body dangerouslySetInnerHTML={{ __html: xss(dialogData.body) }} />}
 
       {!!dialogData.options?.length && (
         <ButtonWrapper>
-          {dialogData.options.map(({ label, variant }, index) => (
-            <Button key={index} onClick={() => respond(index)} variant={variant}>
-              {label}
+          {!isTimeouted &&
+            dialogData.options.map(({ label, variant }, index) => (
+              <Button key={index} onClick={() => respond(index)} variant={variant}>
+                {label}
+              </Button>
+            ))}
+          {isTimeouted && (
+            <Button onClick={() => window.close()} variant="primary">
+              Close window
             </Button>
-          ))}
+          )}
         </ButtonWrapper>
       )}
     </Wrapper>
   );
 };
 
-const Wrapper = styled.div<{ fitView?: boolean }>`
+const Wrapper = styled.div<{ fitView?: boolean; isTimeouted?: boolean }>`
   min-height: 100vh;
   max-width: 500px;
   width: 100vw;
@@ -103,6 +125,12 @@ const Wrapper = styled.div<{ fitView?: boolean }>`
     fitView &&
     css`
       height: 100vh;
+    `}
+
+  ${({ isTimeouted }) =>
+    isTimeouted &&
+    css`
+      filter: contrast(-100) saturate(-100);
     `}
 `;
 
@@ -127,6 +155,11 @@ const Body = styled.div`
     margin: 0;
     width: 100%;
   }
+`;
+
+const TimeRemaining = styled.div`
+  color: ${({ theme }) => theme.color.primary[400]};
+  text-align: center;
 `;
 
 const ButtonWrapper = styled.div`

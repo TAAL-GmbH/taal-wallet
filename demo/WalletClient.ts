@@ -9,6 +9,7 @@ type MessagePayload = {
   action: string;
   payload?: unknown;
   requestId?: number;
+  timeout?: number;
 };
 
 type RequestObject<T> = {
@@ -177,7 +178,7 @@ class WalletCommunicator {
     });
 
     this._requestMap[requestId] = requestObject;
-    this.postMessage({ action, payload, requestId });
+    this.postMessage({ action, payload, requestId, timeout });
     return promise;
   }
 
@@ -262,6 +263,13 @@ export class WalletClient extends WalletCommunicator {
     return this.request<string>({
       action: 'signMessage',
       payload: tx,
+    });
+  }
+
+  public mergeSplit({ amount, minChange = 0 }: { amount: number; minChange?: number }) {
+    return this.request<string>({
+      action: 'mergeSplit',
+      payload: { amount, minChange },
     });
   }
 }

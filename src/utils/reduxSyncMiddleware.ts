@@ -27,7 +27,6 @@ export const reduxSyncMiddleWare: Middleware = store => {
     }
 
     if (data.action === 'dispatch') {
-      // console.log(`${pagePath}: ON DISPATCH:`, data);
       store.dispatch({
         ...data.reduxAction,
         meta: {

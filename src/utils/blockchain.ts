@@ -1,7 +1,7 @@
 import bsv, { Mnemonic } from 'bsv';
 import 'bsv/mnemonic';
 import { broadcast, getTx, getUnspent } from '../features/wocApi';
-import { ApiResponse, ErrorCodeEnum, PKFullType } from '../types';
+import { ApiResponse, ErrorCodeEnum, PKFullType, UTXO, UTXOWithAmount } from '../types';
 import { WocApiError } from './errors/wocApiError';
 import { getErrorMessage } from './generic';
 import { networkList } from '../constants/networkList';
@@ -13,7 +13,8 @@ type SendBsvOptions = {
   dstAddress: string;
   privateKeyHash: string;
   network: string;
-  amount: number;
+  satoshis: number;
+  minChange?: number;
 };
 
 // const sighash = bsv.crypto.Signature.SIGHASH_ALL | bsv.crypto.Signature.SIGHASH_FORKID;
@@ -30,12 +31,21 @@ export const isValidAddress = (addr: string, network: string) => {
 export const bitcoinToSatoshis = (amount: number) => Math.round(amount * SATS_PER_BITCOIN);
 export const satoshisToBitcoin = (amount: number) => amount / SATS_PER_BITCOIN;
 
+export const utxoAmount2satoshis = ({ amount, ...utxo }: UTXOWithAmount): UTXO => {
+  return {
+    ...utxo,
+    satoshis: bitcoinToSatoshis(amount),
+  };
+};
+
 export const createBSVTransferTransaction = async ({
   srcAddress,
   dstAddress,
   privateKeyHash,
   network,
-  amount,
+  satoshis,
+  // minChange is used to make sure that change is gonna be at least this size
+  minChange = 0,
 }: SendBsvOptions) => {
   if (!isValidAddress(srcAddress, network)) {
     throw new Error(`Invalid source address: ${srcAddress}`);
@@ -47,16 +57,19 @@ export const createBSVTransferTransaction = async ({
   if (!unspentList?.length) {
     throw new Error('No funds available');
   }
-  let totalUtxoAmount: number = 0;
-  let utxos: bsv.Transaction.UnspentOutput[] = [];
 
-  // loop through all unspent outputs and add to utxo list until we have enough value
+  const totalRequiredAmount = satoshis + minChange;
+  let totalUtxoAmount = 0;
+  const utxos: bsv.Transaction.UnspentOutput[] = [];
+
   const { data: unspentTx } = await getTx(unspentList[0].tx_hash);
+  // TODO: check that op return scripts still work
   const script = unspentTx?.vout[unspentList[0].tx_pos].scriptPubKey.hex;
 
+  // loop through all unspent outputs and add to utxo list until we have enough value
   for (let i = 0; i < unspentList.length; i++) {
     let unspent = unspentList[i];
-    if (totalUtxoAmount < amount) {
+    if (totalUtxoAmount < totalRequiredAmount) {
       totalUtxoAmount += unspent.value;
       utxos.push(
         new bsv.Transaction.UnspentOutput({
@@ -72,18 +85,76 @@ export const createBSVTransferTransaction = async ({
     }
   }
 
-  if (totalUtxoAmount < amount) {
+  console.log({ utxos });
+
+  if (totalUtxoAmount < totalRequiredAmount) {
     throw new Error('Insufficient funds');
   }
 
   return (
     new bsv.Transaction()
       .from(utxos)
-      .to(dstAddress, amount)
+      .to(dstAddress, satoshis)
       // TODO: create new address for change
       .change(srcAddress)
       .sign(privateKeyHash)
   );
+};
+
+type MergeSplitOptions = {
+  myAddress: string;
+  satoshis: number;
+  minChange: number;
+  network: string;
+  privateKeyHash: string;
+};
+
+export const mergeSplit = async ({
+  myAddress,
+  satoshis,
+  minChange,
+  network,
+  privateKeyHash,
+}: MergeSplitOptions) => {
+  // TODO: fix this
+  // sometimes it returns single output
+
+  const {
+    success,
+    data: { tx, txid },
+  } = await sendBSV({
+    satoshis,
+    minChange,
+    srcAddress: myAddress,
+    dstAddress: myAddress,
+    network,
+    privateKeyHash,
+  });
+
+  if (!success) {
+    throw new Error('Failed to merge split');
+  }
+
+  const result = tx.outputs.map((output, i) => {
+    const unspentOutput = new bsv.Transaction.UnspentOutput({
+      txId: txid,
+      outputIndex: i,
+      address: myAddress,
+      script: tx.outputs[0].script.toHex(),
+      satoshis: output.satoshis,
+    });
+
+    // @ts-expect-error actually it returns UTXOWithAmount
+    const utxoObject = unspentOutput.toObject() as UTXOWithAmount;
+
+    return utxoAmount2satoshis(utxoObject);
+  });
+  if (result.length !== 2) {
+    console.log('MergeSplit failed', { result, satoshis, minChange });
+    throw new Error('MergeSplit failed');
+  }
+  console.log('MergeSplit result', result, { satoshis, minChange });
+  return result;
 };
 
 export const sendBSV = async ({
@@ -91,8 +162,10 @@ export const sendBSV = async ({
   dstAddress,
   privateKeyHash,
   network,
-  amount,
-}: SendBsvOptions): Promise<ApiResponse<string>> => {
+  satoshis,
+  // minChange is used to make sure that change is gonna be at least this size
+  minChange = 0,
+}: SendBsvOptions): Promise<ApiResponse<{ txid: string; tx: bsv.Transaction }>> => {
   if (!isValidAddress(srcAddress, network)) {
     throw new Error(`Invalid source address: ${srcAddress}`);
   }
@@ -105,7 +178,8 @@ export const sendBSV = async ({
     dstAddress,
     privateKeyHash,
     network,
-    amount,
+    satoshis,
+    minChange,
   });
 
   try {
@@ -113,7 +187,10 @@ export const sendBSV = async ({
     if ('data' in result && /^[0-9a-fA-F]{64}$/.test(result.data)) {
       return {
         success: true,
-        data: result.data,
+        data: {
+          tx,
+          txid: result.data,
+        },
       };
     } else if ('error' in result) {
       console.log('tx broadcast error', result.error);

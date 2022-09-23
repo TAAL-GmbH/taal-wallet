@@ -47,8 +47,13 @@ class Db {
 
   private async _getDB() {
     if (!this._activeDbName) {
-      const accountId = (await sharedDb.getKeyVal('activeAccountId')) || `0`;
-      this._activeDbName = `${ACCOUNT_DB_NAME_PREFIX}-${accountId}`;
+      const activeAccountId = await sharedDb.getKeyVal('activeAccountId');
+      if (!activeAccountId) {
+        console.error(`No active account!`);
+        return;
+      }
+      // const accountId = (await sharedDb.getKeyVal('activeAccountId')) || `0`;
+      this._activeDbName = `${ACCOUNT_DB_NAME_PREFIX}-${activeAccountId}`;
       this._db = null;
     }
 
@@ -79,6 +84,7 @@ class Db {
   }
 
   public async useAccount(accountId: string, create?: boolean) {
+    console.log(`useAccount`, accountId, create);
     const dbName = `${ACCOUNT_DB_NAME_PREFIX}-${accountId}`;
 
     const dbList = await indexedDB.databases();
@@ -93,10 +99,10 @@ class Db {
     this._activeDbName = dbName;
     this._db = null;
 
-    if (!dbExists && create) {
-      // calling _getDB() will create the DB
-      await this._getDB();
-    }
+    // if (!dbExists && create) {
+    // calling _getDB() will create the DB
+    await this._getDB();
+    // }
 
     // tell background script that we are using this account now
     // TODO: switch to long-lived internal communication

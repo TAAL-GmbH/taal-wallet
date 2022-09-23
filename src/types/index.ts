@@ -6,6 +6,18 @@ export enum ErrorCodeEnum {
   BAD_TXNS_IN_BELOWOUT = 'bad-txns-in-belowout',
 }
 
+export type UTXO = {
+  address?: string;
+  scriptPubKey: string;
+  txid: string;
+  vout: number;
+  satoshis: number;
+};
+
+export type UTXOWithAmount = Omit<UTXO, 'satoshis'> & {
+  amount: number;
+};
+
 export type ApiResponse<T = null> =
   | {
       success: false;
