@@ -2,25 +2,26 @@ jest.mock('../features/wocApi');
 jest.mock('../db/index.ts');
 jest.mock('../db/shared.ts');
 
-import { derivePk, restorePK } from './../utils/blockchain';
+import { derivePk, restorePK, createHDPrivateKey, rebuildMnemonic } from './../utils/blockchain';
 import { AccountFactory } from '../utils/accountFactory';
 import { initStoreSync } from '../utils/storeSync';
 import * as wocApi from '../features/wocApi';
 import { store } from '../store';
 import { appendPK } from '../features/pkSlice';
 import { dispatchAndValidate } from '../utils/dispatchAndValidate';
+import { create } from 'domain';
 
 let accountName = 'AccountName';
 let networkId = 'testnet';
 const password = 'password';
-let mnemonicPhrase = 'cherry target client slush annual width front opera together perfect brisk boring';
-//const mnemonicPhrase = 'cherry target client slush annual width front opera together perfect brisk test';
-//const mnemonicPhrase = 'ensure ribbon tell sock short citizen staff owner scissors chair rib similar';
+let password_invalid: string
+let mnemonicPhrase: string
+const mnemonicPhrase2 = 'ensure ribbon tell sock short citizen staff owner scissors chair rib similar';
 // const action = 'importExisting'; // 'createNew';
 const action = 'createNew';
+let af: AccountFactory;
 
 describe('accountFactory', () => {
-  let af: AccountFactory;
   let dateNowSpy: jest.SpyInstance<number>;
 
   beforeAll(() => {
@@ -95,8 +96,9 @@ describe('accountFactory', () => {
       expect(state.pk.activePk).toEqual(state.pk.map.mmvbyKDxzHhEL8wQwvQviCmWJ7ZhP8hoS8);
     }, 60000);
 
-    it('should import an existing wallet with a bsv balance', async () => {
-      let mnemonicPhrase = 'ensure ribbon tell sock short citizen staff owner scissors chair rib similar'
+    // check with arnas
+    it('should import an existing account with a bsv balance', async () => {
+      mnemonicPhrase = 'ensure ribbon tell sock short citizen staff owner scissors chair rib similar'
       const result = await af.createAccount({
         accountName,
         networkId,
@@ -104,6 +106,8 @@ describe('accountFactory', () => {
         mnemonicPhrase,
         action,
       });
+
+      console.log(result)
       expect(result).toEqual(
         expect.objectContaining({
           success: true,
@@ -111,8 +115,8 @@ describe('accountFactory', () => {
         })
       );
       const state1 = store.getState();
-      console.log(state1.pk.activePk.balance.amount)
-      expect(state1.pk.activePk.balance.amount).toEqual(1000000)
+      console.log(state1.pk.map)
+      expect(state1.pk.map.mj5mLFDAqPdqTmcTSMHL4oG9ZxhQL1GPg7.balance.amount).toEqual(1000000);
     }, 60000);
 
 
@@ -138,11 +142,16 @@ describe('accountFactory', () => {
       expect(state1.pk.activePk).toBe(null)
     });
 
+    // why is this failing? Where is password validation?
+    test.each([
+      password_invalid = 'p',
+      password_invalid = '',
+    ])
     it('should attempt to create an account with invalid password', async () => {
       const result = await af.createAccount({
         accountName,
         networkId, 
-        password: '1',
+        password: password_invalid,
         mnemonicPhrase,
         action,
       });
@@ -171,8 +180,72 @@ describe('accountFactory', () => {
       );
     });
   });
-});
 
+  it('should create a new wallet', async () => {
+    const { pkInstance: rootKey } = createHDPrivateKey({
+        networkId,
+        password,
+        mnemonic: rebuildMnemonic(mnemonicPhrase.trim()),
+      });
+    const wallet = af.createWallet(rootKey)
+    expect(wallet.address).toEqual('mxF2S1u2VVb117RpPjmMqUoViEM7zU1vAx')
+    expect(wallet.name).toEqual('Wallet-0')
+    expect(wallet.path).toEqual('m/44\'/236\'/0\'/0/0')
+    expect(wallet.balance.amount).toEqual(null)
+    expect(wallet.balance.updatedAt).toEqual(null)
+  })
+
+  it('should create multiple wallets to same account', async () => {
+    const { pkInstance: rootKey } = createHDPrivateKey({
+        networkId,
+        password,
+        mnemonic: rebuildMnemonic(mnemonicPhrase.trim()),
+      });
+    const wallet = af.createWallet(rootKey)
+    expect(wallet.address).toEqual('mxF2S1u2VVb117RpPjmMqUoViEM7zU1vAx')
+    const { pkInstance: rootKey2 } = createHDPrivateKey({
+        networkId,
+        password,
+        mnemonic: rebuildMnemonic(mnemonicPhrase2.trim()),
+    });
+    
+    const wallet2 = af.createWallet(rootKey2)
+    expect(wallet2.address).toEqual('mj5mLFDAqPdqTmcTSMHL4oG9ZxhQL1GPg7')
+  })
+
+
+  // check with Arnas
+  it.only('should change wallet name', async () => {
+    const walletName = 'bob\'s wallet'
+    // createAccount(af)
+    const { pkInstance: rootKey } = createHDPrivateKey({
+        networkId,
+        password,
+        mnemonic: rebuildMnemonic(mnemonicPhrase.trim()),
+      });
+    const wallet = af.createWallet(rootKey)
+    wallet.name = walletName
+    expect(wallet.name).toEqual(walletName)
+  })
+
+
+})
+
+
+async function createAccount(af: any ) {
+  const result = await af.createAccount({
+    accountName,
+    networkId,
+    password,
+    mnemonicPhrase,
+    action,
+  });
+  expect(result).toEqual(
+    expect.objectContaining({
+      success: true,
+    })
+  );
+}
 
     // it('should create an account with name path balance', async () => {
     //   const result = await af.createAccount({
