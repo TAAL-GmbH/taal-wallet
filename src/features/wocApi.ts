@@ -1,5 +1,6 @@
 import { store } from '../store';
 import { WocApiError } from '../utils/errors/wocApiError';
+import { isString } from '../utils/generic';
 import { setBatchBalance } from './pkSlice';
 import { wocApiSlice } from './wocApiSlice';
 
@@ -35,9 +36,15 @@ export const getTx = async (...args: Parameters<typeof wocApiSlice.endpoints.get
   store.dispatch(wocApiSlice.endpoints.getTx.initiate(...args));
 
 export const airdrop = async (...args: Parameters<typeof wocApiSlice.endpoints.airdrop.initiate>) => {
+  type AirdropData = string | { message: string };
+
   // ignore error as response is a plain text
   const { error } = await store.dispatch(wocApiSlice.endpoints.airdrop.initiate(...args));
-  const txId = 'data' in error ? (error.data as string) : '';
+  const txId = 'data' in error ? (error.data as AirdropData) : '';
+
+  if (!isString(txId)) {
+    throw new Error(txId.message || 'AirDrop error');
+  }
 
   if (!txId.match(/^[0-9a-fA-F]{64}$/)) {
     throw new Error(`Failed to get funds: ${txId}`);
