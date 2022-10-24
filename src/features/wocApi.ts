@@ -10,11 +10,18 @@ export const getBalance = async (...args: Parameters<typeof wocApiSlice.endpoint
     console.error(resp.error);
     throw new WocApiError(resp.error);
   }
-  const total = resp.data.reduce((acc, { balance }) => acc + balance.confirmed + balance.unconfirmed, 0);
-  const preparedData = resp.data.map(({ address, balance: { confirmed, unconfirmed } }) => ({
-    address,
-    amount: confirmed + unconfirmed,
-  }));
+  // const total = resp.data.reduce((acc, { balance }) => acc + balance.confirmed + balance.unconfirmed, 0);
+  const total = resp.data.reduce((acc, { balance }) => {
+    return acc + (balance?.confirmed || 0) + (balance?.unconfirmed || 0);
+  }, 0);
+
+  const preparedData = resp.data.map(({ address, balance }) => {
+    return {
+      address,
+      satoshis: (balance?.confirmed || 0) + (balance?.unconfirmed || 0),
+    };
+  });
+
   store.dispatch(setBatchBalance(preparedData));
   return {
     data: resp.data,

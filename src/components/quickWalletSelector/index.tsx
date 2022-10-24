@@ -15,14 +15,14 @@ export const QuickWalletSelector: FC<Props> = ({ className }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
-    if (activePk?.address && typeof activePk?.balance?.amount !== 'number') {
+    if (activePk?.address && typeof activePk?.balance?.satoshis !== 'number') {
       _getBalance();
     }
-  }, [activePk?.balance?.amount]);
+  }, [activePk?.balance?.satoshis]);
 
   const balance =
-    typeof activePk?.balance?.amount === 'number'
-      ? `${formatNumber(activePk?.balance?.amount)} satoshis`
+    typeof activePk?.balance?.satoshis === 'number'
+      ? `${formatNumber(activePk?.balance?.satoshis)} satoshis`
       : 'unknown';
 
   const _getBalance = async () => {

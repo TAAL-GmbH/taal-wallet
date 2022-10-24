@@ -51,6 +51,14 @@ export const SendBSV: FC<Props> = ({ className }) => {
         path: activePk.path,
       });
 
+      console.log('sendBSV ui', {
+        srcAddress: activePk.address,
+        dstAddress,
+        satoshis: Number(satoshis),
+        privateKeyHash: pk.privateKeyHash,
+        network: network.envName,
+      });
+
       const { success, data, error } = await sendBSV({
         srcAddress: activePk.address,
         dstAddress,
@@ -82,13 +90,13 @@ export const SendBSV: FC<Props> = ({ className }) => {
 
       <Heading icon={<Arrow direction="upright" />}>Send BSV</Heading>
 
-      {!activePk?.balance.amount && <Note variant="accent">You don't have any funds to send.</Note>}
+      {!activePk?.balance.satoshis && <Note variant="accent">You don't have any funds to send.</Note>}
 
       <Form
         options={{ defaultValues }}
         onSubmit={onSubmit}
         data-test-id="send-bsv-form"
-        isDisabled={!activePk?.balance.amount}
+        isDisabled={!activePk?.balance.satoshis}
       >
         <Row>
           <FormInput
@@ -105,28 +113,28 @@ export const SendBSV: FC<Props> = ({ className }) => {
         </Row>
         <Row>
           <FormInput
-            name="amount"
-            label={`Amount in satoshis (max ${activePk?.balance.amount}-fees)`}
+            name="satoshis"
+            label={`Amount in satoshis (max ${activePk?.balance.satoshis}-fees)`}
             type="tel"
             size="sm"
             options={{
-              validate: amountStr => {
-                const amount = parseInt(amountStr, 10);
-                if (amount <= 0 || /^\d+$/.test(amountStr) === false) {
+              validate: satoshisStr => {
+                const satoshis = parseInt(satoshisStr, 10);
+                if (satoshis <= 0 || /^\d+$/.test(satoshisStr) === false) {
                   return 'Amount must be a positive integer';
-                } else if (amount >= activePk?.balance.amount - 500) {
+                } else if (satoshis >= activePk?.balance.satoshis - 500) {
                   return 'Not enough funds';
                 }
               },
               required: true,
             }}
-            max={activePk?.balance.amount}
+            max={activePk?.balance.satoshis}
             placeholder="Amount in satoshis"
           />
         </Row>
         <ButtonRow>
           <ButtonStyled onClick={() => history.back()}>Cancel</ButtonStyled>
-          <ButtonStyled variant="primary" type="submit" isDisabled={!activePk?.balance.amount}>
+          <ButtonStyled variant="primary" type="submit" isDisabled={!activePk?.balance.satoshis}>
             Send
           </ButtonStyled>
         </ButtonRow>

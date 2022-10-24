@@ -23,7 +23,7 @@ describe('background.js', () => {
         [address]: {
           address,
           balance: {
-            amount: 100000,
+            satoshis: 100000,
             updatedAt: Date.now(),
           },
           name: 'My Wallet',

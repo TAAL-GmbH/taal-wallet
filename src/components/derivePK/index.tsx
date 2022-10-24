@@ -48,7 +48,7 @@ export const DerivePk: FC<Props> = ({ className }) => {
           name,
           path: fullPath,
           balance: {
-            amount: null,
+            satoshis: null,
             updatedAt: null,
           },
         })

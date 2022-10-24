@@ -92,8 +92,8 @@ describe('blockchain.js', () => {
       );
     });
 
-    // validate that send amount cannot be zero, validation in front end?
-    it('should throw an error when amount is zero', async () => {
+    // validate that send satoshis cannot be zero, validation in front end?
+    it('should throw an error when satoshis is zero', async () => {
       const fn = () =>
         createBSVTransferTransaction({
           srcAddress,
@@ -102,7 +102,7 @@ describe('blockchain.js', () => {
           network,
           satoshis: 0,
         });
-      await expect(fn).rejects.toThrowError('Amount must not be zero');
+      await expect(fn).rejects.toThrowError('Satoshis must not be zero');
     });
 
     it('should return valid result', async () => {

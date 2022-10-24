@@ -22,7 +22,7 @@ export const WalletDetails: FC<Props> = ({ className, data }) => {
   }
 
   const balanceFormated =
-    typeof balance?.amount === 'number' ? `${formatNumber(balance?.amount)} satoshis` : 'unknown';
+    typeof balance?.satoshis === 'number' ? `${formatNumber(balance?.satoshis)} satoshis` : 'unknown';
 
   const _getBalance = async () => {
     const toast = createToast('Fetching balance...');

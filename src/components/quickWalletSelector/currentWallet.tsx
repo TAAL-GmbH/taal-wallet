@@ -18,10 +18,10 @@ export const CurrentWallet: FC<Props> = ({ onClose }) => {
   const { activePk } = useAppSelector(state => state.pk);
 
   useEffect(() => {
-    if (activePk?.address && typeof activePk?.balance?.amount !== 'number') {
+    if (activePk?.address && typeof activePk?.balance?.satoshis !== 'number') {
       getBalance([activePk.address]);
     }
-  }, [activePk?.balance?.amount]);
+  }, [activePk?.balance?.satoshis]);
 
   return (
     <>

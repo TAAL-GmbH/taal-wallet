@@ -25,7 +25,7 @@ export const WebPushSubscription: FC<Props> = ({ className }) => {
     body: 'Message Body',
     action: 'balance',
     address: activePk?.address || '',
-    payload: '{ "amount": 123456789 }',
+    payload: '{ "satoshis": 123456789 }',
   });
   const [result, setResult] = useState<unknown>({});
   const [token, setToken] = useState<string>('Loading...');

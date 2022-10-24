@@ -111,7 +111,7 @@ export const getBalance = jest.fn(async (address: string) => {
   const total = resp.data.reduce((acc, { balance }) => acc + balance.confirmed + balance.unconfirmed, 0);
   const preparedData = resp.data.map(({ address, balance: { confirmed, unconfirmed } }) => ({
     address,
-    amount: confirmed + unconfirmed,
+    satoshis: confirmed + unconfirmed,
   }));
   store.dispatch(setBatchBalance(preparedData));
   return {

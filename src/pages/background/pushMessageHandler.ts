@@ -30,8 +30,7 @@ export const onPushMessage = async (e: Event) => {
 
     chrome.notifications.create({
       type: 'basic',
-      iconUrl:
-        'https://www.taal.com/wp-content/uploads/2021/04/cropped-taal_favicon-32x32.jpg',
+      iconUrl: 'https://www.taal.com/wp-content/uploads/2021/04/cropped-taal_favicon-32x32.jpg',
       title: json.notification.title,
       message: json.notification.body || '',
     });
@@ -51,15 +50,15 @@ const handlePushAction = async ({ action, payload }: PushAction) => {
   console.log('handlePushAction', { action, payload });
   switch (action) {
     case 'balance': {
-      const { address, amount } = payload as {
+      const { address, satoshis } = payload as {
         address: string;
-        amount: number;
+        satoshis: number;
       };
-      if (!address || !amount) {
+      if (!address || !satoshis) {
         console.error('handlePushAction', { action, payload });
         return false;
       }
-      store.dispatch(setBalance({ address, amount }));
+      store.dispatch(setBalance({ address, satoshis }));
       return true;
     }
     default: {

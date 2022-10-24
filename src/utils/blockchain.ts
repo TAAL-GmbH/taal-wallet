@@ -29,7 +29,7 @@ export const isValidAddress = (addr: string, network: string) => {
 };
 
 export const bitcoinToSatoshis = (amount: number) => Math.round(amount * SATS_PER_BITCOIN);
-export const satoshisToBitcoin = (amount: number) => amount / SATS_PER_BITCOIN;
+export const satoshisToBitcoin = (satoshis: number) => satoshis / SATS_PER_BITCOIN;
 
 export const utxoAmount2satoshis = ({ amount, ...utxo }: UTXOWithAmount): UTXO => {
   return {
@@ -85,7 +85,7 @@ export const createBSVTransferTransaction = async ({
     }
   }
 
-  console.log({ utxos });
+  console.log({ utxos, unspentTx, totalRequiredAmount });
 
   if (totalUtxoAmount < totalRequiredAmount) {
     throw new Error('Insufficient funds');
@@ -182,6 +182,19 @@ export const sendBSV = async ({
     minChange,
   });
 
+  console.log(
+    'createBSVTransferTransaction',
+    {
+      srcAddress,
+      dstAddress,
+      privateKeyHash,
+      network,
+      satoshis,
+      minChange,
+    },
+    tx
+  );
+
   try {
     const result = await broadcast(tx.toString());
     if ('data' in result && /^[0-9a-fA-F]{64}$/.test(result.data)) {
@@ -271,7 +284,7 @@ export const derivePk = ({
     name: name || `Wallet-${pathSegments[5]}`,
     balance: {
       updatedAt: null,
-      amount: null,
+      satoshis: null,
     },
   };
 };

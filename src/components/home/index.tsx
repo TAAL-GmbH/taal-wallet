@@ -38,8 +38,8 @@ export const Home: FC<Props> = ({ className }) => {
         }
       >
         Balance:{' '}
-        {typeof activePk?.balance?.amount === 'number'
-          ? `${formatNumber(activePk?.balance?.amount)}${'\u00A0'}satoshis`
+        {typeof activePk?.balance?.satoshis === 'number'
+          ? `${formatNumber(activePk?.balance?.satoshis)}${'\u00A0'}satoshis`
           : 'unknown'}
       </HeadingStyled>
 

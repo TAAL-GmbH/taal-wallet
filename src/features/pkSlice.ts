@@ -21,13 +21,13 @@ const initialState: State = {
   isLocked: isBackgroundScript() ? true : null, // true in background.js, null elsewhere
 };
 
-const setStateBalance = (state: State, address: string, amount: number) => {
+const setStateBalance = (state: State, address: string, satoshis: number) => {
   const pk = state.map[address];
 
   if (pk) {
     pk.balance = {
       updatedAt: Date.now(),
-      amount,
+      satoshis,
     };
     if (state.activePk?.address === address) {
       state.activePk.balance = state.map[address].balance;
@@ -96,12 +96,12 @@ const pkSlice = createSlice({
         throw new Error(`PK ${action.payload} does not exists`);
       }
     },
-    setBalance(state, action: PayloadAction<{ address: string; amount: number }>) {
-      setStateBalance(state, action.payload.address, action.payload.amount);
+    setBalance(state, action: PayloadAction<{ address: string; satoshis: number }>) {
+      setStateBalance(state, action.payload.address, action.payload.satoshis);
     },
-    setBatchBalance(state, action: PayloadAction<{ address: string; amount: number }[]>) {
-      action.payload.forEach(({ address, amount }) => {
-        setStateBalance(state, address, amount);
+    setBatchBalance(state, action: PayloadAction<{ address: string; satoshis: number }[]>) {
+      action.payload.forEach(({ address, satoshis }) => {
+        setStateBalance(state, address, satoshis);
       });
     },
   },

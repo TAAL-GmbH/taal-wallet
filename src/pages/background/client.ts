@@ -57,7 +57,7 @@ export class Client {
       if (state.pk.activePk?.balance !== storeCache?.pk.activePk?.balance) {
         this._postMessage({
           action: 'balance',
-          payload: state.pk.activePk?.balance.amount,
+          payload: state.pk.activePk?.balance.satoshis,
         });
       }
 

@@ -61,7 +61,7 @@ export type PKType = {
   path: string;
   balance: {
     updatedAt: number | null;
-    amount: number | null;
+    satoshis: number | null;
   };
 };
 

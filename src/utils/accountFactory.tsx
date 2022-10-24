@@ -456,7 +456,7 @@ export class AccountFactory {
       name,
       path,
       balance: {
-        amount: null,
+        satoshis: null,
         updatedAt: null,
       },
     };

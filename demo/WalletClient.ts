@@ -266,10 +266,10 @@ export class WalletClient extends WalletCommunicator {
     });
   }
 
-  public mergeSplit({ amount, minChange = 0 }: { amount: number; minChange?: number }) {
+  public mergeSplit({ satoshis, minChange = 0 }: { satoshis: number; minChange?: number }) {
     return this.request<string>({
       action: 'mergeSplit',
-      payload: { amount, minChange },
+      payload: { satoshis, minChange },
     });
   }
 }
