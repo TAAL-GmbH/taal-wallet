@@ -50,6 +50,9 @@ export const createBSVTransferTransaction = async ({
   if (!isValidAddress(srcAddress, network)) {
     throw new Error(`Invalid source address: ${srcAddress}`);
   }
+  if (satoshis < 1) {
+    throw new Error('Satoshis must be greater than zero')
+  }
   if (!isValidAddress(dstAddress, network)) {
     throw new Error(`Invalid destination address: ${dstAddress}`);
   }
