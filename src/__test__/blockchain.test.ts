@@ -1,112 +1,54 @@
-jest.mock('../features/wocApi');
-
+jest.mock('../db/index.ts');
+jest.mock('../db/shared.ts');
 import { createBSVTransferTransaction, sendBSV } from '../utils/blockchain';
 import * as wocApi from '../features/wocApi';
-
-let srcAddress = 'mh62GKa9jwsYztZRGAUbFA9iVF5oM3HoVf';
+import { createToast } from '../utils/toast';
+import { store } from '../store';
+import { initStoreSync } from '../utils/storeSync';
+import { setState } from '../features/pkSlice';
+let srcAddress = 'mqz2RSpt6cH4u1VQpRVQf8iYKMuSrZvX9W';
 let dstAddress = 'mfuva4vmYVEnjXVMapE38xaK4UTjcfnNLh';
 const privateKeyHash = 'cNW8heePSKeqCbPfQJhf2tLgNN6sVrfuAPAoaqk1FJbEuZ3FUgfB';
 const network = 'testnet';
 
 describe('blockchain.js', () => {
+
+  
+  beforeAll(() => {
+    // initStoreSync();
+    store.dispatch(
+      setState({
+        network: {
+          id: "testnet",
+          label: "Testnet",
+          envName: "testnet",
+          wocNetwork: "test"
+        },
+        activePk: {
+          address: "my9XmnKGJu89qN6xpcqDRy9FKWhsph95fi",
+          name: "Wallet-0",
+          path: "m/44'/236'/0'/0/0",
+          balance: {
+            "updatedAt": 1666778958475,
+            "satoshis": 1976396
+          },
+          rootPk: {
+            privateKeyHash: privateKeyHash,
+            privateKeyEncrypted: privateKeyHash,
+          }
+        }
+      })
+    );
+  });
   describe('createBSVTransferTransaction', () => {
-    it('should throw an error when srcAddress is invalid', async () => {
-      const fn = () =>
-        createBSVTransferTransaction({
-          srcAddress: 'invalid',
-          dstAddress,
-          privateKeyHash,
-          network,
-          satoshis: 1,
-        });
 
-      await expect(fn).rejects.toThrowError('Invalid source address: invalid');
-    });
-
-    it('should throw an error when destAddress is invalid', async () => {
-      const fn = () =>
-        createBSVTransferTransaction({
-          srcAddress,
-          dstAddress: 'invalid',
-          privateKeyHash,
-          network,
-          satoshis: 1,
-        });
-
-      await expect(fn).rejects.toThrowError('Invalid destination address: invalid');
-    });
-
-    it('should throw an error when destAddress is too short', async () => {
-      const fn = () =>
-        createBSVTransferTransaction({
-          srcAddress,
-          dstAddress: 'mfuva4vmYVEnjXVMapE38xaK4UTj',
-          privateKeyHash,
-          network,
-          satoshis: 1,
-        });
-
-      await expect(fn).rejects.toThrowError('Invalid destination address: mfuva4vmYVEnjXVMapE38xaK4UTj');
-    });
-
-    it('should throw an error when destAddress is too long', async () => {
-      const fn = () =>
-        createBSVTransferTransaction({
-          srcAddress,
-          dstAddress: 'mfuva4vmYVEnjXVMapE38xaK4UTjVMapE38xaK4UTjmYVEn',
-          privateKeyHash,
-          network,
-          satoshis: 1,
-        });
-
-      await expect(fn).rejects.toThrowError(
-        'Invalid destination address: mfuva4vmYVEnjXVMapE38xaK4UTjVMapE38xaK4UTjmYVEn'
-      );
-    });
-
-    it('should throw an error when srcAddress is too short', async () => {
-      const fn = () =>
-        createBSVTransferTransaction({
-          srcAddress: 'mfuva4vmYVEnjXVMapE38xaK4UTj',
-          dstAddress,
-          privateKeyHash,
-          network,
-          satoshis: 1,
-        });
-
-      await expect(fn).rejects.toThrowError('Invalid source address: mfuva4vmYVEnjXVMapE38xaK4UTj');
-    });
-
-    it('should throw an error when srcAddress is too long', async () => {
-      const fn = () =>
-        createBSVTransferTransaction({
-          srcAddress: 'mfuva4vmYVEnjXVMapE38xaK4UTjVMapE38xaK4UTjmYVEn',
-          dstAddress,
-          privateKeyHash,
-          network,
-          satoshis: 1,
-        });
-
-      await expect(fn).rejects.toThrowError(
-        'Invalid source address: mfuva4vmYVEnjXVMapE38xaK4UTjVMapE38xaK4UTjmYVEn'
-      );
-    });
-
-    // validate that send satoshis cannot be zero, validation in front end?
-    it('should throw an error when satoshis is zero', async () => {
-      const fn = () =>
-        createBSVTransferTransaction({
-          srcAddress,
-          dstAddress,
-          privateKeyHash,
-          network,
-          satoshis: 0,
-        });
-      await expect(fn).rejects.toThrowError('Satoshis must not be zero');
-    });
-
-    it('should return valid result', async () => {
-      const result = (
+    test.only('should return valid result and broadcast', async () => {
+  
+      console.log(store.getState().pk)
+      const res = await wocApi.airdrop(srcAddress)
+      console.log(res)
+      return
+      const result = 
         await createBSVTransferTransaction({
           srcAddress,
           dstAddress,
@@ -114,18 +56,25 @@ describe('blockchain.js', () => {
           network,
           satoshis: 1500000,
         })
-      ).toObject();
-      expect(result).toEqual(
-        expect.objectContaining({
-          changeScript:
-            'OP_DUP OP_HASH160 20 0x11392aa71fb203ee7145e1cf46771a08c8d923f6 OP_EQUALVERIFY OP_CHECKSIG',
-          hash: '6498c7b949607fce865863a62b3b3335bd1fb0b908c3d9bb00c6961648c9bc65',
-        })
-      );
-    });
+  });
+    
+  test('Attempt to create bsv tx with no utxo', async () => {
 
-    // why is this broadcasting successfully, should inputs not be spent?
-    it('should return valid result which can then be broadcast', async () => {
+    try {
+      await createBSVTransferTransaction({
+        srcAddress,
+        dstAddress,
+        privateKeyHash,
+        network,
+        satoshis: 10000
+      })
+      expect(true).toBeFalsy()
+    } catch (err) {
+      expect(err.toString()).toEqual('Error: No funds available')
+    }   
+  })
+
+  test('should return valid result which can then be broadcast', async () => {
       const tx = await createBSVTransferTransaction({
         srcAddress,
         dstAddress,
@@ -134,12 +83,13 @@ describe('blockchain.js', () => {
         satoshis: 1500,
       });
       const result = await wocApi.broadcast(tx.toString());
+      console.log(result)
       expect(JSON.stringify(result)).toContain(
         'cd73522be888ca665ccc5218fd79f5c8217acd4ede208f6b3c77700baa0964c2'
       );
     });
 
-    it('should return result with one input', async () => {
+    test('should return result with one input', async () => {
       const result = (
         await createBSVTransferTransaction({
           srcAddress,
@@ -153,7 +103,7 @@ describe('blockchain.js', () => {
       expect(result.inputs.length).toEqual(1);
     });
 
-    it('should return result with two inputs', async () => {
+    test('should return result with two inputs', async () => {
       const result = (
         await createBSVTransferTransaction({
           srcAddress,
@@ -166,7 +116,7 @@ describe('blockchain.js', () => {
       expect(result.inputs.length).toEqual(2);
     });
 
-    it('should return result with three inputs', async () => {
+    test('should return result with three inputs', async () => {
       const result = (
         await createBSVTransferTransaction({
           srcAddress,
@@ -181,7 +131,7 @@ describe('blockchain.js', () => {
   });
 
   describe('sendBSV', () => {
-    it('should do a request to broadcast', async () => {
+    test('should do a request to broadcast', async () => {
       const result = await sendBSV({
         srcAddress,
         dstAddress,
