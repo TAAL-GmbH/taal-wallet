@@ -68,6 +68,11 @@ export const initStoreSync = async () => {
       let highestDerivationPathIndex = (await db.getKeyVal('derivationPath.lastIndex')) || 0;
 
       Object.values(added.map).forEach((pk: PKType) => {
+        // don't write to db if it's only a balance update
+        if (!pk.address || !pk.path) {
+          return;
+        }
+
         db.insertPk(pk);
 
         const pathSegments = pk.path.split('/');
