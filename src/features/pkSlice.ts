@@ -10,6 +10,7 @@ type State = {
   network: typeof networkList[0] | null;
   isInSync: boolean;
   isLocked: boolean | null;
+  isSendBsvLocked: boolean;
 };
 
 const initialState: State = {
@@ -19,6 +20,7 @@ const initialState: State = {
   network: null,
   isInSync: isBackgroundScript() ? true : null, // true in background.js, null elsewhere
   isLocked: isBackgroundScript() ? true : null, // true in background.js, null elsewhere
+  isSendBsvLocked: false,
 };
 
 const setStateBalance = (state: State, address: string, satoshis: number) => {
@@ -104,6 +106,9 @@ const pkSlice = createSlice({
         setStateBalance(state, address, satoshis);
       });
     },
+    setIsSendBsvLocked(state, action: PayloadAction<boolean>) {
+      state.isSendBsvLocked = action.payload;
+    },
   },
 });
 
@@ -120,6 +125,7 @@ export const {
   setActivePk,
   setBalance,
   setBatchBalance,
+  setIsSendBsvLocked,
 } = pkSlice.actions;
 
 export const pkActions = pkSlice.actions;

@@ -1,6 +1,6 @@
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
 import styled from 'styled-components';
-import { useAppSelector } from '@/src/hooks';
+import { useAppDispatch, useAppSelector } from '@/src/hooks';
 import { Button } from '@/src/components/button';
 import { createToast } from '@/src/utils/toast';
 import { derivePk, isValidAddress, restorePK, sendBSV } from '@/src/utils/blockchain';
@@ -16,6 +16,7 @@ import { BackButton } from '../backButton';
 import { CurrentAccount } from '../currentAccount';
 import { Note } from '../generic/note';
 import { InfoIcon } from '../svg/infoIcon';
+import { setIsSendBsvLocked } from '@/src/features/pkSlice';
 
 type Props = {
   className?: string;
@@ -32,8 +33,16 @@ const defaultValues: FormInputs = {
 };
 
 export const SendBSV: FC<Props> = ({ className }) => {
-  const { activePk, rootPk, network } = useAppSelector(state => state.pk);
+  const dispatch = useAppDispatch();
+  const { activePk, rootPk, network, isSendBsvLocked } = useAppSelector(state => state.pk);
   const { getBalance } = useBlockchain();
+
+  useEffect(() => {
+    // clear state just in case window was closed right after sending BSV
+    if (isSendBsvLocked) {
+      dispatch(setIsSendBsvLocked(false));
+    }
+  }, []);
 
   const onSubmit = async (values: typeof defaultValues) => {
     const { dstAddress, satoshis } = values;
@@ -49,14 +58,6 @@ export const SendBSV: FC<Props> = ({ className }) => {
       const pk = derivePk({
         rootKey,
         path: activePk.path,
-      });
-
-      console.log('sendBSV ui', {
-        srcAddress: activePk.address,
-        dstAddress,
-        satoshis: Number(satoshis),
-        privateKeyHash: pk.privateKeyHash,
-        network: network.envName,
       });
 
       const { success, data, error } = await sendBSV({
@@ -80,6 +81,11 @@ export const SendBSV: FC<Props> = ({ className }) => {
     } catch (e) {
       console.error('Error sending BSV', e);
       toast.error(e.message);
+    } finally {
+      dispatch(setIsSendBsvLocked(true));
+      setTimeout(() => {
+        dispatch(setIsSendBsvLocked(false));
+      }, 5000);
     }
   };
 
@@ -91,6 +97,12 @@ export const SendBSV: FC<Props> = ({ className }) => {
       <Heading icon={<Arrow direction="upright" />}>Send BSV</Heading>
 
       {!activePk?.balance.satoshis && <Note variant="accent">You don't have any funds to send.</Note>}
+
+      {isSendBsvLocked && (
+        <Note variant="accent" icon={<InfoIcon />} padding="sm md">
+          Please wait while your previous transaction is being processed.
+        </Note>
+      )}
 
       <Form
         options={{ defaultValues }}
@@ -134,7 +146,11 @@ export const SendBSV: FC<Props> = ({ className }) => {
         </Row>
         <ButtonRow>
           <ButtonStyled onClick={() => history.back()}>Cancel</ButtonStyled>
-          <ButtonStyled variant="primary" type="submit" isDisabled={!activePk?.balance.satoshis}>
+          <ButtonStyled
+            variant="primary"
+            type="submit"
+            isDisabled={!activePk?.balance.satoshis || isSendBsvLocked}
+          >
             Send
           </ButtonStyled>
         </ButtonRow>

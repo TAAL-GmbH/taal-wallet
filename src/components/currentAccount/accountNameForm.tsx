@@ -1,8 +1,9 @@
-import { FC, FormEventHandler, useState } from 'react';
+import { FC, useState } from 'react';
+import styled from 'styled-components';
+import toast from 'react-hot-toast';
 import { updateAccountName } from '@/src/features/accountSlice';
 import { useAppDispatch, useAppSelector } from '@/src/hooks';
-import toast from 'react-hot-toast';
-import styled from 'styled-components';
+import { sharedDb } from '../../db/shared';
 import { IconButton } from '../generic/icon-button';
 import { CheckIcon } from '../svg/checkIcon';
 import { EditIcon } from '../svg/editIcon';
@@ -19,17 +20,38 @@ export const AccountNameForm: FC<Props> = ({ className, account }) => {
   const { isLocked } = useAppSelector(state => state.pk);
   const dispatch = useAppDispatch();
 
-  const onSubmit = (event: React.FormEvent) => {
+  const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (!accountName) {
+    const newAccountName = accountName.trim();
+    setAccountName(newAccountName);
+
+    // do not update if the name is the same
+    if (newAccountName === account.name) {
+      setIsFormVisible(false);
+      return;
+    }
+
+    if (!newAccountName) {
       toast.error('Please input an account name');
       return;
     }
+
     if (isLocked) {
       toast.error('Please unlock your TAAL Wallet');
       return;
     }
+
+    const accountList = await sharedDb.getAccountList();
+    const existingAccount = accountList.find(item => item.name === newAccountName);
+
+    if (existingAccount) {
+      toast.error('Account name already exists');
+      return;
+    }
+
+    setAccountName(newAccountName);
+
     dispatch(updateAccountName({ accountId: account.id, accountName }));
     setIsFormVisible(false);
 
@@ -60,6 +82,7 @@ export const AccountNameForm: FC<Props> = ({ className, account }) => {
           value={accountName}
           onKeyDown={e => e.key === 'Escape' && setIsFormVisible(false)}
           maxLength={20}
+          autoFocus
         />
         <SubmitButton type="submit">
           <CheckIcon />

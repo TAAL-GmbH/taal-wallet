@@ -1,5 +1,6 @@
 import bsv, { Mnemonic } from 'bsv';
 import 'bsv/mnemonic';
+import { validate, Network } from 'bitcoin-address-validation';
 import { broadcast, getTx, getUnspent } from '../features/wocApi';
 import { ApiResponse, ErrorCodeEnum, PKFullType, UTXO, UTXOWithAmount } from '../types';
 import { WocApiError } from './errors/wocApiError';
@@ -19,14 +20,7 @@ type SendBsvOptions = {
 
 // const sighash = bsv.crypto.Signature.SIGHASH_ALL | bsv.crypto.Signature.SIGHASH_FORKID;
 
-export const isValidAddress = (addr: string, network: string) => {
-  try {
-    new bsv.Address(addr, network);
-    return true;
-  } catch {
-    return false;
-  }
-};
+export const isValidAddress = (addr: string, network: string) => validate(addr, network as Network);
 
 export const bitcoinToSatoshis = (amount: number) => Math.round(amount * SATS_PER_BITCOIN);
 export const satoshisToBitcoin = (satoshis: number) => satoshis / SATS_PER_BITCOIN;
@@ -51,7 +45,7 @@ export const createBSVTransferTransaction = async ({
     throw new Error(`Invalid source address: ${srcAddress}`);
   }
   if (satoshis < 1) {
-    throw new Error('Satoshis must be greater than zero')
+    throw new Error('Satoshis must be greater than zero');
   }
   if (!isValidAddress(dstAddress, network)) {
     throw new Error(`Invalid destination address: ${dstAddress}`);
