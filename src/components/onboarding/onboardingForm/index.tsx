@@ -8,7 +8,7 @@ import { useForm } from '@/src/components/generic/form/useForm';
 import { FormInput } from '@/src/components/generic/form/formInput';
 import { FormSelect } from '@/src/components/generic/form/formSelect';
 import { networkList } from '@/src/constants/networkList';
-import { generateMnemonic } from '@/src/utils/blockchain';
+import { generateMnemonic, isValidMnemonic } from '@/src/utils/blockchain';
 import { Row } from '@/components/generic/row';
 import { useAppSelector } from '@/src/hooks';
 import { Note } from '../../generic/note';
@@ -156,8 +156,7 @@ export const OnboardingForm: FC<Props> = ({ className, action }) => {
             readOnly={action === 'createNew'}
             options={{
               required: 'Secret phrase is required',
-              validate: value =>
-                value.trim().split(' ').length !== 12 ? 'Secret phrase must be 12 words' : true,
+              validate: val => isValidMnemonic(val.trim()) || 'Invalid secret phrase',
             }}
           />
 

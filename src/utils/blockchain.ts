@@ -291,3 +291,5 @@ export const restorePK = (privateKeyHash: string) => bsv.HDPrivateKey.fromString
 export const generateMnemonic = () => bsv.Mnemonic.fromRandom();
 
 export const rebuildMnemonic = (phrase: string) => bsv.Mnemonic.fromString(phrase);
+
+export const isValidMnemonic = (phrase: string) => bsv.Mnemonic.isValid(phrase);
