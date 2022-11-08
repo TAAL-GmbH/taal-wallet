@@ -1,10 +1,11 @@
-import { FC, ReactNode } from 'react';
-import styled from 'styled-components';
-import { Dl, Li, Ul } from '../generic/styled';
+import { FC } from 'react';
+import { Ul } from '../generic/styled';
+import { Token } from '@/src/features/wocApiSlice';
 import { PageLoading } from '../loadingPage';
+import { TokenItem } from './tokenItem';
 
 type Props = {
-  list: any[];
+  list: Token[];
   isFetching?: boolean;
 };
 
@@ -21,30 +22,11 @@ export const TokenItemList: FC<Props> = ({ list = [], isFetching }) => {
 
       {!!list.length && (
         <Ul>
-          {list.map(({ protocol, balance, image, redeemAddr, symbol, tokenBalance }) => (
-            <Li key={symbol}>
-              <Dl>
-                <dt>Protocol:</dt>
-                <dd>{protocol}</dd>
-                <dt>Image:</dt>
-                <dd>{image}</dd>
-                <dt>Balance:</dt>
-                <dd>{balance}</dd>
-                <dt>Redeem Addr:</dt>
-                <dd>{redeemAddr}</dd>
-                <dt>Symbol:</dt>
-                <dd>{symbol}</dd>
-                <dt>Token Balance:</dt>
-                <dd>{tokenBalance}</dd>
-              </Dl>
-            </Li>
+          {list.map(token => (
+            <TokenItem key={token.symbol} token={token} />
           ))}
         </Ul>
       )}
     </>
   );
 };
-
-const Wrapper = styled.div`
-  //
-`;

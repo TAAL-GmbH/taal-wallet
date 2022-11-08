@@ -55,7 +55,7 @@ type Balance = {
   error: string;
 };
 
-type Token = {
+export type Token = {
   protocol: string;
   redeemAddr: string;
   symbol: string;
