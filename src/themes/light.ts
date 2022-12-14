@@ -131,6 +131,10 @@ const fontFamily = {
   heading: 'Roboto, serif',
 };
 
+const grid = {
+  gap: '16px',
+};
+
 const sharedComponents = {
   primaryColor: {
     light: primary[400],
@@ -150,6 +154,7 @@ const light = {
   fontFamily,
   fontSize,
   borderRadius,
+  grid,
   color: {
     ...palette,
     error: palette.danger,

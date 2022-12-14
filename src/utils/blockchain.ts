@@ -163,6 +163,8 @@ export const sendBSV = async ({
   // minChange is used to make sure that change is gonna be at least this size
   minChange = 0,
 }: SendBsvOptions): Promise<ApiResponse<{ txid: string; tx: bsv.Transaction }>> => {
+  console.log('sendBSV', { srcAddress, dstAddress, privateKeyHash, network, satoshis, minChange });
+
   if (!isValidAddress(srcAddress, network)) {
     throw new Error(`Invalid source address: ${srcAddress}`);
   }

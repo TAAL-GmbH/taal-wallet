@@ -61,7 +61,30 @@ export type Token = {
   symbol: string;
   image: string;
   balance: number;
-  tokenBalance: number;
+  tokenBalance?: number;
+  name?: string;
+  description?: string;
+};
+
+export type TokenDetails = {
+  token: {
+    token_id: string;
+    symbol: string;
+    name: string;
+    description: string;
+    schema_id: string;
+    protocol: string;
+    image: string;
+    total_supply: number;
+    sats_per_token: number;
+    properties: {
+      legal: unknown;
+      issuer: unknown;
+      meta: unknown;
+    };
+    contract_txs: string[];
+    issuance_txs: string[];
+  };
 };
 
 export type Unspent = {
@@ -156,6 +179,9 @@ export const wocApiSlice = createApi({
     getTokens: builder.query<{ address: string; tokens: Token[] }, string>({
       query: address => `/address/${address}/tokens`,
     }),
+    getTokenDetails: builder.query<TokenDetails, { tokenId: string; symbol: string }>({
+      query: ({ tokenId, symbol }) => `/token/${tokenId}/${symbol}`,
+    }),
     getTokensUnspent: builder.query<TokensUnspent, string>({
       query: address => `/address/${address}/tokens/unspent`,
     }),
@@ -188,4 +214,4 @@ export const wocApiSlice = createApi({
 export const { useGetTxQuery } = wocApiSlice;
 
 // react hooks
-export const { useGetHistoryQuery, useGetTokensQuery } = wocApiSlice;
+export const { useGetHistoryQuery, useGetTokensQuery, useGetTokenDetailsQuery } = wocApiSlice;

@@ -35,6 +35,9 @@ export const getUnspent = async (...args: Parameters<typeof wocApiSlice.endpoint
 export const getHistory = async (...args: Parameters<typeof wocApiSlice.endpoints.getHistory.initiate>) =>
   store.dispatch(wocApiSlice.endpoints.getHistory.initiate(...args));
 
+export const getTokens = async (...args: Parameters<typeof wocApiSlice.endpoints.getTokens.initiate>) =>
+  store.dispatch(wocApiSlice.endpoints.getTokens.initiate(...args));
+
 export const getTokensUnspent = async (
   ...args: Parameters<typeof wocApiSlice.endpoints.getTokensUnspent.initiate>
 ) => store.dispatch(wocApiSlice.endpoints.getTokensUnspent.initiate(...args));
