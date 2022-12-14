@@ -8,7 +8,7 @@
     "url": "https://github.com/TAAL-GmbH/taal-wallet"
   },
   "scripts": {
-    "dev": "NODE_ENV=development webpack -c ./config/webpack.config.ts",
+    "dev": "cross-env NODE_ENV=development webpack -c ./config/webpack.config.ts",
     "build": "webpack --node-env production -c ./config/webpack.config.ts",
     "demo": "webpack serve -c ./config/webpack.demo.config.ts",
     "server": "cd ./server && ts-node ./index.ts",
@@ -62,6 +62,7 @@
     "@typescript-eslint/parser": "^5.18.0",
     "comment-json": "^4.2.2",
     "copy-webpack-plugin": "^11.0.0",
+    "cross-env": "^7.0.3",
     "dotenv": "^16.0.1",
     "eslint": "^8.13.0",
     "eslint-config-prettier": "^8.5.0",
