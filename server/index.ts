@@ -40,7 +40,7 @@ app.post('/', async (req, res) => {
       response,
     });
   } catch (e) {
-    console.error(e);
+    console.warn(e);
     res.json({
       success: false,
       error: e.message,
@@ -48,6 +48,4 @@ app.post('/', async (req, res) => {
   }
 });
 
-app.listen(3001, () =>
-  console.log('Example app listening on port http://localhost:3001!')
-);
+app.listen(3001, () => console.log('Example app listening on port http://localhost:3001!'));

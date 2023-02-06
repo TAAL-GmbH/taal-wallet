@@ -1,16 +1,15 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
 import { useGetTokenDetailsQuery } from '@/src/features/wocApiSlice';
-import { useRouter } from 'wouter';
 import styled from 'styled-components';
-import { injectSpacing } from '@/src/utils/injectSpacing';
 import { Note } from '../generic/note';
 import { Grid } from '../generic/grid';
 import { AnchorLink } from '../anchorLink';
 import { routes } from '@/src/constants/routes';
+import { ImageWithFallback } from '../imageWithFallback';
 
-const formatAddress = (address: string) => {
-  return address ? `${address.slice(0, 8)}...${address.slice(-7)}` : 'No address';
-};
+// const formatAddress = (address: string) => {
+//   return address ? `${address.slice(0, 8)}...${address.slice(-7)}` : 'No address';
+// };
 
 type Props = {
   tokenId: string;
@@ -18,10 +17,7 @@ type Props = {
 };
 
 export const TokenDetails: FC<Props> = ({ tokenId, symbol }) => {
-  const router = useRouter();
-
   const { data, isFetching } = useGetTokenDetailsQuery({ tokenId, symbol });
-  console.log({ data, router, tokenId, symbol });
 
   if (isFetching) {
     return <div>Loading...</div>;
@@ -43,7 +39,7 @@ export const TokenDetails: FC<Props> = ({ tokenId, symbol }) => {
         <Dl>
           <dt>Token logo</dt>
           <dd>
-            <Img src={tokenData.image} />
+            <ImageWithFallbackStyled src={tokenData.image} />
           </dd>
         </Dl>
 
@@ -102,13 +98,10 @@ export const TokenDetails: FC<Props> = ({ tokenId, symbol }) => {
   );
 };
 
-// const Grid = styled.div<{ col: number; margin?: string }>`
-//   display: grid;
-//   grid-template-columns: ${({ col = 2 }) => new Array(col).fill('1fr').join(' ')};
-//   gap: 1.8rem;
-
-//   ${injectSpacing(['margin'])};
-// `;
+const ImageWithFallbackStyled = styled(ImageWithFallback)`
+  max-width: 170px;
+  max-height: 170px;
+`;
 
 const Dl = styled.dl<{ fullWidth?: boolean }>`
   ${({ fullWidth }) => fullWidth && 'grid-column: span 2;'};
@@ -133,14 +126,4 @@ const Dl = styled.dl<{ fullWidth?: boolean }>`
       content: 'N/A';
     }
   }
-`;
-
-const Img = styled.img`
-  width: 130px;
-  height: 130px;
-  object-fit: cover;
-  object-position: center;
-  // border-radius: 50%;
-  margin: 8px 0;
-  border: 1px solid ${({ theme }) => theme.color.grey[100]};
 `;

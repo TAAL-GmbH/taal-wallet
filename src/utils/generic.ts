@@ -25,6 +25,14 @@ export const parseNumber = (n: string | number) => (isNumeric(n) ? parseFloat(n 
 
 export const isNumeric = (n: string | number) => !isNaN(parseFloat(n as string)) && isFinite(n as number);
 
+export const isValidUrl = (url: string) => {
+  try {
+    return ['http:', 'https:'].includes(new URL(url).protocol);
+  } catch (e) {
+    return false;
+  }
+};
+
 export const slugify = (text: string) =>
   text
     .toString()
@@ -50,7 +58,7 @@ export const getErrorMessage = (error: unknown, defaultMessage?: string | undefi
   if (error instanceof Error) {
     return error.message;
   }
-  // @ts-ignore
+  // @ts-expect-error error is not an Error
   return error.reason || defaultMessage;
 };
 

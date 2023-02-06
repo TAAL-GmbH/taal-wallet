@@ -4,6 +4,7 @@ import { Token } from '@/src/features/wocApiSlice';
 import { Cell } from '../generic/grid';
 import { routes } from '@/src/constants/routes';
 import { AnchorLink } from '../anchorLink';
+import { ImageWithFallback } from '../imageWithFallback';
 import { isPopup } from '@/src/utils/generic';
 
 type Props = {
@@ -15,32 +16,28 @@ export const TokenItem: FC<Props> = ({ token }) => {
     image,
     // symbol,
     balance,
-    protocol,
+    // protocol,
     name,
     description,
   } = token;
 
-  const tokenId = '6306a1410ef9e2746b6bf58079c66d8296df9e5d';
-  const symbol = 'symbol654654654';
-
   const linkProps = {
-    href: `${routes.PORTFOLIO}/${tokenId}/${symbol}`,
+    href: `${routes.PORTFOLIO}/${token.redeemAddr}/${token.symbol}`,
     target: '_blank',
     rel: 'noreferrer',
   };
 
   return (
     <>
-      <Cell>
+      <Cell align="center center">
         <AnchorLink {...linkProps}>
-          <Img src={image} />
+          <ImageWithFallbackStyled src={image} />
         </AnchorLink>
       </Cell>
       <DetailsCell align="center left">
         <AnchorLink {...linkProps}>
           <Name>{name}</Name>
-          {/* <Description>{description.slice(0, isPopup() ? 40 : 80)}</Description> */}
-          <Description>{description}</Description>
+          <Description>{description.slice(0, isPopup() ? 40 : 80)}</Description>
         </AnchorLink>
       </DetailsCell>
       <BalanceCell align="right center">{balance}</BalanceCell>
@@ -48,13 +45,12 @@ export const TokenItem: FC<Props> = ({ token }) => {
   );
 };
 
-const Img = styled.img`
+const ImageWithFallbackStyled = styled(ImageWithFallback)`
   width: 32px;
   height: 32px;
   object-fit: cover;
   object-position: center;
   border-radius: 50%;
-  margin: 8px 0;
   border: 1px solid ${({ theme }) => theme.color.grey[100]};
 `;
 

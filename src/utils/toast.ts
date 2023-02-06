@@ -10,7 +10,7 @@ export const createToast = (loadingMessage: string, { duration = 1000 } = {}) =>
       toast.success(...args);
     },
     error: (e: unknown | string, options?: Parameters<typeof toast.error>[1]) => {
-      console.error(e);
+      console.warn(e);
       toast.dismiss(tLoading);
       const errorMessage = typeof e === 'string' ? e : getErrorMessage(e, 'Unknown error');
       toast.error(errorMessage, options);

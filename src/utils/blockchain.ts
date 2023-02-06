@@ -209,7 +209,7 @@ export const sendBSV = async ({
       throw new WocApiError(result.error);
     }
   } catch (e) {
-    console.error(e);
+    console.warn(e);
     return {
       success: false,
       error: {
@@ -257,7 +257,7 @@ export const derivePk = ({
   rootKey: string | bsv.HDPrivateKey;
   path: string;
 }): PKFullType => {
-  let rootKey = typeof rootKeyInput === 'string' ? restorePK(rootKeyInput) : rootKeyInput;
+  const rootKey = typeof rootKeyInput === 'string' ? restorePK(rootKeyInput) : rootKeyInput;
   const network = rootKey.network.name;
   // m / purpose' / coin_type' / account' / change / address_index
   // m / 44 / 236 / 0' / 0 / 0
@@ -273,7 +273,7 @@ export const derivePk = ({
   }
 
   const key = rootKey.deriveChild(fullPath);
-  const address = key.publicKey.toAddress(network).toString();
+  const address = key.publicKey.toAddress(network as bsv.Networks.Type).toString();
 
   return {
     address,

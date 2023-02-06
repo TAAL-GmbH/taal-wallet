@@ -9,11 +9,9 @@ import { Tooltip } from '../generic/tooltip';
 import { RefreshIcon } from '../svg/refreshIcon';
 import { TokenIcon } from '../svg/tokenIcon';
 import { CurrentAccount } from '../currentAccount';
-import { isPopup } from '@/src/utils/generic';
-// import { Grid } from '../generic/grid';
 import { PortfolioTableHeader } from '../portfolio/table-header';
 import { TokenItem } from '../portfolio/token-item';
-import { tokenDataMock } from '../portfolio/data-mock';
+import { Note } from '../generic/note';
 
 type Props = {
   className?: string;
@@ -21,15 +19,26 @@ type Props = {
 
 export const Tokens: FC<Props> = ({ className }) => {
   const { activePk } = useAppSelector(state => state.pk);
-  const { data, isFetching, refetch } = useGetTokensQuery('activePk.address');
+  const { data, isFetching, refetch } = useGetTokensQuery(activePk.address);
 
-  // const tokenList = data?.tokens || [];
-  const tokenList = (data?.tokens || tokenDataMock.tokens) as typeof data.tokens;
+  const tokenList = data?.tokens || [];
 
-  const showPortfolio = () => {
-    const url = chrome.runtime.getURL('/src/pages/popup/index.html#portfolio');
-    isPopup() ? chrome.tabs.create({ url }) : (window.location.href = url);
-  };
+  let contents: JSX.Element | null = null;
+
+  if (isFetching) {
+    contents = <div>Loading...</div>;
+  } else if (tokenList.length === 0) {
+    contents = <Note size="lg">No tokens found</Note>;
+  } else {
+    contents = (
+      <PortfolioGrid>
+        <PortfolioTableHeader />
+        {tokenList.map(token => (
+          <TokenItem key={`${token.redeemAddr}-${token.symbol}`} token={token} />
+        ))}
+      </PortfolioGrid>
+    );
+  }
 
   return (
     <Wrapper className={className}>
@@ -49,20 +58,7 @@ export const Tokens: FC<Props> = ({ className }) => {
         Portfolio
       </Heading>
 
-      {isFetching ? (
-        <div>Loading...</div>
-      ) : (
-        <PortfolioGrid>
-          <PortfolioTableHeader />
-          {tokenList.map(token => (
-            <TokenItem key={token.symbol} token={token} />
-          ))}
-        </PortfolioGrid>
-      )}
-
-      {/* <Button onClick={showPortfolio}>Show portfolio</Button>
-
-      <TokenItemList list={tokenList} isFetching={isFetching} /> */}
+      {contents}
     </Wrapper>
   );
 };
@@ -75,6 +71,6 @@ const PortfolioGrid = styled.div`
   width: 100%;
   display: grid;
   column-gap: 1rem;
-  row-gap: 0.1rem;
+  row-gap: 0.6rem;
   grid-template-columns: min-content minmax(0, auto) min-content;
 `;

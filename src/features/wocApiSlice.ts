@@ -6,10 +6,8 @@ import {
   FetchBaseQueryError,
 } from '@reduxjs/toolkit/query/react';
 import { networkList } from '../constants/networkList';
-import { RootState, store } from '../store';
-import { WocApiError } from '../utils/errors/wocApiError';
+import { RootState } from '../store';
 import { isObject } from '../utils/generic';
-import { setBatchBalance } from './pkSlice';
 
 const ORIGIN = 'https://api.whatsonchain.com';
 const ORIGIN_TALLNET = 'https://taalnet.whatsonchain.com';
