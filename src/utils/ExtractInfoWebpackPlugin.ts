@@ -1,7 +1,7 @@
 import { Compiler } from 'webpack';
 import { promises as fs } from 'fs';
 import path from 'path';
-import colorLog from './log';
+import { colorLog } from './log';
 import packageJson from '../../package.json';
 
 export class ExtractInfoWebpackPlugin {

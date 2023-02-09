@@ -19,7 +19,6 @@
     "@hookform/error-message": "^2.0.0",
     "@reduxjs/toolkit": "^1.8.1",
     "assert": "^2.0.0",
-    "babel-loader": "^8.2.5",
     "bitcoin-address-validation": "^2.2.1",
     "bn.js": "^5.2.1",
     "bsv": "^1.5.6",
@@ -27,7 +26,6 @@
     "crypto-browserify": "^3.12.0",
     "dayjs": "^1.11.3",
     "deep-object-diff": "^1.1.7",
-    "html-webpack-plugin": "^5.5.0",
     "idb": "^7.0.1",
     "polished": "^4.2.2",
     "process": "^0.11.10",
@@ -39,14 +37,11 @@
     "react-hot-toast": "^2.2.0",
     "react-redux": "^8.0.1",
     "react-tooltip": "^4.2.21",
-    "redux-logger": "^3.0.6",
-    "redux-state-sync": "^3.1.2",
-    "stas-js": "^1.0.2",
+    "stas-js": "^3.0.3",
     "stream-browserify": "^3.0.0",
     "styled-components": "^5.3.5",
-    "webpack": "^5.72.1",
-    "wouter": "^2.8.0-alpha.2",
-    "xss": "^1.0.11"
+    "wouter": "^2.10.0",
+    "xss": "^1.0.14"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.186",
@@ -60,6 +55,7 @@
     "@types/webpack-dev-server": "^4.7.2",
     "@typescript-eslint/eslint-plugin": "^5.18.0",
     "@typescript-eslint/parser": "^5.18.0",
+    "babel-loader": "^8.2.5",
     "comment-json": "^4.2.2",
     "copy-webpack-plugin": "^11.0.0",
     "cross-env": "^7.0.3",
@@ -71,6 +67,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-react": "^7.23.0",
     "eslint-plugin-react-hooks": "^4.3.0",
+    "html-webpack-plugin": "^5.5.0",
     "firebase": "^9.8.1",
     "fs-extra": "^10.0.0",
     "jest": "^28.1.3",
@@ -83,6 +80,7 @@
     "tsconfig-paths-jest": "^0.0.1",
     "typescript": "^4.7.2",
     "url-loader": "^4.1.1",
+    "webpack": "^5.72.1",
     "webpack-cli": "^4.9.2"
   }
 }

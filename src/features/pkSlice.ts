@@ -1,7 +1,9 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { ROOT_PK_HASH_KEY } from '../constants';
 import { networkList } from '../constants/networkList';
 import { PKMap, PKType, RootPKType } from '../types';
 import { isBackgroundScript } from '../utils/generic';
+import { sessionStorage } from '../utils/chromeStorage';
 
 type State = {
   activePk: PKType | null;
@@ -82,10 +84,12 @@ const pkSlice = createSlice({
     lockWallet(state) {
       state.isLocked = true;
       state.rootPk = null;
+      sessionStorage.remove(ROOT_PK_HASH_KEY);
     },
     setRootPK(state, action: PayloadAction<RootPKType>) {
       state.rootPk = action.payload;
       state.isLocked = false;
+      sessionStorage.set({ [ROOT_PK_HASH_KEY]: action.payload.privateKeyHash });
     },
     setNetwork(state, action: PayloadAction<typeof networkList[0]>) {
       state.network = action.payload;

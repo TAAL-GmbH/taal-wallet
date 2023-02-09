@@ -57,7 +57,7 @@ export const createBSVTransferTransaction = async ({
 
   const totalRequiredAmount = satoshis + minChange;
   let totalUtxoAmount = 0;
-  const utxos: bsv.Transaction.UnspentOutput[] = [];
+  const utxos: bsv.Transaction.IUnspentOutput[] = [];
 
   const { data: unspentTx } = await getTx(unspentList[0].tx_hash);
   // TODO: check that op return scripts still work
@@ -65,7 +65,7 @@ export const createBSVTransferTransaction = async ({
 
   // loop through all unspent outputs and add to utxo list until we have enough value
   for (let i = 0; i < unspentList.length; i++) {
-    let unspent = unspentList[i];
+    const unspent = unspentList[i];
     if (totalUtxoAmount < totalRequiredAmount) {
       totalUtxoAmount += unspent.value;
       utxos.push(
@@ -75,7 +75,7 @@ export const createBSVTransferTransaction = async ({
           address: srcAddress,
           script,
           satoshis: unspent.value,
-        })
+        }).toObject()
       );
     } else {
       break;

@@ -401,7 +401,7 @@ export class AccountFactory {
           }
           store.dispatch(setAccountCreationDerivationPathLastIndex(i));
           i++;
-          setTimeout(fn, this.timeoutMultiplier * 200);
+          setTimeout(fn, this.timeoutMultiplier * 400);
         }
       };
 
