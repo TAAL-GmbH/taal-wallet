@@ -1,12 +1,15 @@
 import { db } from '../db';
 import { RootState, store } from '../store';
 import { detailedDiff } from 'deep-object-diff';
-import { setState } from '../features/pkSlice';
-import { isNull, isUndefined } from './generic';
+import { setRootPK, setState } from '../features/pkSlice';
+import { isNull, isString, isUndefined } from './generic';
 import { PKType } from '../types';
 import { networkList } from '../constants/networkList';
 import { sharedDb } from '../db/shared';
 import { setAccountList, setActiveAccountId } from '../features/accountSlice';
+import { ROOT_PK_HASH_KEY } from '../constants';
+import { log } from './log';
+import { sessionStorage } from './chromeStorage';
 
 type DiffType = {
   updated: RootState['pk'] & RootState['account'];
@@ -134,7 +137,18 @@ export const initStoreSync = async () => {
   });
 
   // initial run
-  restoreDataFromDb();
+  await restoreDataFromDb();
+
+  const rootPkHash = await sessionStorage.get(ROOT_PK_HASH_KEY);
+
+  if (rootPkHash && isString(rootPkHash)) {
+    store.dispatch(
+      setRootPK({
+        privateKeyHash: rootPkHash,
+        privateKeyEncrypted: await db.getKeyVal('rootPk.privateKeyEncrypted'),
+      })
+    );
+  }
 };
 
 export const restoreDataFromDb = async () => {

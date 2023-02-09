@@ -10,7 +10,7 @@ const manifest: ManifestType = {
   description: packageJson.description,
   options_page: 'src/pages/options/index.html',
   background: { service_worker: 'src/pages/background/index.js' },
-  permissions: ['notifications', 'alarms'],
+  permissions: ['notifications', 'alarms', 'storage'],
   externally_connectable: {
     matches: ['http://localhost/*', 'https://*.taal.com/*'],
   },

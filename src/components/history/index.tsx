@@ -2,7 +2,6 @@ import { FC } from 'react';
 import styled from 'styled-components';
 import { useAppSelector } from '@/src/hooks';
 import { useGetHistoryQuery } from '@/src/features/wocApiSlice';
-import { QuickWalletSelector } from '../quickWalletSelector';
 import { HistoryIcon } from '../svg/historyIcon';
 import { Heading } from '../generic/heading';
 import { Tooltip } from '../generic/tooltip';

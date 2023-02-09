@@ -4,5 +4,5 @@
 // try {
 //   console.log('TAAL Wallet available');
 // } catch (e) {
-//   console.error(e);
+//   console.warn(e);
 // }

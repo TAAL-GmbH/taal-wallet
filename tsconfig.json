@@ -26,6 +26,10 @@
     }
   },
   "include": [
-    "src"
+    "./src/types/typeRoot/*.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.js",
+    "**/*.jsx"
   ]
 }

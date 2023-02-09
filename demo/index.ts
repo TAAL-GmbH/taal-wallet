@@ -33,7 +33,7 @@ wallet.on('connect', async () => {
     // balance also can be updated by wallet.on('balance')
     state.isConnected = true;
   } catch (e) {
-    console.error(e);
+    console.warn(e);
     state.error = e.message;
   }
 });
@@ -97,11 +97,11 @@ btnCreateTx.addEventListener('click', async () => {
   }
 
   const unspent = unspentList[0];
-  // @ts-ignore
+  // @ts-expect-error bsv is global
   const publicKey = new bsv.PublicKey.fromString(state.publicKey);
-  // @ts-ignore
+  // @ts-expect-error bsv is global
   const pubKeyHash = bsv.crypto.Hash.sha256ripemd160(publicKey.toBuffer()).toString('hex');
-  // @ts-ignore
+  // @ts-expect-error bsv is global
   const lockingScript = bsv.Script.fromASM(`OP_DUP OP_HASH160 ${pubKeyHash} OP_EQUALVERIFY OP_CHECKSIG`);
 
   const utxo = {

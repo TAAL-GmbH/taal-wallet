@@ -11,4 +11,5 @@ export const routes: Record<string, string> = {
   TOKENS: 'tokens',
   ERROR: 'error',
   WEB_PUSH: 'web-push',
+  PORTFOLIO: 'tokens',
 };

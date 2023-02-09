@@ -8,6 +8,7 @@ import { clearState, lockWallet } from '@/src/features/pkSlice';
 import { clientList } from './clientListController';
 import { sharedDb } from '@/src/db/shared';
 import { AccountFactory } from '@/src/utils/accountFactory';
+import { log } from '@/src/utils/log';
 
 // @ ts-expect-error ignore this
 globalThis['clientList'] = clientList;
@@ -38,6 +39,7 @@ chrome.runtime.onInstalled.addListener(({ previousVersion, reason }) => {
 chrome.alarms.onAlarm.addListener(({ name }) => {
   switch (name) {
     case alarms.WALLET_LOCK: {
+      log.debug('lock-on-alarm');
       store.dispatch(lockWallet());
       break;
     }
