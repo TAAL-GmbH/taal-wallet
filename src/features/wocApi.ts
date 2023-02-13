@@ -45,6 +45,16 @@ export const getTokensUnspent = async (
 export const getTx = async (...args: Parameters<typeof wocApiSlice.endpoints.getTx.initiate>) =>
   store.dispatch(wocApiSlice.endpoints.getTx.initiate(...args));
 
+export const getRawTransactionData = async (
+  ...args: Parameters<typeof wocApiSlice.endpoints.getRawTransactionData.initiate>
+) => {
+  const { error } = await store.dispatch(wocApiSlice.endpoints.getRawTransactionData.initiate(...args));
+  const txId = 'data' in error ? (error.data as string) : '';
+
+  console.log({ txId });
+  return txId;
+};
+
 export const airdrop = async (...args: Parameters<typeof wocApiSlice.endpoints.airdrop.initiate>) => {
   type AirdropData = string | { message: string };
 

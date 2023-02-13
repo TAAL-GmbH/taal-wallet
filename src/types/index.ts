@@ -93,3 +93,20 @@ export type DialogData = {
   response?: number;
   data?: unknown;
 };
+
+export type MediaType = {
+  mimeType: string;
+  isAudio: boolean;
+  isVideo: boolean;
+  isImage: boolean;
+  isText: boolean;
+  size: number;
+  fileName: string;
+  duration?: number | null;
+  contentBase64: string;
+  isValidContent: boolean | null;
+  attributeList?: {
+    key: string;
+    value: string;
+  }[];
+};

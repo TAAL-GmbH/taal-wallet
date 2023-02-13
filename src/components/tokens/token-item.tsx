@@ -15,7 +15,7 @@ export const TokenItem: FC<Props> = ({ token }) => {
   const {
     image,
     // symbol,
-    balance,
+    tokenBalance,
     // protocol,
     name,
     description,
@@ -40,7 +40,7 @@ export const TokenItem: FC<Props> = ({ token }) => {
           <Description>{description.slice(0, isPopup() ? 40 : 80)}</Description>
         </AnchorLink>
       </DetailsCell>
-      <BalanceCell align="right center">{balance}</BalanceCell>
+      <BalanceCell align="right center">{tokenBalance}</BalanceCell>
     </>
   );
 };

@@ -9,8 +9,8 @@ import { Tooltip } from '../generic/tooltip';
 import { RefreshIcon } from '../svg/refreshIcon';
 import { TokenIcon } from '../svg/tokenIcon';
 import { CurrentAccount } from '../currentAccount';
-import { PortfolioTableHeader } from '../portfolio/table-header';
-import { TokenItem } from '../portfolio/token-item';
+import { PortfolioTableHeader } from './table-header';
+import { TokenItem } from './token-item';
 import { Note } from '../generic/note';
 
 type Props = {
@@ -55,7 +55,7 @@ export const Tokens: FC<Props> = ({ className }) => {
           </Tooltip>
         }
       >
-        Portfolio
+        Tokens
       </Heading>
 
       {contents}
