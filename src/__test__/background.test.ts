@@ -30,7 +30,7 @@ describe('background.js', () => {
           path,
         },
       }),
-      s => s.pk.map[address].address === address
+      s => s.pk.map[address]?.address === address
     );
 
     await dispatchAndValidate(setActivePk(address), s => s.pk.activePk?.address === address);
