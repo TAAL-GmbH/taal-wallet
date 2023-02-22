@@ -58,7 +58,7 @@ export const RouterComponent: FC<Props> = ({
   }
 
   // isNull(hasRootKey) === true means we're still fetching the root key from db
-  if (!isInitialized || !isInSync || isNull(hasRootKey)) {
+  if (!isInitialized || !isInSync || isNull(hasRootKey) || isNull(isLocked)) {
     return <PageLoading />;
   }
 
@@ -88,7 +88,7 @@ export const RouterComponent: FC<Props> = ({
     );
   }
 
-  if (isLocked) {
+  if (isLocked === true) {
     return (
       <Router hook={useHashLocation}>
         <Switch>

@@ -21,7 +21,7 @@ const initialState: State = {
   map: {},
   network: null,
   isInSync: isBackgroundScript() ? true : null, // true in background.js, null elsewhere
-  isLocked: isBackgroundScript() ? true : null, // true in background.js, null elsewhere
+  isLocked: null, // setting to null as it must be initialized in storeSync
   isSendBsvLocked: false,
 };
 
