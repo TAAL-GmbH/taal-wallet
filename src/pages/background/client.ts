@@ -5,6 +5,8 @@ import { derivePk, mergeSplit, restorePK } from '@/src/utils/blockchain';
 import { createDialog } from '@/src/utils/createDialog';
 import 'bsv/message';
 import bsv from 'bsv';
+import { waitForTruthy } from '@/src/utils/waitForTruthy';
+import { isNull } from '@/src/utils/generic';
 const BN = require('bn.js');
 
 type Options = {
@@ -102,7 +104,7 @@ export class Client {
         });
       }
 
-      if (state.pk.isLocked) {
+      if (state.pk.isLocked === true) {
         console.log('Wallet is locked');
         this._postMessage(
           {
@@ -166,6 +168,16 @@ export class Client {
   }
 
   private async _checkPermissions() {
+    // wait until state is restored and isLocked state is known
+    if (isNull(store.getState().pk.isLocked)) {
+      const waitForLockedStateResult = await waitForTruthy(() => store.getState().pk.isLocked !== null, {
+        timeout: 5000,
+      });
+      if (!waitForLockedStateResult) {
+        throw new Error('Wallet is not responding. Please try again later');
+      }
+    }
+
     if (store.getState().pk.isLocked) {
       // TODO: show dialog to unlock
       throw new Error('Wallet is locked. Please unlock it first');
@@ -397,7 +409,6 @@ export class Client {
 
           return {
             action: 'signTx',
-            // @ts-ignore
             payload: signedTx.serialize(true),
           };
         }
@@ -414,15 +425,14 @@ export class Client {
             throw new Error('User rejected pre-image signing');
           }
 
-          const { tx, sighash, script, i, satoshis } = payload as {
+          const { tx, script, i, satoshis } = payload as {
             tx: string;
             sighash: number;
             script: string;
             i: number;
-            satoshis: any;
+            satoshis: number;
           };
 
-          // @ts-ignore
           const sighash2 = bsv.crypto.Signature.SIGHASH_ALL | bsv.crypto.Signature.SIGHASH_FORKID;
           const t = new bsv.Transaction(tx);
           const { privateKeyHash } = this._getKey();

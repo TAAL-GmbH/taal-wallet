@@ -1,4 +1,5 @@
-import { FC, ImgHTMLAttributes, useEffect, useState } from 'react';
+import { FC, ImgHTMLAttributes, memo, useEffect, useState } from 'react';
+import isEqual from 'react-fast-compare';
 import styled from 'styled-components';
 
 const noImageUrl = '/no-image.png';
@@ -8,9 +9,18 @@ type Props = {
   src: string | null;
   fallbackSrc?: string;
   alt?: string;
+  onSuccess?: () => void;
+  onError?: () => void;
 } & ImgHTMLAttributes<HTMLImageElement>;
 
-export const ImageWithFallback: FC<Props> = ({ src, fallbackSrc = noImageUrl, alt, ...rest }) => {
+const ImageWithFallbackComponent: FC<Props> = ({
+  src,
+  fallbackSrc = noImageUrl,
+  alt,
+  onSuccess,
+  onError,
+  ...rest
+}) => {
   const [imgSrc, setImgSrc] = useState<string | null>(!src ? noImageUrl : null);
   const [isImgLoading, setIsImgLoading] = useState(!!src);
 
@@ -22,15 +32,19 @@ export const ImageWithFallback: FC<Props> = ({ src, fallbackSrc = noImageUrl, al
     img.onload = () => {
       setImgSrc(src);
       setIsImgLoading(false);
+      onSuccess?.();
     };
     img.onerror = () => {
       setImgSrc(fallbackSrc);
       setIsImgLoading(false);
+      onError?.();
     };
-  }, [src, fallbackSrc, setImgSrc, setIsImgLoading]);
+  }, [src, fallbackSrc, setImgSrc, setIsImgLoading, onError, onSuccess]);
 
   return <Img src={isImgLoading ? loadingUrl : imgSrc} alt={alt} {...rest} />;
 };
+
+export const ImageWithFallback: FC<Props> = memo(ImageWithFallbackComponent, isEqual);
 
 const Img = styled.img`
   &[src='${noImageUrl}'] {

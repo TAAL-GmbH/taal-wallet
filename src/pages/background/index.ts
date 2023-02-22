@@ -46,12 +46,16 @@ chrome.alarms.onAlarm.addListener(({ name }) => {
   }
 });
 
+const createWalletLockAlarm = async () => {
+  const walletLockPeriod = (await sharedDb.getKeyVal('walletLockPeriod')) || 30;
+  chrome.alarms.create(alarms.WALLET_LOCK, { delayInMinutes: walletLockPeriod });
+};
+
 // internal long-lived connection handling
 chrome.runtime.onConnect.addListener(async internalPort => {
   // add alarm on popup window close
   internalPort.onDisconnect.addListener(async () => {
-    const walletLockPeriod = (await sharedDb.getKeyVal('walletLockPeriod')) || 30;
-    chrome.alarms.create(alarms.WALLET_LOCK, { delayInMinutes: walletLockPeriod });
+    createWalletLockAlarm();
   });
 
   // clear alarm on popup window open
@@ -93,6 +97,7 @@ chrome.runtime.onMessage.addListener(({ action, payload }, sender, sendResponse)
 });
 
 export const initBackground = () => {
+  log.debug('initBackground');
   // external webpage connection handling
   chrome.runtime.onConnectExternal.addListener(port => {
     let client: Client | null = new Client({ port });

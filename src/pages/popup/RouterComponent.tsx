@@ -18,7 +18,6 @@ import { Onboarding } from '../onboarding';
 import { OnboardingImport } from '../onboarding/import';
 import { OnboardingNew } from '../onboarding/new';
 import { ErrorPage } from '@/src/components/errorPage';
-import { Portfolio } from '@/src/components/portfolio';
 import { TokenDetails } from '@/src/components/tokenDetails';
 
 type Props = {
@@ -59,7 +58,7 @@ export const RouterComponent: FC<Props> = ({
   }
 
   // isNull(hasRootKey) === true means we're still fetching the root key from db
-  if (!isInitialized || !isInSync || isNull(hasRootKey)) {
+  if (!isInitialized || !isInSync || isNull(hasRootKey) || isNull(isLocked)) {
     return <PageLoading />;
   }
 
@@ -89,7 +88,7 @@ export const RouterComponent: FC<Props> = ({
     );
   }
 
-  if (isLocked) {
+  if (isLocked === true) {
     return (
       <Router hook={useHashLocation}>
         <Switch>
@@ -150,10 +149,7 @@ export const RouterComponent: FC<Props> = ({
         <Route path={`${routes.ONBOARDING_IMPORT}`}>
           <OnboardingImport />
         </Route>
-        <Route path={`${routes.PORTFOLIO}`}>
-          <Portfolio />
-        </Route>
-        <Route path={`${routes.PORTFOLIO}/:tokenId/:symbol`}>
+        <Route path={`${routes.TOKENS}/:tokenId/:symbol`}>
           {(props: { tokenId: string; symbol: string }) => <TokenDetails {...props} />}
         </Route>
         <Route>

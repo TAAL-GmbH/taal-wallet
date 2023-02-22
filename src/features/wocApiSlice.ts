@@ -186,6 +186,13 @@ export const wocApiSlice = createApi({
     getTx: builder.query<Tx, string>({
       query: txId => `/tx/hash/${txId}`,
     }),
+    getRawTransactionData: builder.query<string, string>({
+      // query: txId => `/tx/${txId}/hex`,
+      query: txId => ({
+        url: `/tx/${txId}/hex`,
+        responseHandler: response => response.text(),
+      }),
+    }),
     airdrop: builder.query<string, string>({
       query: address => ({
         url: `/faucet/send/${address}`,
@@ -212,4 +219,9 @@ export const wocApiSlice = createApi({
 export const { useGetTxQuery } = wocApiSlice;
 
 // react hooks
-export const { useGetHistoryQuery, useGetTokensQuery, useGetTokenDetailsQuery } = wocApiSlice;
+export const {
+  useGetHistoryQuery,
+  useGetTokensQuery,
+  useGetTokenDetailsQuery,
+  useGetRawTransactionDataQuery,
+} = wocApiSlice;

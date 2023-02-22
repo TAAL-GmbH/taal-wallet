@@ -1,14 +1,13 @@
 import { db } from '../db';
 import { RootState, store } from '../store';
 import { detailedDiff } from 'deep-object-diff';
-import { setRootPK, setState } from '../features/pkSlice';
+import { lockWallet, setRootPK, setState } from '../features/pkSlice';
 import { isNull, isString, isUndefined } from './generic';
 import { PKType } from '../types';
 import { networkList } from '../constants/networkList';
 import { sharedDb } from '../db/shared';
 import { setAccountList, setActiveAccountId } from '../features/accountSlice';
 import { ROOT_PK_HASH_KEY } from '../constants';
-import { log } from './log';
 import { sessionStorage } from './chromeStorage';
 
 type DiffType = {
@@ -148,20 +147,12 @@ export const initStoreSync = async () => {
         privateKeyEncrypted: await db.getKeyVal('rootPk.privateKeyEncrypted'),
       })
     );
+  } else {
+    store.dispatch(lockWallet());
   }
 };
 
 export const restoreDataFromDb = async () => {
-  /**
-   * The following code it to restore data from indexedDB -> redux state
-   */
-
-  // const activeAccountId = await sharedDb.getKeyVal('activeAccountId');
-  // console.debug('restoreDataFromDb', { activeAccountId });
-  // if (isUndefined(activeAccountId)) {
-  //   return;
-  // }
-
   const [networkId, pkMap, activePkAddress, accountList, activeAccountId] = await Promise.all([
     db.getKeyVal('network.id'),
     db.getPkMap(),
