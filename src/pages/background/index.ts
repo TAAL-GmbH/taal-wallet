@@ -41,6 +41,7 @@ chrome.alarms.onAlarm.addListener(({ name }) => {
     case alarms.WALLET_LOCK: {
       log.debug('lock-on-alarm');
       store.dispatch(lockWallet());
+      chrome.action.setBadgeText({ text: '' });
       break;
     }
   }

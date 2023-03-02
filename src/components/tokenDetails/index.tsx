@@ -80,7 +80,6 @@ export const TokenDetails: FC<Props> = ({ tokenId, symbol }) => {
         </Grid>
         <Dl>
           <dt>Token type</dt>
-          {/* <dd>{tokenData.isFungible ? 'Fungible' : 'Non-fungible'}</dd> */}
           <dd>{typeof isFungible === 'undefined' ? 'Loading...' : isFungible ? 'Fungible' : 'NFT'}</dd>
         </Dl>
         <Dl>
@@ -89,7 +88,11 @@ export const TokenDetails: FC<Props> = ({ tokenId, symbol }) => {
         </Dl>
         <Dl>
           <dt>Total supply</dt>
-          <dd>{tokenData.total_supply.toLocaleString()}</dd>
+          <dd>{tokenData.total_supply / tokenData.sats_per_token}</dd>
+        </Dl>
+        <Dl>
+          <dt>Sats per token</dt>
+          <dd>{tokenData.sats_per_token}</dd>
         </Dl>
         {/* <Dl>
           <dt>Decimals</dt>

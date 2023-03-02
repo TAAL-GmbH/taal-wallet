@@ -25,7 +25,7 @@ type Props = {
   isTosInAgreement: boolean;
   isInSync: boolean;
   hasRootKey: boolean;
-  isLocked: boolean;
+  isLocked: boolean | null;
   hasActivePk: boolean;
   activeAccountId: string;
 };
@@ -58,7 +58,7 @@ export const RouterComponent: FC<Props> = ({
   }
 
   // isNull(hasRootKey) === true means we're still fetching the root key from db
-  if (!isInitialized || !isInSync || isNull(hasRootKey) || isNull(isLocked)) {
+  if (!isInitialized || !isInSync || (isNull(hasRootKey) && isNull(isLocked))) {
     return <PageLoading />;
   }
 
