@@ -1,4 +1,4 @@
-import { FC, useEffect } from 'react';
+import { FC } from 'react';
 import { DerivePk } from '@/src/components/derivePK';
 import { History } from '@/src/components/history';
 import { Home } from '@/src/components/home';
@@ -30,8 +30,6 @@ type Props = {
   activeAccountId: string;
 };
 
-let reloadTimer: ReturnType<typeof setTimeout> | null = null;
-
 export const RouterComponent: FC<Props> = ({
   isInitialized,
   isTosInAgreement,
@@ -41,16 +39,6 @@ export const RouterComponent: FC<Props> = ({
   hasActivePk,
   activeAccountId,
 }) => {
-  useEffect(() => {
-    if (!isInSync || isNull(hasRootKey)) {
-      reloadTimer = setTimeout(() => {
-        window.location.reload();
-      }, 1000);
-    } else {
-      clearTimeout(reloadTimer);
-    }
-  }, [isInSync, hasRootKey]);
-
   const [location] = useHashLocation();
 
   if (location === routes.ERROR) {
