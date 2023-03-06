@@ -1,4 +1,6 @@
 import { Middleware, AnyAction } from '@reduxjs/toolkit';
+import toast from 'react-hot-toast';
+import { waitForTruthy } from './waitForTruthy';
 
 const BACKGROUND_PAGE_PATH = 'background.js';
 
@@ -26,54 +28,71 @@ export const reduxSyncMiddleWare: Middleware = store => {
       return; // ignore from self
     }
 
-    if (data.action === 'dispatch') {
-      store.dispatch({
-        ...data.reduxAction,
-        meta: {
-          ...data.reduxAction.meta,
-          local: true,
-        },
-      });
-    }
+    if (data.action.startsWith('bg:') && isBackgroundPage) {
+      if (data.action === 'bg:dispatch') {
+        store.dispatch(data.reduxAction);
+      } else if (data.action === 'bg:getState') {
+        waitForTruthy(() => store.getState().pk.isStateInitialized, { timeout: 5000 }).then(() => {
+          bc.postMessage({
+            action: 'fe:dispatch',
+            reduxAction: {
+              type: 'pk/setState',
+              payload: store.getState().pk,
+            },
+          });
 
-    /**
-     * Background serviceWorker is source of thruth.
-     * Every Chrome extension window will ask "getState" on init
-     */
-    if (data.action === 'getState' && isBackgroundPage) {
-      // broadcast dispatch structured event to sync extension windows to background
-      bc.postMessage({
-        action: 'dispatch',
-        reduxAction: {
-          type: 'pk/setState',
-          payload: store.getState().pk,
-        },
-        pagePath: BACKGROUND_PAGE_PATH,
-      });
+          bc.postMessage({
+            action: 'fe:dispatch',
+            reduxAction: {
+              type: 'account/setState',
+              payload: store.getState().account,
+            },
+          });
 
-      bc.postMessage({
-        action: 'dispatch',
-        reduxAction: {
-          type: 'account/setState',
-          payload: store.getState().account,
-        },
-        pagePath: BACKGROUND_PAGE_PATH,
-      });
+          bc.postMessage({
+            action: 'fe:dispatch',
+            reduxAction: {
+              type: 'account/setState',
+              payload: { isInSync: true },
+            },
+          });
+        });
+      }
+    } else if (data.action.startsWith('fe:') && !isBackgroundPage) {
+      if (data.action === 'fe:dispatch') {
+        store.dispatch(data.reduxAction);
+      }
     }
   };
 
-  // non-background pages should ask background for the whole state
+  /**
+   * Background serviceWorker is source of thruth.
+   * Every Chrome extension window will ask "bg:getState" on init
+   */
   if (!isBackgroundPage) {
-    bc.postMessage({
-      action: 'getState',
-    });
+    waitForTruthy(
+      async () => {
+        const result: boolean = await chrome.runtime.sendMessage({
+          action: 'bg:getStateInitializationStatus',
+        });
+        return result;
+      },
+      { timeout: 5000 }
+    )
+      .then(() => {
+        bc.postMessage({
+          action: 'bg:getState',
+        });
+      })
+      .catch(() => {
+        toast.error('Failed to initialize state');
+      });
   }
 
   return next => (reduxAction: AnyAction) => {
-    if (shouldForward(reduxAction)) {
-      // console.log('broadcast', reduxAction);
+    if (isBackgroundPage && shouldForward(reduxAction)) {
       bc.postMessage({
-        action: 'dispatch',
+        action: 'fe:dispatch',
         reduxAction: {
           ...reduxAction,
           meta: {
@@ -84,6 +103,7 @@ export const reduxSyncMiddleWare: Middleware = store => {
         pagePath,
       });
     }
+
     next(reduxAction);
   };
 };

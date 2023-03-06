@@ -91,6 +91,12 @@ chrome.runtime.onMessage.addListener(({ action, payload }, sender, sendResponse)
         sendResponse('data-restored');
         break;
       }
+
+      case 'bg:getStateInitializationStatus': {
+        console.log('BG got getStateInitializationStatus request', payload);
+        sendResponse(store.getState().pk.isStateInitialized);
+        break;
+      }
     }
   })();
 
@@ -98,7 +104,7 @@ chrome.runtime.onMessage.addListener(({ action, payload }, sender, sendResponse)
 });
 
 export const initBackground = () => {
-  log.debug('initBackground');
+  // log.debug('initBackground');
   // external webpage connection handling
   chrome.runtime.onConnectExternal.addListener(port => {
     let client: Client | null = new Client({ port });

@@ -88,14 +88,13 @@ export class AccountFactory {
       const isValidActiveAccountIdInDb = await waitForTruthy(
         async () => (await sharedDb.getKeyVal('activeAccountId')) === accountId
       );
-      if (isValidActiveAccountIdInDb) {
-        logEvent({
-          type: 'success',
-          message: 'activeAccountId written to db',
-        });
-      } else {
+      if (!isValidActiveAccountIdInDb) {
         throw new Error('Failed to write activeAccountId to db');
       }
+      logEvent({
+        type: 'success',
+        message: 'activeAccountId written to db',
+      });
       initStoreSync();
     }
 

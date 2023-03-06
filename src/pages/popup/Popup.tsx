@@ -5,7 +5,6 @@ import { useAppSelector } from '@/src/hooks';
 import { PageHead } from '@/src/components/pageHead';
 import { RouterComponent } from './RouterComponent';
 import { Debug } from '@/src/components/debug/debug';
-import { store } from '@/src/store';
 import { db } from '@/src/db';
 import { isNull, isPopup, isUndefined } from '@/src/utils/generic';
 import { sharedDb } from '@/src/db/shared';

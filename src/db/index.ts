@@ -194,7 +194,7 @@ class Db {
     const start = 0;
     const end = 100;
 
-    var range = IDBKeyRange.bound(`m/44/236/0/0/${start}`, `m/44/236/0/0/${end}`);
+    const range = IDBKeyRange.bound(`m/44/236/0/0/${start}`, `m/44/236/0/0/${end}`);
     let cursor = await this.getCursor('pk', range);
 
     const result: Record<string, PKType> = {};

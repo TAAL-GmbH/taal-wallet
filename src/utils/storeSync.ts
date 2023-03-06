@@ -9,6 +9,7 @@ import { sharedDb } from '../db/shared';
 import { setAccountList, setActiveAccountId } from '../features/accountSlice';
 import { ROOT_PK_HASH_KEY } from '../constants';
 import { sessionStorage } from './chromeStorage';
+import { waitForTruthy } from './waitForTruthy';
 
 type DiffType = {
   updated: RootState['pk'] & RootState['account'];
@@ -34,11 +35,11 @@ export const initStoreSync = async () => {
   if (isStoreSyncInitialized) {
     return;
   }
-  console.log('initializing store sync');
+  // console.log('initializing store sync');
   isStoreSyncInitialized = true;
 
   /**
-   * The following code it to keep in sync redux state -> chrome.storage.pk
+   * The following code it to keep in sync redux state -> db
    */
   const previousState: Partial<RootState> = {
     pk: store.getState().pk,
@@ -150,6 +151,9 @@ export const initStoreSync = async () => {
   } else {
     store.dispatch(lockWallet());
   }
+
+  await waitForTruthy(() => !isUndefined(store.getState().pk.isLocked));
+  store.dispatch(setState({ isStateInitialized: true }));
 };
 
 export const restoreDataFromDb = async () => {
@@ -165,7 +169,7 @@ export const restoreDataFromDb = async () => {
   store.dispatch(setAccountList(accountList));
   store.dispatch(setActiveAccountId(activeAccountId || accountList[0]?.id));
 
-  console.log('swithing network', networkId);
+  // console.log('swithing network', networkId);
 
   store.dispatch(
     setState({

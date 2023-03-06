@@ -13,6 +13,7 @@ type State = {
   isInSync: boolean;
   isLocked: boolean | null;
   isSendBsvLocked: boolean;
+  isStateInitialized: boolean;
 };
 
 const initialState: State = {
@@ -23,6 +24,7 @@ const initialState: State = {
   isInSync: isBackgroundScript() ? true : null, // true in background.js, null elsewhere
   isLocked: null, // setting to null as it must be initialized in storeSync
   isSendBsvLocked: false,
+  isStateInitialized: false,
 };
 
 const setStateBalance = (state: State, address: string, satoshis: number) => {
