@@ -2,16 +2,13 @@ jest.mock('../features/wocApi');
 jest.mock('../db/index.ts');
 jest.mock('../db/shared.ts');
 
-import { derivePk, restorePK, createHDPrivateKey, rebuildMnemonic } from './../utils/blockchain';
+import { createHDPrivateKey, rebuildMnemonic } from './../utils/blockchain';
 import { AccountFactory } from '../utils/accountFactory';
 import { initStoreSync } from '../utils/storeSync';
 import * as wocApi from '../features/wocApi';
 import { store } from '../store';
-import { appendPK } from '../features/pkSlice';
-import { dispatchAndValidate } from '../utils/dispatchAndValidate';
-import { create } from 'domain';
 
-let accountName = 'AccountName';
+const accountName = 'AccountName';
 let networkId = 'testnet';
 const password = 'password';
 let password_invalid: string;

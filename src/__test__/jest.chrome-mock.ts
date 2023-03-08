@@ -1,14 +1,48 @@
 // import { chrome } from 'jest-chrome';
 
+let chromeStorageState = {};
+
+export const mockChromeStorage = () => {
+  chromeStorageState = {};
+
+  ['local', 'session'].forEach(area => {
+    chrome.storage[area] = chrome.storage[area] || {};
+
+    chrome.storage[area].get = (key: string, cb?: (result: unknown) => void) => {
+      if (typeof cb === 'function') {
+        cb(chromeStorageState[key]);
+      } else {
+        return Promise.resolve(chromeStorageState[key]);
+      }
+    };
+    chrome.storage[area].set = (data: unknown, cb?: () => void) => {
+      Object.assign(chromeStorageState, data);
+      if (typeof cb === 'function') {
+        cb();
+      } else {
+        return Promise.resolve();
+      }
+    };
+    chrome.storage[area].clear = (cb?: () => void) => {
+      Object.keys(chromeStorageState).forEach(key => delete chromeStorageState[key]);
+      if (typeof cb === 'function') {
+        cb();
+      } else {
+        return Promise.resolve();
+      }
+    };
+  });
+};
+
 export const mockForBackground = () => {
   const listeners: {
     client: {
-      onMessageListeners: ((msg: any, port: chrome.runtime.Port) => void)[];
-      onDisconnectListeners: ((msg: any, port: chrome.runtime.Port) => void)[];
+      onMessageListeners: ((msg: unknown, port: chrome.runtime.Port) => void)[];
+      onDisconnectListeners: ((msg: unknown, port: chrome.runtime.Port) => void)[];
     };
     background: {
-      onMessageListeners: ((msg: any, port: chrome.runtime.Port) => void)[];
-      onDisconnectListeners: ((msg: any, port: chrome.runtime.Port) => void)[];
+      onMessageListeners: ((msg: unknown, port: chrome.runtime.Port) => void)[];
+      onDisconnectListeners: ((msg: unknown, port: chrome.runtime.Port) => void)[];
     };
   } = {
     client: {
