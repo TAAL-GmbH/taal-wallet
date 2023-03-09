@@ -32,10 +32,6 @@ chrome.action.setBadgeText({ text: '' });
 
 self.addEventListener('push', onPushMessage);
 
-chrome.runtime.onInstalled.addListener(({ previousVersion, reason }) => {
-  // console.log('onInstalled', { previousVersion, reason })
-});
-
 chrome.alarms.onAlarm.addListener(({ name }) => {
   switch (name) {
     case alarms.WALLET_LOCK: {
@@ -93,7 +89,6 @@ chrome.runtime.onMessage.addListener(({ action, payload }, sender, sendResponse)
       }
 
       case 'bg:getStateInitializationStatus': {
-        console.log('BG got getStateInitializationStatus request', payload);
         sendResponse(store.getState().pk.isStateInitialized);
         break;
       }

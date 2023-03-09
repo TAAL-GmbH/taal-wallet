@@ -126,7 +126,7 @@ export const SendBSV: FC<Props> = ({ className }) => {
         <Row>
           <FormInput
             name="satoshis"
-            label={`Amount in satoshis (max ${activePk?.balance.satoshis}-fees)`}
+            label={`Amount in satoshis (max ${activePk?.balance.satoshis.toLocaleString()}-fees)`}
             type="tel"
             size="sm"
             options={{
