@@ -1,6 +1,9 @@
 import { WalletClient } from './WalletClient';
 import { state } from './state';
 
+// @ts-expect-error bsv is global
+bsv.Transaction.DUST_AMOUNT = 0;
+
 const btnConnect: HTMLButtonElement = document.querySelector('#btn-connect');
 const btnDisconnect: HTMLButtonElement = document.querySelector('#btn-disconnect');
 const btnGetAddress: HTMLButtonElement = document.querySelector('#btn-get-address');
@@ -111,7 +114,7 @@ btnCreateTx.addEventListener('click', async () => {
     amount: unspent.value / 1e8,
   };
 
-  // @ts-ignore
+  // @ts-expect-error bsv is global
   const tx = new bsv.Transaction()
     .from(utxo)
     .to(state.address, Math.floor(unspent.value / 2))

@@ -9,6 +9,11 @@ import { clientList } from './clientListController';
 import { sharedDb } from '@/src/db/shared';
 import { AccountFactory } from '@/src/utils/accountFactory';
 import { log } from '@/src/utils/log';
+import bsv from 'bsv';
+
+// adjust DUST_AMOUNT to 0 in background script enry point
+// @ts-expect-error DUST_AMOUNT is not typed
+bsv.Transaction.DUST_AMOUNT = 0;
 
 // @ ts-expect-error ignore this
 globalThis['clientList'] = clientList;

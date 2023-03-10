@@ -1,9 +1,14 @@
-import React, { ReactNode } from 'react';
+import { ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
+import bsv from 'bsv';
 import { ThemeProvider, createGlobalStyle } from 'styled-components';
 import { Provider as ReduxProvider } from 'react-redux';
 import { store } from '@/src/store';
 import light from '@/themes/light';
+
+// adjust DUST_AMOUNT to 0 in frontend enry point
+// @ts-expect-error DUST_AMOUNT is not typed
+bsv.Transaction.DUST_AMOUNT = 0;
 
 const GlobalStyle = createGlobalStyle`
   body, html {
