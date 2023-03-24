@@ -65,7 +65,7 @@ const GlobalStyle = createGlobalStyle`
     min-height: 100vh;
   }
 
-  #tooptip-container {
+  #tooltip-container {
     position: relative;
 
     > * {
@@ -90,7 +90,7 @@ const GlobalStyle = createGlobalStyle`
 
   a {
     text-decoration: none;
-    color: ${light.color.primary.A700};
+    color: ${light.color.primary[700]};
 
     &:hover {
       text-decoration: underline;
@@ -117,16 +117,17 @@ const GlobalStyle = createGlobalStyle`
 type Props = {
   domElement: HTMLElement | null;
   component: ReactNode;
+  theme?: typeof light;
 };
 
-export const createPage = ({ domElement, component }: Props) => {
+export const createPage = ({ domElement, component, theme = light }: Props) => {
   if (!domElement) {
     throw new Error('Can not find DOM element');
   }
   const root = createRoot(domElement);
   root.render(
     <ReduxProvider store={store}>
-      <ThemeProvider theme={light}>
+      <ThemeProvider theme={theme}>
         <GlobalStyle />
         {component}
       </ThemeProvider>

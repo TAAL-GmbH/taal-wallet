@@ -25,3 +25,15 @@ export const injectSpacing = (keys: string[]) => {
     return `${styles.join(';')};`;
   };
 };
+
+export const margin = (val: string | TemplateStringsArray) => (props: { theme: DefaultTheme }) =>
+  injectSpacing(['margin'])({
+    theme: props.theme,
+    margin: Array.isArray(val) ? val[0] : val,
+  });
+
+export const padding = (val: string | TemplateStringsArray) => (props: { theme: DefaultTheme }) =>
+  injectSpacing(['padding'])({
+    theme: props.theme,
+    padding: Array.isArray(val) ? val[0] : val,
+  });

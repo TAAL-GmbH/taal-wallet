@@ -32,7 +32,7 @@ export const AnchorLink: FC<Props> = ({ className, children, href: hrefRaw, onCl
 };
 
 const A = styled.a`
-  color: ${({ theme }) => theme.color.primary.A700};
+  color: ${({ theme }) => theme.color.primary[700]};
   text-decoration: none;
 
   &:hover {

@@ -1,3 +1,5 @@
+import bsv from 'bsv';
+
 import { ButtonStyleProps } from '../components/button';
 
 export enum ErrorCodeEnum {
@@ -77,10 +79,21 @@ export type RootPKType = {
 
 export type PKMap = Record<string, PKType>;
 
+export type SignPreimageData = {
+  i: number;
+  satoshis: number;
+  script: string;
+  sighash: number;
+  tx: string;
+};
+
+export type SignTxData = bsv.Transaction;
+
+export type SignMessage = string;
+
 export type DialogData = {
   id: number;
-  title: string;
-  body?: string;
+  title?: string;
   error?: string;
   timeout?: number;
   fitView?: boolean;
@@ -91,8 +104,41 @@ export type DialogData = {
     returnValue?: string;
   }[];
   response?: number;
-  data?: unknown;
-};
+} & (
+  | {
+      dialogType: 'html';
+      data: {
+        body: string;
+      };
+    }
+  | {
+      dialogType: 'confirm:origin';
+      data: {
+        origin: string;
+      };
+    }
+  | {
+      dialogType: 'sign:transaction';
+      data: {
+        txData: SignTxData;
+        network: string;
+      };
+    }
+  | {
+      dialogType: 'sign:preimage';
+      data: {
+        preimageData: SignPreimageData;
+        network: string;
+      };
+    }
+  | {
+      dialogType: 'sign:message';
+      data: {
+        message: SignMessage;
+        network: string;
+      };
+    }
+);
 
 export type MediaType = {
   mimeType: string;
@@ -109,4 +155,16 @@ export type MediaType = {
     key: string;
     value: string;
   }[];
+};
+
+export type ParsedTokenDetails = {
+  decimals: number;
+  description: string;
+  image?: string;
+  name: string;
+  properties: Record<string, unknown>;
+  satsPerToken: number;
+  symbol: string;
+  tokenId: string;
+  totalSupply: number;
 };

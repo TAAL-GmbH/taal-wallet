@@ -2,10 +2,11 @@ import bsv, { Mnemonic } from 'bsv';
 import 'bsv/mnemonic';
 import { validate, Network } from 'bitcoin-address-validation';
 import { broadcast, getTx, getUnspent } from '../features/wocApi';
-import { ApiResponse, ErrorCodeEnum, PKFullType, UTXO, UTXOWithAmount } from '../types';
+import { ApiResponse, ErrorCodeEnum, ParsedTokenDetails, PKFullType, UTXO, UTXOWithAmount } from '../types';
 import { WocApiError } from './errors/wocApiError';
 import { getErrorMessage } from './generic';
 import { networkList } from '../constants/networkList';
+import { addrScriptRegex, stasScriptRegex } from '../constants';
 
 const SATS_PER_BITCOIN = 1e8;
 
@@ -295,3 +296,64 @@ export const generateMnemonic = () => bsv.Mnemonic.fromRandom();
 export const rebuildMnemonic = (phrase: string) => bsv.Mnemonic.fromString(phrase);
 
 export const isValidMnemonic = (phrase: string) => bsv.Mnemonic.isValid(phrase);
+
+export const parseTokenTx = (txData: string | bsv.Transaction): ParsedTokenDetails => {
+  const tx = txData instanceof bsv.Transaction ? txData : new bsv.Transaction(txData);
+  return parseScript(tx.outputs[0].script);
+};
+
+export const parseStasTx = (txData: string | bsv.Transaction, network: string) => {
+  const tx = txData instanceof bsv.Transaction ? txData : new bsv.Transaction(txData);
+  const tokenScript = tx.outputs[0].script;
+
+  const {
+    groups: { addr: pkHash, data: dataHex, flags },
+  } = tokenScript.toHex().match(stasScriptRegex);
+
+  const addr = bsv.Address.fromPublicKeyHash(Buffer.from(pkHash, 'hex'), network as bsv.Networks.Type);
+
+  const isFungible = flags === '0100';
+
+  const script = bsv.Script.fromHex(dataHex);
+  const symbol = script.chunks[0].buf?.toString('utf8');
+  const dataString = script.chunks[1]?.buf?.toString('utf8');
+  const data = dataString ? JSON.parse(dataString) : null;
+
+  return {
+    addr: addr.toString(),
+    symbol,
+    data,
+    isFungible,
+  };
+};
+
+export const parseScript = (scriptData: string | bsv.Script) => {
+  const script = scriptData instanceof bsv.Script ? scriptData : bsv.Script.fromString(scriptData);
+  return JSON.parse(script.chunks[6].buf?.toString('utf8')) as ParsedTokenDetails;
+};
+
+export const parseRecipientListFromTx = (txData: string | bsv.Transaction, network: string) => {
+  const tx = txData instanceof bsv.Transaction ? txData : new bsv.Transaction(txData);
+  const recipientList = [];
+
+  tx.outputs.forEach((output, index) => {
+    const { script } = output;
+
+    // skip change output
+    if (script.isPublicKeyHashOut()) {
+      return;
+    }
+
+    const { groups } = script.toHex().match(addrScriptRegex);
+    const addr = bsv.Address.fromPublicKeyHash(Buffer.from(groups.addr, 'hex'), network as bsv.Networks.Type);
+
+    recipientList.push({
+      address: addr.toString(),
+      isStandard: script.isStandard(),
+      satoshis: output.satoshis,
+      index,
+    });
+  });
+
+  return recipientList;
+};

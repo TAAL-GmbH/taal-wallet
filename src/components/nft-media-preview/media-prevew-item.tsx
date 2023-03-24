@@ -75,9 +75,9 @@ export const MediaPreviewItem: FC<Props> = ({
 const Img = styled(ImageWithFallback)`
   max-width: 100%;
   max-height: 600px;
-  border: 1px solid #ccc;
+  border-radius: 8px;
   padding: 10px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  background-color: #fff;
 `;
 
 const Textarea = styled.textarea`

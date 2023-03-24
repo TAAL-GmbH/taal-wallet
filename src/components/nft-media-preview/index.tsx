@@ -6,23 +6,17 @@ import { isNull } from '@/src/utils/generic';
 
 import { MediaPreviewItem } from './media-prevew-item';
 
-// import { useTransactionData } from '@/hooks/use-transaction-data';
-// import { isNull } from 'utils/generic';
-// import { MediaPreviewItem } from '../create-token/nft/media-preview/media-prevew-item';
-
 type Props = {
-  issueTxId: string;
+  issueTxId?: string;
+  data?: ReturnType<typeof useTransactionData>['data'];
 };
 
-export const NftMediaPreview: FC<Props> = ({ issueTxId }) => {
-  const {
-    data,
-    // symbol,
-    // isFungible,
-    error,
-  } = useTransactionData({
+export const NftMediaPreview: FC<Props> = ({ issueTxId, data: datafromProps }) => {
+  const { data: dataFromApi, error } = useTransactionData({
     issueTxId,
   });
+
+  const data = datafromProps || dataFromApi;
 
   if (!data) {
     return null;

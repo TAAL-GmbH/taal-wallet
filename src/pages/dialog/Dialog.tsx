@@ -1,8 +1,10 @@
 import { FC, useEffect, useRef, useState } from 'react';
 import styled, { css } from 'styled-components';
-import xss from 'xss';
+
 import { Button } from '@/src/components/button';
 import { DialogData } from '@/src/types';
+import { DialogContent } from './DialogContent';
+import { padding } from '@/src/utils/injectSpacing';
 
 let bc: BroadcastChannel;
 let remainingTimeInterval: ReturnType<typeof setInterval>;
@@ -22,7 +24,6 @@ export const Dialog: FC = () => {
     } else {
       bc = new BroadcastChannel(`dialog-${dialogId}`);
       bc.onmessage = ({ data }: { data: { action: string; payload?: unknown } }) => {
-        console.log({ dialogId, data });
         if (data?.action === 'getData') {
           setDialogData(data?.payload as DialogData);
           const timeout = (data?.payload as DialogData)?.timeout;
@@ -86,12 +87,11 @@ export const Dialog: FC = () => {
   }
 
   return (
-    <Wrapper fitView={dialogData.fitView} isTimeouted={isTimeouted}>
+    <Wrapper fitView={dialogData.fitView} isTimeouted={isTimeouted} hasTimer={timeRemaining > 0}>
       {timeRemaining > 0 && <TimeRemaining>Time remaining: {timeRemaining} seconds</TimeRemaining>}
       {isTimeouted && <TimeRemaining>Time is up! Please restart this process.</TimeRemaining>}
-      <h1>{dialogData.title}</h1>
 
-      {!!dialogData.body && <Body dangerouslySetInnerHTML={{ __html: xss(dialogData.body) }} />}
+      <DialogContent title={dialogData.title} dialogType={dialogData.dialogType} data={dialogData.data} />
 
       {!!dialogData.options?.length && (
         <ButtonWrapper>
@@ -112,7 +112,7 @@ export const Dialog: FC = () => {
   );
 };
 
-const Wrapper = styled.div<{ fitView?: boolean; isTimeouted?: boolean }>`
+const Wrapper = styled.div<{ fitView?: boolean; isTimeouted?: boolean; hasTimer?: boolean }>`
   min-height: 100vh;
   max-width: 500px;
   width: 100vw;
@@ -120,6 +120,21 @@ const Wrapper = styled.div<{ fitView?: boolean; isTimeouted?: boolean }>`
   display: flex;
   flex: 1;
   flex-direction: column;
+  margin: 0 auto;
+
+  &:after {
+    content: '';
+    padding-top: 60px;
+  }
+
+  ${({ hasTimer }) =>
+    hasTimer &&
+    css`
+      &:before {
+        content: '';
+        padding-top: 20px;
+      }
+    `};
 
   ${({ fitView }) =>
     fitView &&
@@ -140,35 +155,29 @@ const Error = styled.div`
   padding: 2rem;
 `;
 
-const Body = styled.div`
-  display: flex;
-  flex: 1;
-  overflow: auto;
-  flex-direction: column;
-
-  pre {
-    border: 1px solid ${({ theme }) => theme.color.grey[100]};
-    border-radius: 0.5rem;
-    box-shadow: inset 0 0 5px 0 rgba(0, 0, 0, 0.1);
-    overflow: auto;
-    padding: 1rem;
-    margin: 0;
-    width: 100%;
-  }
-`;
-
 const TimeRemaining = styled.div`
-  color: ${({ theme }) => theme.color.primary[400]};
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: ${({ theme }) => theme.color.accent[600]};
+  color: ${({ theme }) => theme.color.grey[800]};
   text-align: center;
+  ${padding`10px md sm`};
 `;
 
 const ButtonWrapper = styled.div`
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 1rem;
-  margin-top: 1rem;
-  max-width: 400px;
+  padding: 1rem;
+  background-color: rgba(255, 255, 255, 0.8);
 
   button {
     width: 100%;

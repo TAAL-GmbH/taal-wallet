@@ -2,54 +2,43 @@ import { buildColor } from '@/utils/build-color';
 import { lighten, darken, setSaturation } from 'polished';
 
 const primary = '#232d7c';
-const primaryA = '#48C1FF';
 const accent = '#e99536';
-const accentA = '#ff8800';
 const neutral = '#dee4eb';
-const neutralA = '#97b6dd';
 const grey = '#76747c';
 const success = '#68C17C';
-const successA = '#2aff58';
 const danger = '#b80357';
-const dangerA = '#ff05b4';
 
 const palette = {
   primary: buildColor({
     50: lighten(0.6, primary),
     400: primary,
-    900: darken(0.1, primary),
-    A400: primaryA,
+    800: darken(0.1, primary),
   }),
   accent: buildColor({
     50: lighten(0.4, accent),
     400: accent,
-    900: darken(0.3, setSaturation(1, accent)),
-    A400: accentA,
+    800: darken(0.3, setSaturation(1, accent)),
   }),
   neutral: buildColor({
     50: lighten(0.08, neutral),
     400: neutral,
-    900: darken(0.25, setSaturation(0.2, neutral)),
-    A400: neutralA,
+    800: darken(0.25, setSaturation(0.2, neutral)),
   }),
   grey: buildColor({
     50: '#F5F5F5',
     100: '#efefef',
     400: grey,
-    900: darken(0.25, setSaturation(0.2, grey)),
-    A400: grey,
+    800: darken(0.25, setSaturation(0.2, grey)),
   }),
   success: buildColor({
     50: lighten(0.35, success),
     400: success,
-    900: darken(0.25, setSaturation(0.2, success)),
-    A400: successA,
+    800: darken(0.25, setSaturation(0.2, success)),
   }),
   danger: buildColor({
     50: lighten(0.6, danger),
     400: danger,
-    900: darken(0.2, setSaturation(0.6, danger)),
-    A400: dangerA,
+    800: darken(0.2, setSaturation(0.6, danger)),
   }),
 };
 
@@ -122,13 +111,91 @@ const button = {
       color: 'white',
       backgroundColor: palette.danger[400],
     },
+    outline: {
+      color: palette.primary[400],
+      backgroundColor: 'transparent',
+      border: `1px solid ${palette.primary[400]}`,
+    },
   },
 };
 
 const fontFamily = {
-  primary: 'Roboto, sans-serif',
-  secondary: 'Roboto, serif',
-  heading: 'Roboto, serif',
+  primary: "'Inter', sans-serif",
+  secondary: "'Inter', sans-serif",
+  heading: "'Inter', sans-serif",
+  monospace: "'JetBrains Mono', monospace", // todo: add font
+};
+
+const typography = {
+  display1: `
+    font-size: 72px;
+  `,
+  display2: `
+    font-size: 60px;
+  `,
+  display3: `
+    font-size: 32px;
+  `,
+  heading1: `
+    font-size: 48px;
+    font-weight: 600;
+  `,
+  heading2: `
+    font-size: 32px;
+    font-weight: 600;
+  `,
+  heading3: `
+    font-size: 24px;
+    font-weight: 600;
+  `,
+  heading4: `
+    font-size: 18px;
+    font-weight: 600;
+  `,
+  heading5: `
+    font-size: 16px;
+    font-weight: 600;
+  `,
+  heading6: `
+    font-size: 14px;
+    font-weight: 600;
+  `,
+  heading7: `
+    font-size: 12px;
+    font-weight: 600;
+  `,
+  heading8: `
+    font-size: 10px;
+    font-weight: 600;
+  `,
+  heading9: `
+    font-size: 9px;
+    font-weight: 600;
+  `,
+  body1: `
+    font-size: 18px;
+  `,
+  body2: `
+    font-size: 16px;
+  `,
+  body3: `
+    font-size: 14px;
+  `,
+  body4: `
+    font-size: 12px;
+  `,
+  numeric1: `
+    font-family: ${fontFamily.monospace};
+    font-size: 16px;
+  `,
+  numeric2: `
+    font-family: ${fontFamily.monospace};
+    font-size: 14px;
+  `,
+  numeric3: `
+    font-family: ${fontFamily.monospace};
+    font-size: 12px;
+  `,
 };
 
 const grid = {
@@ -153,6 +220,7 @@ const light = {
   button,
   fontFamily,
   fontSize,
+  typography,
   borderRadius,
   grid,
   color: {

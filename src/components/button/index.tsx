@@ -2,15 +2,13 @@ import { FC, ReactNode } from 'react';
 import styled, { css } from 'styled-components';
 import { darken, math } from 'polished';
 import { getAutoColor } from '@/utils/color';
-// import { createMediaQueries } from '@/utils/create-media-queries';
 import { injectSpacing } from '@/utils/injectSpacing';
 import { TrackEventOptions } from 'src/types';
 import { trackEvent } from '@/utils/tracking';
 import { Spinner } from '../spinner';
-// import { sharedAnchorStyles } from '../anchor-link/anchor-link';
 
 export type ButtonStyleProps = {
-  variant?: 'default' | 'primary' | 'accent' | 'invert' | 'danger' | 'success' | 'link';
+  variant?: 'default' | 'primary' | 'accent' | 'invert' | 'danger' | 'success' | 'outline' | 'link';
   size?: 'sm' | 'md' | 'lg';
   outline?: boolean;
   hasDarkBg?: boolean;
@@ -86,9 +84,9 @@ export const sharedButtonStyles = css<ButtonStyleProps & { isLoading: boolean }>
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Roboto', serif;
+  font-family: 'Inter', serif;
   font-weight: bold;
-  text-transform: uppercase;
+  // text-transform: uppercase;
   position: relative;
   cursor: pointer;
 

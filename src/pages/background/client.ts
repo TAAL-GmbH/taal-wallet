@@ -1,13 +1,15 @@
+import bsv from 'bsv';
+import 'bsv/message';
+import BN from 'bn.js';
+
 import { db } from '@/src/db';
 import { getBalance, getUnspent } from '@/src/features/wocApi';
 import { store } from '@/src/store';
 import { derivePk, mergeSplit, restorePK } from '@/src/utils/blockchain';
 import { createDialog } from '@/src/utils/createDialog';
-import 'bsv/message';
-import bsv from 'bsv';
 import { waitForTruthy } from '@/src/utils/waitForTruthy';
 import { isNull } from '@/src/utils/generic';
-const BN = require('bn.js');
+import { SignPreimageData } from '@/src/types';
 
 type Options = {
   port: chrome.runtime.Port;
@@ -285,19 +287,15 @@ export class Client {
 
   private async _requestAccessPermission() {
     const result = await createDialog({
-      title: 'Permission request',
-      body: `Do you want to allow 
-        <div><strong>${this._origin}</strong></div> 
-        to access TAAL Wallet?
-        <h4>This will allow the client to:</h4>
-        <ul>
-          <li>Read you wallet address</li>
-          <li>Read you wallet balance</li>
-          <li>Read you public key</li>
-        </ul>
-      `,
-      resizeWindow: true,
-      options: [{ label: 'Yes', variant: 'primary', returnValue: 'yes' }, { label: 'No' }],
+      height: 600,
+      dialogType: 'confirm:origin',
+      data: {
+        origin: this._origin,
+      },
+      options: [
+        { label: 'Reject', variant: 'outline' },
+        { label: 'Connect', variant: 'primary', returnValue: 'yes' },
+      ],
     });
 
     return result.selectedOption === 'yes';
@@ -393,9 +391,17 @@ export class Client {
         case 'signTx': {
           const result = await createDialog({
             title: 'Do you want to sign this transaction?',
-            body: `<pre>${JSON.stringify(payload, null, 2)}</pre>`,
-            options: [{ label: 'Yes', variant: 'primary', returnValue: 'yes' }, { label: 'No' }],
+            height: 600,
+            options: [
+              { label: 'Cancel', variant: 'outline' },
+              { label: 'Confirm', variant: 'primary', returnValue: 'yes' },
+            ],
             timeout,
+            dialogType: 'sign:transaction',
+            data: {
+              txData: payload as bsv.Transaction,
+              network: store.getState().pk.network.envName,
+            },
           });
 
           if (result.selectedOption !== 'yes') {
@@ -416,9 +422,17 @@ export class Client {
         case 'signPreimage': {
           const result = await createDialog({
             title: 'Do you want to sign this pre-image?',
-            body: `<pre>${JSON.stringify(payload, null, 2)}</pre>`,
-            options: [{ label: 'Yes', variant: 'primary', returnValue: 'yes' }, { label: 'No' }],
+            height: 600,
+            options: [
+              { label: 'Cancel', variant: 'outline' },
+              { label: 'Confirm', variant: 'primary', returnValue: 'yes' },
+            ],
             timeout,
+            dialogType: 'sign:preimage',
+            data: {
+              preimageData: payload as SignPreimageData,
+              network: store.getState().pk.network.envName,
+            },
           });
 
           if (result.selectedOption !== 'yes') {
@@ -458,9 +472,16 @@ export class Client {
         case 'signMessage': {
           const result = await createDialog({
             title: 'Do you want to sign this message?',
-            body: `<pre>${payload}</pre>`,
-            options: [{ label: 'Yes', variant: 'primary', returnValue: 'yes' }, { label: 'No' }],
+            options: [
+              { label: 'Cancel', variant: 'outline' },
+              { label: 'Confirm', variant: 'primary', returnValue: 'yes' },
+            ],
             timeout,
+            dialogType: 'sign:message',
+            data: {
+              message: payload as string,
+              network: store.getState().pk.network.envName,
+            },
           });
 
           if (result.selectedOption !== 'yes') {
