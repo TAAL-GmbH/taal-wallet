@@ -9,7 +9,7 @@ import { derivePk, mergeSplit, restorePK } from '@/src/utils/blockchain';
 import { createDialog } from '@/src/utils/createDialog';
 import { waitForTruthy } from '@/src/utils/waitForTruthy';
 import { isNull } from '@/src/utils/generic';
-import { SignPreimageData } from '@/src/types';
+import { SignPreimageData, SignSmartContractData } from '@/src/types';
 
 type Options = {
   port: chrome.runtime.Port;
@@ -254,6 +254,7 @@ export class Client {
 
     try {
       const result = await this._handleExternalAction({ action, payload, timeout });
+
       this._postMessage({
         ...result,
         requestId,
@@ -399,7 +400,7 @@ export class Client {
             timeout,
             dialogType: 'sign:transaction',
             data: {
-              txData: payload as bsv.Transaction,
+              txData: payload as string,
               network: store.getState().pk.network.envName,
             },
           });
@@ -410,11 +411,12 @@ export class Client {
 
           const { privateKeyHash } = this._getKey();
 
-          const tx = new bsv.Transaction(payload);
+          const tx = new bsv.Transaction(payload as string);
           const signedTx = tx.sign(privateKeyHash);
 
           return {
             action: 'signTx',
+            // @ts-expect-error TODO: check this
             payload: signedTx.serialize(true),
           };
         }
@@ -439,13 +441,7 @@ export class Client {
             throw new Error('User rejected pre-image signing');
           }
 
-          const { tx, script, i, satoshis } = payload as {
-            tx: string;
-            sighash: number;
-            script: string;
-            i: number;
-            satoshis: number;
-          };
+          const { tx, script, i, satoshis } = payload as SignPreimageData;
 
           const sighash2 = bsv.crypto.Signature.SIGHASH_ALL | bsv.crypto.Signature.SIGHASH_FORKID;
           const t = new bsv.Transaction(tx);
@@ -466,6 +462,65 @@ export class Client {
           return {
             action: 'signPreimage',
             payload: signature.toTxFormat().toString('hex'),
+          };
+        }
+
+        case 'signSmartContract': {
+          // https://github.com/kanyeceejayA/tictactoe-bsv/blob/main/src/web3/sensiletwallet.ts#L64
+
+          const result = await createDialog({
+            title: 'Do you want to sign this Smart contract?',
+            height: 600,
+            options: [
+              { label: 'Cancel', variant: 'outline' },
+              { label: 'Confirm', variant: 'primary', returnValue: 'yes' },
+            ],
+            timeout,
+            dialogType: 'sign:smartContract',
+            data: {
+              smartContractData: payload as SignSmartContractData,
+              network: store.getState().pk.network.envName,
+            },
+          });
+
+          if (result.selectedOption !== 'yes') {
+            throw new Error('User rejected Smart contract signing');
+          }
+
+          const {
+            txHex,
+            inputIndex,
+            satoshis,
+            scriptHex,
+            sigHashType = bsv.crypto.Signature.SIGHASH_ALL | bsv.crypto.Signature.SIGHASH_FORKID,
+          } = payload as SignSmartContractData;
+
+          const sighash = bsv.Transaction.Sighash.sighash(
+            new bsv.Transaction(txHex),
+            sigHashType,
+            inputIndex,
+            new bsv.Script(scriptHex),
+            new BN(satoshis)
+          ).toString('hex');
+
+          const { privateKeyHash } = this._getKey();
+          const privateKey = new bsv.PrivateKey(privateKeyHash);
+          const publicKey = privateKey.toPublicKey().toString();
+
+          // @ts-expect-error sighash method is not typed correctly
+          const sig = bsv.crypto.ECDSA.sign(Buffer.from(sighash, 'hex'), privateKey, 'little');
+
+          return {
+            action: 'signSmartContract',
+            payload: {
+              publicKey,
+              // @ts-expect-error sighash method is not typed correctly
+              r: sig.r.toString('hex'),
+              // @ts-expect-error sighash method is not typed correctly
+              s: sig.s.toString('hex'),
+              // @ts-expect-error sighash method is not typed correctly
+              sig: sig.set({ nhashtype: sigHashType }).toTxFormat().toString('hex'),
+            },
           };
         }
 

@@ -9,6 +9,7 @@ type State = {
   transaction: unknown;
   signResult: unknown;
   signMessageResult: unknown;
+  signSmartContractResult: unknown;
 };
 
 let errorTimer: ReturnType<typeof setTimeout>;

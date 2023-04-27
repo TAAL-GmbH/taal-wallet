@@ -24,7 +24,6 @@ export const createDialog = async (options: CreateDialogOptions): Promise<Create
   const { timeout, width, height } = { ...defaultOptions, ...options };
 
   let resolveRef: (value: unknown) => void;
-  let rejectRef: (value: unknown) => void;
   let rejectTimer: ReturnType<typeof setTimeout>;
 
   const cleanup = async () => {
@@ -33,7 +32,7 @@ export const createDialog = async (options: CreateDialogOptions): Promise<Create
   };
 
   bc.onmessage = async ({ data }: { data: { action: string; payload?: unknown } }) => {
-    console.log('onmessage', data);
+    // console.log('onmessage', data);
     const { action, payload } = data;
 
     switch (action) {
@@ -59,8 +58,7 @@ export const createDialog = async (options: CreateDialogOptions): Promise<Create
     }
   };
 
-  return new Promise(async (resolve, reject) => {
-    rejectRef = reject;
+  return new Promise(resolve => {
     resolveRef = resolve;
 
     if (timeout > 0) {

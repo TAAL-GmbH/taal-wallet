@@ -44,7 +44,7 @@ export const DialogContent: FC<Props> = ({ title, dialogType, data }) => {
     switch (dialogType) {
       case 'sign:transaction': {
         try {
-          const txData = data as { txData: SignTxData; network: string };
+          const txData = data as { txData: string; network: string };
           const tokenDetails = parseTokenTx(txData.txData);
 
           tabsData.push({
@@ -101,7 +101,7 @@ export const DialogContent: FC<Props> = ({ title, dialogType, data }) => {
       }
     }
 
-    if (['sign:transaction', 'sign:preimage', 'sign:message'].includes(dialogType)) {
+    if (['sign:transaction', 'sign:preimage', 'sign:message', 'sign:smartContract'].includes(dialogType)) {
       tabsData.push({
         title: 'Raw',
         content: <RawDataPreview data={data as object} />,

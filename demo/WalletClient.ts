@@ -26,6 +26,15 @@ type Unspent = {
   value: number;
 };
 
+enum SignType {
+  ALL = 0x00000001 | 0x00000040,
+  SINGLE = 0x00000003 | 0x00000040,
+  NONE = 0x00000002 | 0x00000040,
+  ANYONECANPAY_ALL = 0x00000001 | 0x00000040 | 0x00000080,
+  ANYONECANPAY_SINGLE = 0x00000003 | 0x00000040 | 0x00000080,
+  ANYONECANPAY_NONE = 0x00000002 | 0x00000040 | 0x00000080,
+}
+
 const defaultExtensionId = 'engokokaoeppkmchbkjeoeimiffobcke';
 
 class WalletCommunicator {
@@ -256,6 +265,7 @@ export class WalletClient extends WalletCommunicator {
     return this.request<string>({
       action: 'signTx',
       payload: tx,
+      timeout: 120000,
     });
   }
 
@@ -263,6 +273,21 @@ export class WalletClient extends WalletCommunicator {
     return this.request<string>({
       action: 'signMessage',
       payload: tx,
+      timeout: 120000,
+    });
+  }
+
+  public signSmartContract(payload: {
+    txHex: string;
+    scriptHex: string;
+    satoshis: number;
+    inputIndex: number;
+    sigHashType: SignType;
+  }) {
+    return this.request<string>({
+      action: 'signSmartContract',
+      payload,
+      timeout: 120000,
     });
   }
 
@@ -270,6 +295,7 @@ export class WalletClient extends WalletCommunicator {
     return this.request<string>({
       action: 'mergeSplit',
       payload: { satoshis, minChange },
+      timeout: 120000,
     });
   }
 }

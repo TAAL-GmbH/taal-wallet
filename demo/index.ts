@@ -11,6 +11,7 @@ const btnGetBalance: HTMLButtonElement = document.querySelector('#btn-get-balanc
 const btnGetUnspent: HTMLButtonElement = document.querySelector('#btn-get-unspent');
 const btnCreateTx: HTMLButtonElement = document.querySelector('#btn-create-tx');
 const btnSignMessage: HTMLButtonElement = document.querySelector('#btn-sign-message');
+const btnSignSmartContract: HTMLButtonElement = document.querySelector('#btn-sign-smart-contract');
 const btnInvalidAction: HTMLButtonElement = document.querySelector('#btn-invalid-action');
 
 const wallet = new WalletClient({
@@ -134,6 +135,24 @@ btnSignMessage.addEventListener('click', async () => {
   state.signMessageResult = await wallet.signMessage(inputEl.value).catch(() => '');
 });
 
+btnSignSmartContract.addEventListener('click', async () => {
+  const payload: Record<string, string> = {};
+  document.querySelectorAll('#smart-contract-wrapper input').forEach((el: HTMLInputElement) => {
+    payload[el.name] = el.value;
+  });
+  state.signSmartContractResult = await wallet
+    .signSmartContract({
+      txHex: payload.txHex,
+      scriptHex: payload.scriptHex,
+      satoshis: parseInt(payload.satoshis),
+      inputIndex: parseInt(payload.inputIndex),
+      sigHashType: payload.sighashType as unknown as Parameters<
+        typeof wallet.signSmartContract
+      >[0]['sigHashType'],
+    })
+    .catch(() => '');
+});
+
 btnInvalidAction.addEventListener('click', async () => {
   try {
     await wallet.request({ action: 'invalid-action' });
@@ -142,5 +161,5 @@ btnInvalidAction.addEventListener('click', async () => {
   }
 });
 
-// @ts-ignore for testing purposes only
+// @ts-expect-error for testing purposes only
 window.wallet = wallet;

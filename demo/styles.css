@@ -89,7 +89,12 @@ pre:empty:before {
   border-color: red;
 }
 
-label input[type=text] {
+label {
+  display: block;
+  max-width: 600px;
+}
+
+label input[type=text], label input[type=number], label select {
   width: 100%;
   margin: 0.5rem 0;
   padding: 0.5rem;

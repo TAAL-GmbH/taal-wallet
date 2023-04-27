@@ -60,6 +60,40 @@
       <button id="btn-sign-message">Sign message</button>
     </div>
 
+    <div class="c-only" id="smart-contract-wrapper">
+      <hr />
+      <h2>Smart contract signing</h2>
+      <label>
+        txHex:
+        <input type="text" name="txHex" placeholder="Input your txHex here" />
+      </label>
+      <label>
+        scriptHex:
+        <input type="text" name="scriptHex" placeholder="Input your scriptHex here" />
+      </label>
+      <label>
+        satoshis:
+        <input type="number" name="satoshis" placeholder="Enter amount in satoshis" />
+      </label>
+      <label>
+        inputIndex:
+        <input type="number" name="inputIndex" placeholder="Enter inputIndex" />
+      </label>
+      <label>
+        SignType:
+        <select name="sigHashType">
+          <option value="ALL">ALL</option>
+          <option value="SINGLE">SINGLE</option>
+          <option value="NONE">NONE</option>
+          <option value="ANYONECANPAY_ALL">ANYONECANPAY_ALL</option>
+          <option value="ANYONECANPAY_SINGLE">ANYONECANPAY_SINGLE</option>
+          <option value="ANYONECANPAY_NONE">ANYONECANPAY_NONE</option>
+        </select>
+      </label>
+      <pre id="signSmartContractResult" title="Smart Contract signature"></pre>
+      <button id="btn-sign-smart-contract">Sign smart contract</button>
+    </div>
+
     <h2>State</h2>
     <pre id="state"></pre>
     <script src="./scripts/bsv.min.js"></script>

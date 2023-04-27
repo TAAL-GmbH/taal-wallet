@@ -87,6 +87,23 @@ export type SignPreimageData = {
   tx: string;
 };
 
+export enum SignType {
+  ALL = 0x00000001 | 0x00000040,
+  SINGLE = 0x00000003 | 0x00000040,
+  NONE = 0x00000002 | 0x00000040,
+  ANYONECANPAY_ALL = 0x00000001 | 0x00000040 | 0x00000080,
+  ANYONECANPAY_SINGLE = 0x00000003 | 0x00000040 | 0x00000080,
+  ANYONECANPAY_NONE = 0x00000002 | 0x00000040 | 0x00000080,
+}
+
+export type SignSmartContractData = {
+  txHex: string;
+  scriptHex: string;
+  satoshis: number;
+  inputIndex: number;
+  sigHashType: SignType;
+};
+
 export type SignTxData = bsv.Transaction;
 
 export type SignMessage = string;
@@ -120,7 +137,7 @@ export type DialogData = {
   | {
       dialogType: 'sign:transaction';
       data: {
-        txData: SignTxData;
+        txData: string;
         network: string;
       };
     }
@@ -135,6 +152,13 @@ export type DialogData = {
       dialogType: 'sign:message';
       data: {
         message: SignMessage;
+        network: string;
+      };
+    }
+  | {
+      dialogType: 'sign:smartContract';
+      data: {
+        smartContractData: SignSmartContractData;
         network: string;
       };
     }
