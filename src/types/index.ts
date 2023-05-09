@@ -120,7 +120,7 @@ export type DialogData = {
   | {
       dialogType: 'sign:transaction';
       data: {
-        txData: SignTxData;
+        txData: string;
         network: string;
       };
     }

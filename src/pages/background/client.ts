@@ -399,7 +399,7 @@ export class Client {
             timeout,
             dialogType: 'sign:transaction',
             data: {
-              txData: payload as bsv.Transaction,
+              txData: payload as string,
               network: store.getState().pk.network.envName,
             },
           });
@@ -410,11 +410,12 @@ export class Client {
 
           const { privateKeyHash } = this._getKey();
 
-          const tx = new bsv.Transaction(payload);
+          const tx = new bsv.Transaction(payload as string);
           const signedTx = tx.sign(privateKeyHash);
 
           return {
             action: 'signTx',
+            // @ts-expect-error type does not match actual implementation
             payload: signedTx.serialize(true),
           };
         }
