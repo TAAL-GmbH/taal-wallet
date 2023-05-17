@@ -1,10 +1,8 @@
-import { networkMap } from '@/src/constants/networkList';
-import { db } from '@/src/db';
-import { setActiveAccountId } from '@/src/features/accountSlice';
-import { useAppSelector } from '@/src/hooks';
-import { AccountType } from '@/src/types';
 import { FC } from 'react';
 import styled, { css } from 'styled-components';
+
+import { useAppSelector } from '@/src/hooks';
+import { AccountType } from '@/src/types';
 import { NetworkPill } from '../../networkPill';
 import { AccountIcon } from '../../svg/accountIcon';
 import { CheckIcon } from '../../svg/checkIcon';

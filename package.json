@@ -1,6 +1,6 @@
 {
   "name": "taal-wallet",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "The TAAL Wallet allows users to manage their own keys and sign transactions on the BSV network",
   "license": "MIT",
   "repository": {

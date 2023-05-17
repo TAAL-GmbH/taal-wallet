@@ -208,12 +208,7 @@ declare module 'bsv' {
 
     namespace ECDSA {
       function sign(message: Buffer, key: PrivateKey): Signature;
-      function verify(
-        hashbuf: Buffer,
-        sig: Signature,
-        pubkey: PublicKey,
-        endian?: 'little'
-      ): boolean;
+      function verify(hashbuf: Buffer, sig: Signature, pubkey: PublicKey, endian?: 'little'): boolean;
     }
 
     namespace Hash {
@@ -362,23 +357,14 @@ declare module 'bsv' {
 
     constructor(serialized?: any);
 
-    from(
-      utxos: Transaction.IUnspentOutput | Transaction.IUnspentOutput[]
-    ): this;
+    from(utxos: Transaction.IUnspentOutput | Transaction.IUnspentOutput[]): this;
     to(address: Address[] | Address | string, amount: number): this;
     change(address: Address | string): this;
     fee(amount: number): this;
     feePerKb(amount: number): this;
-    sign(
-      privateKey: PrivateKey[] | string[] | PrivateKey | string,
-      sigtype?: number
-    ): this;
+    sign(privateKey: PrivateKey[] | string[] | PrivateKey | string, sigtype?: number): this;
     applySignature(sig: crypto.Signature): this;
-    addInput(
-      input: Transaction.Input,
-      outputScript: Script | string,
-      satoshis: number
-    ): this;
+    addInput(input: Transaction.Input, outputScript: Script | string, satoshis: number): this;
     addOutput(output: Transaction.Output): this;
     addData(value: Buffer | string): this;
     lockUntilDate(time: Date | number): this;
@@ -499,11 +485,7 @@ declare module 'bsv' {
     inspect(): string;
 
     static sign(message: string | Buffer, privateKey: PrivateKey): string;
-    static verify(
-      message: string | Buffer,
-      address: string | Address,
-      signature: string
-    ): boolean;
+    static verify(message: string | Buffer, address: string | Address, signature: string): boolean;
     static MAGIC_BYTES: Buffer;
     static magicHash(): string;
     static fromString(str: string): Message;
@@ -543,10 +525,7 @@ declare module 'bsv' {
 
     derive(arg: string | number, hardened?: boolean): HDPrivateKey;
     deriveChild(arg: string | number, hardened?: boolean): HDPrivateKey;
-    deriveNonCompliantChild(
-      arg: string | number,
-      hardened?: boolean
-    ): HDPrivateKey;
+    deriveNonCompliantChild(arg: string | number, hardened?: boolean): HDPrivateKey;
 
     toString(): string;
     toObject(): object;
@@ -558,21 +537,12 @@ declare module 'bsv' {
     static fromRandom(): HDPrivateKey;
     static fromString(str: string): HDPrivateKey;
     static fromObject(obj: object): HDPrivateKey;
-    static fromSeed(
-      hexa: string | Buffer,
-      network: string | Networks.Type
-    ): HDPrivateKey;
+    static fromSeed(hexa: string | Buffer, network: string | Networks.Type): HDPrivateKey;
     static fromBuffer(buf: Buffer): HDPrivateKey;
     static fromHex(hex: string): HDPrivateKey;
     static isValidPath(arg: string | number, hardened: boolean): boolean;
-    static isValidSerialized(
-      data: string | Buffer,
-      network?: string | Networks.Type
-    ): boolean;
-    static getSerializedError(
-      data: string | Buffer,
-      network?: string | Networks.Type
-    ): any | null;
+    static isValidSerialized(data: string | Buffer, network?: string | Networks.Type): boolean;
+    static getSerializedError(data: string | Buffer, network?: string | Networks.Type): any | null;
   }
 
   export class HDPublicKey {
@@ -601,14 +571,8 @@ declare module 'bsv' {
 
     static fromHDPrivateKey(hdPrivateKey: HDPrivateKey): HDPublicKey;
     static isValidPath(arg: string | number): boolean;
-    static isValidSerialized(
-      data: string | Buffer,
-      network?: string | Networks.Type
-    ): boolean;
-    static getSerializedError(
-      data: string | Buffer,
-      network?: string | Networks.Type
-    ): any | null;
+    static isValidSerialized(data: string | Buffer, network?: string | Networks.Type): boolean;
+    static getSerializedError(data: string | Buffer, network?: string | Networks.Type): any | null;
   }
 
   export namespace Script {
@@ -622,11 +586,7 @@ declare module 'bsv' {
       opcodenum: number;
     }
 
-    function buildMultisigOut(
-      publicKeys: PublicKey[],
-      threshold: number,
-      opts: object
-    ): Script;
+    function buildMultisigOut(publicKeys: PublicKey[], threshold: number, opts: object): Script;
     function buildMultisigIn(
       pubkeys: PublicKey[],
       threshold: number,
@@ -634,19 +594,11 @@ declare module 'bsv' {
       opts: object
     ): Script;
 
-    function buildPublicKeyHashOut(
-      address: Address | PublicKey | string
-    ): Script;
+    function buildPublicKeyHashOut(address: Address | PublicKey | string): Script;
     function buildPublicKeyOut(pubkey: PublicKey): Script;
-    function buildSafeDataOut(
-      data: string | Buffer | Array<string | Buffer>,
-      encoding?: string
-    ): Script;
+    function buildSafeDataOut(data: string | Buffer | Array<string | Buffer>, encoding?: string): Script;
     function buildScriptHashOut(script: Script): Script;
-    function buildPublicKeyIn(
-      signature: crypto.Signature | Buffer,
-      sigtype: number
-    ): Script;
+    function buildPublicKeyIn(signature: crypto.Signature | Buffer, sigtype: number): Script;
     function buildPublicKeyHashIn(
       publicKey: PublicKey,
       signature: crypto.Signature | Buffer,
@@ -672,11 +624,7 @@ declare module 'bsv' {
         mainstack: any;
         altstack: any;
       }
-      type StepListenerFunction = (
-        step: any,
-        stack: any[],
-        altstack: any[]
-      ) => void;
+      type StepListenerFunction = (step: any, stack: any[], altstack: any[]) => void;
     }
 
     export class Interpreter {
@@ -782,10 +730,7 @@ declare module 'bsv' {
 
     function add(data: any): Network;
     function remove(network: Networks.Type): void;
-    function get(
-      args: string | number | Networks.Type,
-      keys: string | string[]
-    ): Network;
+    function get(args: string | number | Networks.Type, keys: string | string[]): Network;
   }
 
   export class Address {
@@ -793,25 +738,12 @@ declare module 'bsv' {
     readonly network: Networks.Network;
     readonly type: string;
 
-    constructor(
-      data: Buffer | Uint8Array | string | object,
-      network?: Networks.Type | string,
-      type?: string
-    );
+    constructor(data: Buffer | Uint8Array | string | object, network?: Networks.Type | string, type?: string);
     static fromString(address: string, network: Networks.Type): Address;
     static fromPublicKey(data: PublicKey, network: Networks.Type): Address;
-    static fromPrivateKey(
-      privateKey: PrivateKey,
-      network: Networks.Type
-    ): Address;
-    static fromPublicKeyHash(
-      hash: Buffer | Uint8Array,
-      network: Networks.Type
-    ): Address;
-    static fromScriptHash(
-      hash: Buffer | Uint8Array,
-      network: Networks.Type
-    ): Address;
+    static fromPrivateKey(privateKey: PrivateKey, network: Networks.Type): Address;
+    static fromPublicKeyHash(hash: Buffer | Uint8Array, network: Networks.Type): Address;
+    static fromScriptHash(hash: Buffer | Uint8Array, network: Networks.Type): Address;
     isValid(
       data: Buffer | Uint8Array | string | object,
       network?: Networks.Type | string,

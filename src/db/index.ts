@@ -2,6 +2,7 @@ import { openDB, DBSchema, IDBPDatabase, StoreNames, deleteDB } from 'idb';
 import { OriginType, PKType } from '../types';
 import { isBackgroundScript } from '../utils/generic';
 import { sharedDb } from './shared';
+import { clog } from '../utils/clog';
 
 const CURRENT_DB_VERSION = 1;
 export const ACCOUNT_DB_NAME_PREFIX = `Account`;
@@ -42,24 +43,20 @@ interface TaalAccountDB extends DBSchema {
 class Db {
   private _db: IDBPDatabase<TaalAccountDB> | null;
   private _activeDbName: string;
+  private _dbPromise: Promise<IDBPDatabase<TaalAccountDB>> | null;
 
   constructor() {}
 
-  private async _getDB() {
-    if (!this._activeDbName) {
-      const activeAccountId = await sharedDb.getKeyVal('activeAccountId');
-      if (!activeAccountId) {
-        console.error(`No active account!`);
-        return;
-      }
-      // const accountId = (await sharedDb.getKeyVal('activeAccountId')) || `0`;
-      this._activeDbName = `${ACCOUNT_DB_NAME_PREFIX}-${activeAccountId}`;
-      this._db = null;
-    }
+  public getName() {
+    return this._activeDbName;
+  }
 
-    return (
-      this._db ||
-      openDB<TaalAccountDB>(this._activeDbName, CURRENT_DB_VERSION, {
+  /**
+   * This method prevents initializing the db multiple times in parallel.
+   */
+  private async _openDB() {
+    if (!this._dbPromise) {
+      this._dbPromise = openDB<TaalAccountDB>(this._activeDbName, CURRENT_DB_VERSION, {
         upgrade(db) {
           db.createObjectStore(storeNames.KEY_VAL);
           db.createObjectStore(storeNames.ORIGIN, { keyPath: 'origin' });
@@ -69,8 +66,29 @@ class Db {
           });
           pkStore.createIndex('by-path', 'path');
         },
-      })
-    );
+      });
+    }
+    return this._dbPromise;
+  }
+
+  private async _getDB() {
+    if (!this._activeDbName) {
+      const activeAccountId = await sharedDb.getKeyVal('activeAccountId');
+      if (!activeAccountId) {
+        console.error(`No active account!`);
+        return;
+      }
+
+      this._activeDbName = `${ACCOUNT_DB_NAME_PREFIX}-${activeAccountId}`;
+      this._db = null;
+      this._dbPromise = null;
+    }
+
+    if (!this._db) {
+      this._db = await this._openDB();
+    }
+
+    return this._db;
   }
 
   private async _getStore<T extends StoreNames<TaalAccountDB>>(storeName: T) {
@@ -84,25 +102,22 @@ class Db {
   }
 
   public async useAccount(accountId: string, create?: boolean) {
-    console.log(`useAccount`, accountId, create);
     const dbName = `${ACCOUNT_DB_NAME_PREFIX}-${accountId}`;
 
     const dbList = await indexedDB.databases();
     const dbExists = !!dbList.find(item => item.name === dbName);
 
     if (!dbExists && !create) {
-      console.error(`Account #${accountId} not found!`, { dbList });
+      clog.error(`Account #${accountId} not found!`, { dbList });
       throw new Error(`Account #${accountId} not found!`);
     }
 
     await sharedDb.setKeyVal('activeAccountId', accountId);
     this._activeDbName = dbName;
     this._db = null;
+    this._dbPromise = null;
 
-    // if (!dbExists && create) {
-    // calling _getDB() will create the DB
     await this._getDB();
-    // }
 
     // tell background script that we are using this account now
     // TODO: switch to long-lived internal communication

@@ -22,11 +22,6 @@ const Popup = () => {
 
   useEffect(() => {
     document.body.classList.add(isPopup() ? 'main-app-in-popup' : 'main-app-in-tab');
-    // @ ts-expect-error - this is a hack to make the store available in the console
-    // window.store = store;
-    // @ ts-expect-error - this is a hack to make the db available in the console
-    // window.db = db;
-
     (async () => {
       setIsTosInAgreement(!!(await sharedDb.getKeyVal('isTosInAgreement')));
       setIsInitialized(true);

@@ -33,7 +33,6 @@ export const createDialog = async (options: CreateDialogOptions): Promise<Create
   };
 
   bc.onmessage = async ({ data }: { data: { action: string; payload?: unknown } }) => {
-    console.log('onmessage', data);
     const { action, payload } = data;
 
     switch (action) {

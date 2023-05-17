@@ -8,10 +8,10 @@ import { clearState, lockWallet } from '@/src/features/pkSlice';
 import { clientList } from './clientListController';
 import { sharedDb } from '@/src/db/shared';
 import { AccountFactory } from '@/src/utils/accountFactory';
-import { log } from '@/src/utils/log';
 import bsv from 'bsv';
+import { dispatchAndValidate } from '@/src/utils/dispatchAndValidate';
 
-// adjust DUST_AMOUNT to 0 in background script enry point
+// adjust DUST_AMOUNT to 0 in background script entry point
 // @ts-expect-error DUST_AMOUNT is not typed
 bsv.Transaction.DUST_AMOUNT = 0;
 
@@ -40,7 +40,6 @@ self.addEventListener('push', onPushMessage);
 chrome.alarms.onAlarm.addListener(({ name }) => {
   switch (name) {
     case alarms.WALLET_LOCK: {
-      log.debug('lock-on-alarm');
       store.dispatch(lockWallet());
       chrome.action.setBadgeText({ text: '' });
       break;
@@ -80,16 +79,13 @@ chrome.runtime.onMessage.addListener(({ action, payload }, sender, sendResponse)
       case 'bg:setAccount': {
         if (store.getState().account.activeAccountId !== payload) {
           await db.useAccount(payload);
-          // let's clean up the state as we have switched to new account
-          store.dispatch(clearState());
-        }
-        sendResponse('account-set');
-        break;
-      }
 
-      case 'bg:reloadFromDb': {
-        await restoreDataFromDb();
-        sendResponse('data-restored');
+          // let's clean up the state as we have switched to new account
+          await dispatchAndValidate(clearState(), s => Object.keys(s.pk.map).length === 0);
+
+          await restoreDataFromDb();
+        }
+        sendResponse(`BG: account-set to ${db.getName()}`);
         break;
       }
 
@@ -109,15 +105,12 @@ export const initBackground = () => {
   chrome.runtime.onConnectExternal.addListener(port => {
     let client: Client | null = new Client({ port });
 
-    chrome.runtime.onMessage.addListener(client.onInternalMessage);
-
     chrome.notifications.onClicked.addListener(() => chrome.runtime.openOptionsPage(console.log));
 
     const onPortDisconnect = async () => {
       port.onDisconnect.removeListener(onPortDisconnect);
       clientList.remove(client);
       client && port.onMessage.removeListener(client.onExternalMessage);
-      client && chrome.runtime.onMessage.removeListener(client.onInternalMessage);
       await client?.destroy();
       client = null;
       // console.log('client destroyed', globalThis.performance);

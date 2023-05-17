@@ -1,10 +1,7 @@
 import { useAppSelector } from '.';
-import { db } from '../db';
 import * as wocApi from '../features/wocApi';
-import { store } from '../store';
 import { isNull } from '../utils/generic';
 import { createToast } from '../utils/toast';
-import * as accountSlice from '../features/accountSlice';
 
 export const useBlockchain = () => {
   const { activePk } = useAppSelector(state => state.pk);
@@ -34,14 +31,8 @@ export const useBlockchain = () => {
     }
   };
 
-  const setActiveAccountId = async (accountId: string) => {
-    await db.useAccount(accountId);
-    store.dispatch(accountSlice.setActiveAccountId(accountId));
-  };
-
   return {
     getBalance,
     airdrop,
-    setActiveAccountId,
   };
 };

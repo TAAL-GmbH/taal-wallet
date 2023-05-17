@@ -13,7 +13,6 @@ const cleanObject = (obj: unknown | unknown[]) => {
   } else if (obj instanceof Object) {
     obj = { ...obj };
     Object.keys(obj).forEach(key => {
-      console.log(key);
       if (propsToSanitize.includes(key)) {
         obj[key] = `${obj[key].slice(0, 4)}.......${obj[key].slice(-4)}`;
         // obj[key] = '*****';

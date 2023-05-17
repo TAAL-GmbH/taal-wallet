@@ -27,6 +27,7 @@ export const initStoreSync = async () => {
   const activeAccountId = await sharedDb.getKeyVal('activeAccountId');
   if (!activeAccountId) {
     console.info('No active account. First run? Skipping store sync');
+    store.dispatch(setState({ isStateInitialized: true }));
     return;
   }
 
@@ -76,6 +77,7 @@ export const initStoreSync = async () => {
           return;
         }
 
+        // TODO: check if we really need to write pk to db
         db.insertPk(pk);
 
         const pathSegments = pk.path.split('/');
@@ -164,12 +166,9 @@ export const restoreDataFromDb = async () => {
     sharedDb.getAccountList(),
     sharedDb.getKeyVal('activeAccountId'),
   ]);
-  console.debug('restoreDataFromDb', { networkId, pkMap, activePkAddress, accountList, activeAccountId });
 
   store.dispatch(setAccountList(accountList));
   store.dispatch(setActiveAccountId(activeAccountId || accountList[0]?.id));
-
-  // console.log('swithing network', networkId);
 
   store.dispatch(
     setState({

@@ -10,6 +10,7 @@ import { createDialog } from '@/src/utils/createDialog';
 import { waitForTruthy } from '@/src/utils/waitForTruthy';
 import { isNull } from '@/src/utils/generic';
 import { SignPreimageData } from '@/src/types';
+import { clog } from '@/src/utils/clog';
 
 type Options = {
   port: chrome.runtime.Port;
@@ -26,9 +27,8 @@ export class Client {
   private _port: chrome.runtime.Port;
   private _origin: string;
   private _isAuthorized = false;
-  private _isConnected = false;
   private _pingTimer: ReturnType<typeof setTimeout> | null = null;
-  private _disconectTimer: ReturnType<typeof setTimeout> | null = null;
+  private _disconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private _unsubscribeRedux: () => void;
   public onAuthorized: (() => void) | null = null;
 
@@ -39,7 +39,6 @@ export class Client {
     this._port = port;
     this._origin = port.sender?.origin;
     this.onExternalMessage = this.onExternalMessage.bind(this);
-    this.onInternalMessage = this.onInternalMessage.bind(this);
     this._unsubscribeRedux = this._watchReduxState();
   }
 
@@ -78,10 +77,10 @@ export class Client {
         storeCache?.account.activeAccountId &&
         state.account.activeAccountId !== storeCache?.account.activeAccountId
       ) {
-        console.log({
-          state: state.account.activeAccountId,
-          cache: storeCache?.account.activeAccountId,
-        });
+        clog.info(
+          'account changed',
+          `${storeCache?.account.activeAccountId} -> ${state.account.activeAccountId}`
+        );
         this._postMessage<{ reason: string }>({
           action: 'disconnect',
           payload: {
@@ -107,7 +106,6 @@ export class Client {
       }
 
       if (state.pk.isLocked === true) {
-        console.log('Wallet is locked');
         this._postMessage(
           {
             action: 'disconnect',
@@ -151,8 +149,7 @@ export class Client {
       },
       true
     );
-    this._disconectTimer = setTimeout(() => {
-      this._isConnected = false;
+    this._disconnectTimer = setTimeout(() => {
       this._postMessage(
         {
           action: 'disconnect',
@@ -164,7 +161,6 @@ export class Client {
   }
 
   private _onConnect() {
-    this._isConnected = true;
     this._clearTimers();
     this._pingTimer = setInterval(this._ping.bind(this), 1000);
   }
@@ -248,7 +244,7 @@ export class Client {
 
     // handle pong response
     if (action === 'pong') {
-      clearTimeout(this._disconectTimer);
+      clearTimeout(this._disconnectTimer);
       return;
     }
 
@@ -267,22 +263,6 @@ export class Client {
         requestId,
       });
     }
-  }
-
-  public onInternalMessage(
-    { action, payload }: { action: string; payload: unknown },
-    sender: chrome.runtime.MessageSender,
-    sendResponse: (result: unknown) => void
-  ) {
-    (async () => {
-      const result = await this._handleInternalAction({
-        action,
-        payload,
-        sender,
-      });
-      sendResponse(result);
-    })();
-    return true;
   }
 
   private async _requestAccessPermission() {
@@ -415,7 +395,6 @@ export class Client {
 
           return {
             action: 'signTx',
-            // @ts-expect-error type does not match actual implementation
             payload: signedTx.serialize(true),
           };
         }
@@ -521,25 +500,6 @@ export class Client {
     }
   }
 
-  private async _handleInternalAction({
-    action,
-    payload,
-    sender,
-  }: {
-    action: string;
-    payload: unknown;
-    sender: chrome.runtime.MessageSender;
-  }) {
-    switch (action) {
-      default: {
-        return {
-          action: 'error',
-          reason: 'not-implemented',
-        };
-      }
-    }
-  }
-
   private _getKey() {
     const { rootPk, activePk } = store.getState().pk;
     const path = activePk?.path;
@@ -557,7 +517,7 @@ export class Client {
 
   private _clearTimers() {
     clearInterval(this._pingTimer);
-    clearTimeout(this._disconectTimer);
+    clearTimeout(this._disconnectTimer);
   }
 
   public async destroy() {

@@ -25,8 +25,6 @@ export const AccountList: FC<Props> = ({ className }) => {
 
     await db.useAccount(accountId);
 
-    await chrome.runtime.sendMessage({ action: 'bg:reloadFromDb' });
-
     const isAccountWrittenToDb = await waitForTruthy(
       async () => (await sharedDb.getKeyVal('activeAccountId')) === accountId
     );
