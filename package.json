@@ -18,6 +18,7 @@
   "dependencies": {
     "@hookform/error-message": "^2.0.0",
     "@reduxjs/toolkit": "^1.8.1",
+    "@types/bn.js": "^5.1.1",
     "assert": "^2.0.0",
     "bitcoin-address-validation": "^2.2.1",
     "bn.js": "^5.2.1",

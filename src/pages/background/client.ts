@@ -432,7 +432,8 @@ export class Client {
           const { privateKeyHash } = this._getKey();
           const pk = new bsv.PrivateKey(privateKeyHash);
 
-          const satsBN = BN.fromNumber(satoshis);
+          const satsBN = new BN(satoshis);
+
           // @ts-expect-error TransactionSignature not defined
           let signature: bsv.TransactionSignature;
           try {
