@@ -1,6 +1,6 @@
 import { FC, InputHTMLAttributes, ReactNode } from 'react';
 import styled, { css } from 'styled-components';
-import { isUndefined } from '@/src/utils/generic';
+import { isUndefined } from '@/utils/generic';
 
 type Props = {
   startAt?: number;

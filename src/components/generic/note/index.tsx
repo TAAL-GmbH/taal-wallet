@@ -1,7 +1,7 @@
 import { FC, ReactNode } from 'react';
 import styled, { css } from 'styled-components';
 import { isUndefined } from '@/utils/generic';
-import { injectSpacing } from '@/utils/injectSpacing';
+import { injectSpacing } from '@/utils/inject-spacing';
 
 type Props = {
   children: ReactNode;
@@ -14,8 +14,8 @@ type StyleProps = {
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
   center?: boolean;
   strong?: boolean;
-  padding?: string | boolean;
-  margin?: string | boolean;
+  padding?: string;
+  margin?: string;
 };
 
 export const Note: FC<Props & StyleProps> = ({
@@ -32,18 +32,18 @@ export const Note: FC<Props & StyleProps> = ({
   const isDefaultVariant = variant === 'default';
   return (
     <Wrapper
-      variant={variant}
-      size={size}
-      center={center}
-      strong={strong}
-      padding={
+      $variant={variant}
+      $size={size}
+      $center={center}
+      $strong={strong}
+      $padding={
         // defaultVariant: user supplied padding value or false
         // otherVariant: user supplied padding value or ${size}
-        isDefaultVariant && isUndefined(padding) ? false : padding || size
+        isDefaultVariant && isUndefined(padding) ? null : padding || size
       }
-      margin={isUndefined(margin) ? `${size} 0` : margin}
+      $margin={isUndefined(margin) ? `${size} 0` : margin}
       className={className}
-      hasIcon={!!icon}
+      $hasIcon={!!icon}
     >
       {icon}
       {children}
@@ -51,31 +51,51 @@ export const Note: FC<Props & StyleProps> = ({
   );
 };
 
-const Wrapper = styled.div<StyleProps & { hasIcon: boolean }>`
+type WrapperProps = {
+  $variant?: StyleProps['variant'];
+  $size?: StyleProps['size'];
+  $center?: StyleProps['center'];
+  $strong?: StyleProps['strong'];
+  $padding?: StyleProps['padding'];
+  $margin?: StyleProps['margin'];
+  $hasIcon: boolean;
+};
+
+const Wrapper = styled.div<WrapperProps>`
+  ${({ theme }) => theme.typography.body3};
+  border-radius: ${p => p.theme.borderRadius.sm};
+
   ${p =>
-    p.center &&
+    p.$center &&
     css`
       text-align: center;
     `};
 
   ${p =>
-    p.strong &&
+    p.$strong &&
     css`
       font-weight: bold;
     `};
 
-  ${({ variant }) => {
-    switch (variant) {
+  ${({ $variant }) => {
+    switch ($variant) {
       case 'default': {
-        // do nothing
+        return css`
+          color: ${p => p.theme.color.grey[800]};
+          background-color: ${p => p.theme.color.secondary[50]};
+          border: 1px solid ${p => p.theme.color.secondary[600]};
+
+          svg {
+            fill: ${p => p.theme.color.secondary[600]};
+          }
+        `;
         break;
       }
 
       case 'warning': {
         return css`
           color: #fff;
-          background-color: ${p => p.theme.color.accent[300]};
-          border-radius: ${p => p.theme.borderRadius.sm};
+          background-color: ${p => p.theme.color.accent[800]};
         `;
       }
 
@@ -83,29 +103,35 @@ const Wrapper = styled.div<StyleProps & { hasIcon: boolean }>`
         return css`
           color: #fff;
           background-color: ${p => p.theme.color.danger[400]};
-          border-radius: ${p => p.theme.borderRadius.sm};
+        `;
+      }
+
+      case 'accent': {
+        return css`
+          color: #fff;
+          background-color: ${p => p.theme.color.accent[600]};
         `;
       }
 
       default: {
         return css`
-          color: ${p => p.theme.color?.[variant]?.[700]};
-          border: 1px solid ${p => p.theme.color?.[variant]?.[500]};
-          background-color: ${p => p.theme.color?.[variant]?.[50]};
+          color: ${p => p.theme.color?.[$variant]?.[800]};
+          border: 1px solid ${p => p.theme.color?.[$variant]?.[800]};
+          background-color: ${p => p.theme.color?.[$variant]?.[50]};
           border-radius: ${p => p.theme.borderRadius.sm};
         `;
       }
     }
   }}
 
-  ${({ size }) =>
-    size !== 'md' &&
+  ${({ $size }) =>
+    $size !== 'md' &&
     css`
-      font-size: ${p => p.theme.fontSize[size]};
+      font-size: ${p => p.theme.fontSize[$size]};
     `};
 
-  ${({ hasIcon }) =>
-    hasIcon &&
+  ${({ $hasIcon }) =>
+    $hasIcon &&
     css`
       display: flex;
       gap: 0.8rem;

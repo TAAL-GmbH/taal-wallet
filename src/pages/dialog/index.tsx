@@ -1,9 +1,9 @@
-import { createPage } from '@/src/utils/createPage';
-import { Dialog } from '@/pages/dialog/Dialog';
-import light from '@/src/themes/light2023';
+import { createPage } from '@/utils/create-page';
+import { Dialog } from '@/pages/dialog/dialog';
+import light from '@/themes/light';
 
 createPage({
-  domElement: document.querySelector('#app-container'),
+  domElement: document.querySelector('#app'),
   component: <Dialog />,
   theme: light,
 });

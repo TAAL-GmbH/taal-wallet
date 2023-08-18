@@ -1,10 +1,10 @@
 import { FC, useEffect, useRef, useState } from 'react';
 import styled, { css } from 'styled-components';
 
-import { Button } from '@/src/components/button';
-import { DialogData } from '@/src/types';
-import { DialogContent } from './DialogContent';
-import { padding } from '@/src/utils/injectSpacing';
+import { Button } from '@/components/generic/button';
+import { DialogData } from '@/types';
+import { DialogContent } from './dialog-content';
+import { padding } from '@/utils/inject-spacing';
 
 let bc: BroadcastChannel;
 let remainingTimeInterval: ReturnType<typeof setInterval>;
@@ -87,7 +87,7 @@ export const Dialog: FC = () => {
   }
 
   return (
-    <Wrapper fitView={dialogData.fitView} isTimeouted={isTimeouted} hasTimer={timeRemaining > 0}>
+    <Wrapper $fitView={dialogData.fitView} $isTimeouted={isTimeouted} $hasTimer={timeRemaining > 0}>
       {timeRemaining > 0 && <TimeRemaining>Time remaining: {timeRemaining} seconds</TimeRemaining>}
       {isTimeouted && <TimeRemaining>Time is up! Please restart this process.</TimeRemaining>}
 
@@ -112,7 +112,7 @@ export const Dialog: FC = () => {
   );
 };
 
-const Wrapper = styled.div<{ fitView?: boolean; isTimeouted?: boolean; hasTimer?: boolean }>`
+const Wrapper = styled.div<{ $fitView?: boolean; $isTimeouted?: boolean; $hasTimer?: boolean }>`
   min-height: 100vh;
   max-width: 500px;
   width: 100vw;
@@ -121,14 +121,15 @@ const Wrapper = styled.div<{ fitView?: boolean; isTimeouted?: boolean; hasTimer?
   flex: 1;
   flex-direction: column;
   margin: 0 auto;
+  box-sizing: border-box;
 
   &:after {
     content: '';
     padding-top: 60px;
   }
 
-  ${({ hasTimer }) =>
-    hasTimer &&
+  ${({ $hasTimer }) =>
+    $hasTimer &&
     css`
       &:before {
         content: '';
@@ -136,14 +137,14 @@ const Wrapper = styled.div<{ fitView?: boolean; isTimeouted?: boolean; hasTimer?
       }
     `};
 
-  ${({ fitView }) =>
-    fitView &&
+  ${({ $fitView }) =>
+    $fitView &&
     css`
       height: 100vh;
     `}
 
-  ${({ isTimeouted }) =>
-    isTimeouted &&
+  ${({ $isTimeouted }) =>
+    $isTimeouted &&
     css`
       filter: contrast(-100) saturate(-100);
     `}

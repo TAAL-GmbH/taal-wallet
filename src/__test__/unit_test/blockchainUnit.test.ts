@@ -1,7 +1,7 @@
 jest.mock('../../features/wocApi');
 
 import { createBSVTransferTransaction, sendBSV } from '../../utils/blockchain';
-import * as wocApi from '../../features/wocApi';
+import * as wocApi from '../../features/woc-api';
 
 let srcAddress = 'mh62GKa9jwsYztZRGAUbFA9iVF5oM3HoVf';
 let dstAddress = 'mfuva4vmYVEnjXVMapE38xaK4UTjcfnNLh';
@@ -132,7 +132,7 @@ describe('blockchain.js', () => {
         satoshis: 1500,
       });
       const result = await wocApi.broadcast(tx.toString());
-      console.log(result)
+      console.log(result);
       expect(JSON.stringify(result)).toContain(
         'cd73522be888ca665ccc5218fd79f5c8217acd4ede208f6b3c77700baa0964c2'
       );

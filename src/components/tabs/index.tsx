@@ -1,8 +1,9 @@
 import { FC, ReactNode, useState } from 'react';
 import styled from 'styled-components';
 
-import { injectSpacing, padding } from '@/src/utils/injectSpacing';
-import { Note } from '../generic/note';
+import { injectSpacing, padding } from '@/utils/inject-spacing';
+import { Note } from '@/generic/note';
+import { InjectSpacing } from '@/types/index';
 
 type Item = {
   title: string;
@@ -32,7 +33,7 @@ export const Tabs: FC<Props> = ({ items, activeIndex = 0, onChange, margin = 'sm
   };
 
   return (
-    <Wrapper margin={margin}>
+    <Wrapper $margin={margin}>
       <TabsWrapper>
         {items.map((item, index) => (
           <Tab
@@ -46,14 +47,14 @@ export const Tabs: FC<Props> = ({ items, activeIndex = 0, onChange, margin = 'sm
           </Tab>
         ))}
       </TabsWrapper>
-      <ContentWrapper padding={padding}>
+      <ContentWrapper $padding={padding}>
         {items[activeTabIndex] ? items[activeTabIndex].content : <Note variant="danger">Tab not found</Note>}
       </ContentWrapper>
     </Wrapper>
   );
 };
 
-const Wrapper = styled.div<{ margin: string }>`
+const Wrapper = styled.div<InjectSpacing>`
   ${injectSpacing(['margin'])};
 `;
 
@@ -79,7 +80,7 @@ const Tab = styled.div<{ $isActive: boolean }>`
   }
 `;
 
-const ContentWrapper = styled.div<{ padding: string }>`
+const ContentWrapper = styled.div<InjectSpacing>`
   position: relative;
   overflow: hidden;
 

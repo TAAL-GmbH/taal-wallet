@@ -1,4 +1,4 @@
-import { AccountType } from '@/src/types';
+import { AccountType } from '@/types';
 import { _sharedDb as _db } from './dbState';
 
 export const storeNames = {

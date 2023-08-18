@@ -1,76 +1,55 @@
 import { FC } from 'react';
-import styled from 'styled-components';
-import { useGetTokensQuery } from '@/src/features/wocApiSlice';
-import { useAppSelector } from '@/src/hooks';
-import { BackButton } from '../backButton';
-import { Heading } from '../generic/heading';
-import { IconButton } from '../generic/icon-button';
-import { Tooltip } from '../generic/tooltip';
-import { RefreshIcon } from '../svg/refreshIcon';
-import { TokenIcon } from '../svg/tokenIcon';
-import { CurrentAccount } from '../currentAccount';
-import { PortfolioTableHeader } from './table-header';
+
+import { useGetTokensQuery } from '@/features/woc-api-slice';
+import { useAppSelector } from '@/hooks';
+import { Ul } from '@/generic/list/ul';
+import { Layout } from '@/components/layout/default-layout';
+
 import { TokenItem } from './token-item';
-import { Note } from '../generic/note';
+import { NoTokens } from './no-tokens';
 
 type Props = {
-  className?: string;
+  type: 'fungible' | 'nft';
 };
 
-export const Tokens: FC<Props> = ({ className }) => {
+export const Tokens: FC<Props> = ({ type }) => {
   const { activePk } = useAppSelector(state => state.pk);
-  const { data, isFetching, refetch } = useGetTokensQuery(activePk.address);
+  const { data, isFetching } = useGetTokensQuery(activePk.address);
 
-  const tokenList = data?.tokens || [];
+  const isFungible = type === 'fungible';
+  const tokenList =
+    data?.tokens
+      ?.filter(item => item.isFungible === isFungible)
+      ?.sort((a, b) =>
+        a.name.toUpperCase() > b.name.toUpperCase() ? 1 : b.name.toUpperCase() > a.name.toUpperCase() ? -1 : 0
+      ) || [];
 
   let contents: JSX.Element | null = null;
 
   if (isFetching) {
     contents = <div>Loading...</div>;
-  } else if (tokenList.length === 0) {
-    contents = <Note size="lg">No tokens found</Note>;
+  } else if (tokenList === null || tokenList.length === 0) {
+    contents = <NoTokens type={type} />;
   } else {
     contents = (
-      <PortfolioGrid>
-        <PortfolioTableHeader />
+      <Ul>
         {tokenList.map(token => (
           <TokenItem key={`${token.redeemAddr}-${token.symbol}`} token={token} />
         ))}
-      </PortfolioGrid>
+      </Ul>
     );
   }
 
+  const header = (
+    <>
+      <span />
+      <span>{type === 'fungible' ? 'Fungible tokens' : 'NFT'}</span>
+    </>
+  );
+
   return (
-    <Wrapper className={className}>
-      <CurrentAccount />
-      <BackButton />
-
-      <Heading
-        icon={<TokenIcon />}
-        cta={
-          <Tooltip contents="Refetch tokens">
-            <IconButton onClick={refetch}>
-              <RefreshIcon />
-            </IconButton>
-          </Tooltip>
-        }
-      >
-        Tokens
-      </Heading>
-
+    <Layout header={header} wideContent>
       {contents}
-    </Wrapper>
+    </Layout>
   );
 };
-
-const Wrapper = styled.div`
-  //
-`;
-
-const PortfolioGrid = styled.div`
-  width: 100%;
-  display: grid;
-  column-gap: 1rem;
-  row-gap: 0.6rem;
-  grid-template-columns: min-content minmax(0, auto) min-content;
-`;

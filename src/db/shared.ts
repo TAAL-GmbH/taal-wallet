@@ -1,5 +1,6 @@
 import { openDB, DBSchema, IDBPDatabase } from 'idb';
-import { AccountType } from '../types';
+
+import { AccountType } from '@/types';
 
 const CURRENT_DB_VERSION = 1;
 

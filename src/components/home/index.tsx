@@ -1,87 +1,116 @@
-import React, { FC } from 'react';
+import { FC, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { Button } from '../button';
-import { useAppSelector } from '@/src/hooks';
-import { formatNumber } from '@/src/utils/generic';
-import { navigateTo } from '@/src/utils/navigation';
-import { routes } from '@/src/constants/routes';
-import { IconButton } from '../generic/icon-button';
-import { RefreshIcon } from '../svg/refreshIcon';
-import { Arrow } from '../svg/arrow';
-import { BsvIcon } from '../svg/bsvIcon';
-import { HistoryIcon } from '../svg/historyIcon';
-import { Heading } from '../generic/heading';
-import { useBlockchain } from '@/src/hooks/useBlockchain';
-import { Tooltip } from '../generic/tooltip';
-import { CurrentAccount } from '../currentAccount';
 
-type Props = {
-  className?: string;
-};
+import { useAppSelector } from '@/hooks';
+import { navigateTo } from '@/utils/navigation';
+import { routes } from '@/constants/routes';
+import { useBlockchain } from '@/hooks/use-blockchain';
+import { InjectSpacing } from '@/types';
+import { bp } from '@/utils/breakpoints';
+import { truncateText } from '@/utils/text-utils';
+import { Button } from '@/generic/button';
+import { IconButton } from '@/generic/icon-button';
+import { RefreshIcon } from '@/components/svg/refresh-icon';
+import { BsvIcon } from '@/components/svg/bsv-icon';
+import { Tooltip } from '@/generic/tooltip';
+import { Layout } from '@/components/layout/default-layout';
+import { CopyToClipboard } from '@/components/generic/copy-to-clipboard';
+import { gap, injectSpacing, margin } from '@/utils/inject-spacing';
+import { ConnectionStatus } from '@/components/connection-status';
+import { WalletSelector } from '@/components/wallet-selector';
+import { Debug } from '@/components/debug/debug';
+import { ButtonWrapper } from '@/generic/button-wrapper';
+import { DownloadIcon } from '@/svg/download-icon';
+import { SendIcon } from '@/svg/send-icon';
+import { Amount } from '@/components/amount';
 
-export const Home: FC<Props> = ({ className }) => {
+export const Home: FC = () => {
+  const balanceWasFetched = useRef(false);
   const { activePk } = useAppSelector(state => state.pk);
   const { getBalance } = useBlockchain();
 
-  return (
-    <Wrapper className={className}>
-      <CurrentAccount />
+  useEffect(() => {
+    if (balanceWasFetched.current) {
+      return;
+    }
+    getBalance({ showToast: false });
+    balanceWasFetched.current = true;
+  }, [getBalance, balanceWasFetched]);
 
-      <HeadingStyled
-        icon={<BsvIcon />}
-        cta={
-          <Tooltip contents="Refresh balance">
-            <IconButton onClick={getBalance} data-tip="Refetch balance">
-              <RefreshIcon />
-            </IconButton>
-          </Tooltip>
-        }
-      >
-        Balance:{' '}
-        {typeof activePk?.balance?.satoshis === 'number'
-          ? `${formatNumber(activePk?.balance?.satoshis)}${'\u00A0'}satoshis`
-          : 'unknown'}
-      </HeadingStyled>
+  const header = (
+    <>
+      <ConnectionStatus />
+      <span />
+      <WalletSelector />
+    </>
+  );
+
+  const isDev = process.env.NODE_ENV === 'development';
+
+  return (
+    <Layout center header={header}>
+      <BsvIconStyled />
+
+      <Balance>
+        <AmountStyled sats={activePk?.balance?.satoshis} />
+        <Tooltip contents="Refresh balance">
+          <IconButton onClick={getBalance} data-tip="Refetch balance">
+            <RefreshIcon />
+          </IconButton>
+        </Tooltip>
+      </Balance>
+
+      <Address $margin="md 0 xxl">
+        {/* {truncateText(activePk?.address, 8, 8)} <CopyToClipboard textToCopy={activePk?.address} /> */}
+        {activePk?.address} <CopyToClipboard textToCopy={activePk?.address} />
+      </Address>
 
       <ButtonWrapper>
-        <Button variant="accent" onClick={() => navigateTo(routes.SEND_BSV)}>
-          <Arrow direction="upright" />
-          Send BSV
+        <Button variant="primary" onClick={() => navigateTo(routes.RECEIVE_BSV)}>
+          <DownloadIcon />
+          Receive
         </Button>
-        <Button variant="success" onClick={() => navigateTo(routes.RECEIVE_BSV)}>
-          <Arrow direction="downleft" />
-          Receive BSV
-        </Button>
-        <Button onClick={() => navigateTo(routes.HISTORY)}>
-          <HistoryIcon />
-          History
-        </Button>
-        <Button onClick={() => navigateTo(routes.TOKENS)}>
-          <HistoryIcon />
-          Tokens
+        <Button variant="primary" onClick={() => navigateTo(routes.SEND_BSV)}>
+          <SendIcon />
+          Send
         </Button>
       </ButtonWrapper>
-    </Wrapper>
+
+      {isDev && <Debug />}
+    </Layout>
   );
 };
 
-const Wrapper = styled.div`
-  //
+const BsvIconStyled = styled(BsvIcon)`
+  width: 48px;
+  height: 48px;
+  ${margin`xxxl 0 sm`};
+
+  ${bp.mobile`
+    ${margin`md 0 sm`};
+  `};
 `;
 
-const HeadingStyled = styled(Heading)`
-  margin: 2rem 0;
+const Balance = styled.div<InjectSpacing>`
+  display: flex;
+  align-items: center;
+  ${margin`sm 0`};
+  ${gap`sm`};
+`;
 
-  h1 {
-    font-size: 1.4rem;
-    flex-shrink: 0;
-    flex-grow: 0;
+const AmountStyled = styled(Amount)`
+  ${({ theme }) => theme.typography.heading2};
+`;
+
+const Address = styled.div<InjectSpacing>`
+  display: flex;
+  gap: 0.25rem;
+  color: ${({ theme }) => theme.color.secondary[600]};
+  white-space: nowrap;
+  ${({ theme }) => theme.typography.body3};
+  ${injectSpacing(['margin'])};
+
+  svg {
+    fill: ${({ theme }) => theme.color.secondary[600]};
   }
-`;
-
-const ButtonWrapper = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-  flex-direction: column;
-  gap: 0.5rem;
 `;

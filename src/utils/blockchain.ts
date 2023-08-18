@@ -1,12 +1,15 @@
 import bsv, { Mnemonic } from 'bsv';
 import 'bsv/mnemonic';
 import { validate, Network } from 'bitcoin-address-validation';
-import { broadcast, getTx, getUnspent } from '../features/wocApi';
-import { ApiResponse, ErrorCodeEnum, ParsedTokenDetails, PKFullType, UTXO, UTXOWithAmount } from '../types';
-import { WocApiError } from './errors/wocApiError';
-import { getErrorMessage } from './generic';
-import { networkList } from '../constants/networkList';
-import { addrScriptRegex, stasScriptRegex } from '../constants';
+import { transfer, split } from 'stas-js';
+
+import { broadcast, getSpentTx, getTx, getUnspent } from '@/features/woc-api';
+import { ApiResponse, ErrorCodeEnum, ParsedTokenDetails, PKFullType, UTXO, UTXOWithAmount } from '@/types';
+import { networkList } from '@/constants/network-list';
+import { addrScriptRegex, stasScriptRegex } from '@/constants';
+
+import { delay, getErrorMessage } from './generic';
+import { WocApiError } from './errors/woc-api-error';
 
 const SATS_PER_BITCOIN = 1e8;
 
@@ -17,6 +20,7 @@ type SendBsvOptions = {
   network: string;
   satoshis: number;
   minChange?: number;
+  fees?: number;
 };
 
 // const sighash = bsv.crypto.Signature.SIGHASH_ALL | bsv.crypto.Signature.SIGHASH_FORKID;
@@ -33,6 +37,162 @@ export const utxoAmount2satoshis = ({ amount, ...utxo }: UTXOWithAmount): UTXO =
   };
 };
 
+type SplitStasTokenOptions = {
+  issuanceTxId: string;
+  srcAddress: string;
+  dstAddress: string;
+  privateKeyHash: string;
+};
+
+// Error: Token UTXO cannot be sent to issuer address
+export const splitStasToken = async ({
+  issuanceTxId,
+  srcAddress,
+  dstAddress,
+  privateKeyHash,
+}: SplitStasTokenOptions) => {
+  const privateKey = bsv.PrivateKey.fromWIF(privateKeyHash);
+  const { data: tokenTx } = await getTx(issuanceTxId);
+  const totalRequiredAmount = 200;
+  const paymentUtxoList = await getUnspentByAmount({ srcAddress, totalRequiredAmount });
+
+  const totalAmount = bitcoinToSatoshis(tokenTx.vout[0].value);
+  const amount1 = totalAmount - 666;
+  const amount2 = totalAmount - amount1;
+  const splitDestinations = [
+    { address: srcAddress, satoshis: amount1 },
+    { address: dstAddress, satoshis: amount2 },
+  ];
+
+  const splitParams = [
+    privateKey,
+    {
+      txid: tokenTx.txid,
+      vout: 0,
+      scriptPubKey: tokenTx.vout[0].scriptPubKey.hex,
+      satoshis: bitcoinToSatoshis(tokenTx.vout[0].value),
+    },
+    splitDestinations,
+    paymentUtxoList,
+    privateKey,
+  ];
+
+  console.log('totalAmount', totalAmount);
+  console.log('Token output', splitParams[1]);
+  console.log('splitDestinations', splitParams[2]);
+  console.log('paymentUtxoList', splitParams[3]);
+
+  const splitHex = await split(...splitParams);
+
+  try {
+    await delay(400);
+    const result = await broadcast(splitHex);
+    console.log({ result });
+    if ('data' in result && /^[0-9a-fA-F]{64}$/.test(result.data)) {
+      return {
+        success: true,
+        data: {
+          txid: result.data,
+        },
+      };
+    } else if ('error' in result) {
+      console.log('tx broadcast error', result.error);
+      throw new WocApiError(result.error);
+    }
+  } catch (e) {
+    return {
+      success: false,
+      data: null,
+      error: {
+        errorCode: ErrorCodeEnum.UNKNOWN_ERROR,
+        message: 'Not implemented yet',
+      },
+    };
+  }
+};
+
+type TransferStasTokenOptions = {
+  issuanceTxId: string;
+  srcAddress: string;
+  dstAddress: string;
+  privateKeyHash: string;
+};
+
+export const transferStasToken = async ({
+  issuanceTxId,
+  srcAddress,
+  dstAddress,
+  privateKeyHash,
+}: TransferStasTokenOptions) => {
+  const totalRequiredAmount = 200;
+  const paymentUtxoList = await getUnspentByAmount({ srcAddress, totalRequiredAmount });
+  console.log({ paymentUtxoList });
+  await delay(400);
+
+  // @ts-expect-error ignore
+  const totalUtxoAmount = paymentUtxoList.reduce((acc, utxo) => acc + utxo.amount, 0);
+  console.log({ totalUtxoAmount });
+
+  const { data: spentTxResult } = await getSpentTx({ txId: issuanceTxId, vout: 0 });
+
+  const tokenTxId = spentTxResult?.txid || issuanceTxId;
+
+  console.log({ spentTxResult });
+
+  const { data: tokenTx } = await getTx(tokenTxId);
+
+  console.log({ tokenTx });
+  await delay(400);
+
+  const privateKey = bsv.PrivateKey.fromWIF(privateKeyHash);
+  console.log('publicKey', privateKey.toPublicKey().toString());
+
+  const transferParams = [
+    privateKey,
+    {
+      txid: tokenTx.txid,
+      vout: 0,
+      scriptPubKey: tokenTx.vout[0].scriptPubKey.hex,
+      satoshis: bitcoinToSatoshis(tokenTx.vout[0].value),
+    },
+    dstAddress,
+    paymentUtxoList,
+    privateKey,
+  ];
+
+  console.log({ transferParams });
+
+  const transferTxHex = await transfer(...transferParams);
+
+  console.log({ transferTxHex });
+
+  try {
+    await delay(400);
+    const result = await broadcast(transferTxHex);
+    console.log({ result });
+    if ('data' in result && /^[0-9a-fA-F]{64}$/.test(result.data)) {
+      return {
+        success: true,
+        data: {
+          txid: result.data,
+        },
+      };
+    } else if ('error' in result) {
+      console.log('tx broadcast error', result.error);
+      throw new WocApiError(result.error);
+    }
+  } catch (e) {
+    return {
+      success: false,
+      data: null,
+      error: {
+        errorCode: ErrorCodeEnum.UNKNOWN_ERROR,
+        message: 'Not implemented yet',
+      },
+    };
+  }
+};
+
 export const createBSVTransferTransaction = async ({
   srcAddress,
   dstAddress,
@@ -41,6 +201,7 @@ export const createBSVTransferTransaction = async ({
   satoshis,
   // minChange is used to make sure that change is gonna be at least this size
   minChange = 0,
+  fees = 1,
 }: SendBsvOptions) => {
   if (!isValidAddress(srcAddress, network)) {
     throw new Error(`Invalid source address: ${srcAddress}`);
@@ -51,12 +212,29 @@ export const createBSVTransferTransaction = async ({
   if (!isValidAddress(dstAddress, network)) {
     throw new Error(`Invalid destination address: ${dstAddress}`);
   }
+
+  const totalRequiredAmount = satoshis + minChange + fees;
+
+  const utxos = await getUnspentByAmount({ srcAddress, totalRequiredAmount });
+
+  console.log({ utxos, totalRequiredAmount });
+
+  return (
+    new bsv.Transaction()
+      .from(utxos)
+      .to(dstAddress, satoshis)
+      // TODO: create new address for change
+      .change(srcAddress)
+      .sign(privateKeyHash)
+  );
+};
+
+export const getUnspentByAmount = async ({ srcAddress, totalRequiredAmount }) => {
   const { data: unspentList } = await getUnspent(srcAddress, { forceRefetch: true });
   if (!unspentList?.length) {
     throw new Error('No funds available');
   }
 
-  const totalRequiredAmount = satoshis + minChange;
   let totalUtxoAmount = 0;
   const utxos: bsv.Transaction.IUnspentOutput[] = [];
 
@@ -83,20 +261,10 @@ export const createBSVTransferTransaction = async ({
     }
   }
 
-  console.log({ utxos, unspentTx, totalRequiredAmount });
-
   if (totalUtxoAmount < totalRequiredAmount) {
     throw new Error('Insufficient funds');
   }
-
-  return (
-    new bsv.Transaction()
-      .from(utxos)
-      .to(dstAddress, satoshis)
-      // TODO: create new address for change
-      .change(srcAddress)
-      .sign(privateKeyHash)
-  );
+  return utxos;
 };
 
 type MergeSplitOptions = {
@@ -163,6 +331,7 @@ export const sendBSV = async ({
   satoshis,
   // minChange is used to make sure that change is gonna be at least this size
   minChange = 0,
+  fees = 1,
 }: SendBsvOptions): Promise<ApiResponse<{ txid: string; tx: bsv.Transaction }>> => {
   console.log('sendBSV', { srcAddress, dstAddress, privateKeyHash, network, satoshis, minChange });
 
@@ -180,6 +349,7 @@ export const sendBSV = async ({
     network,
     satoshis,
     minChange,
+    fees,
   });
 
   console.log(
@@ -187,7 +357,6 @@ export const sendBSV = async ({
     {
       srcAddress,
       dstAddress,
-      privateKeyHash,
       network,
       satoshis,
       minChange,

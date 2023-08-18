@@ -1,5 +1,6 @@
 export const isBackgroundPageResponding = async (timeout = 1000) => {
-  return new Promise(async (resolve, reject) => {
+  // eslint-disable-next-line
+  return new Promise(async resolve => {
     const timer = setTimeout(() => {
       resolve(false);
     }, timeout);

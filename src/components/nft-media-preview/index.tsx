@@ -1,8 +1,8 @@
 import { FC } from 'react';
 
-import { useTransactionData } from '@/src/hooks/useTransactionData';
-import { MediaType } from '@/src/types';
-import { isNull } from '@/src/utils/generic';
+import { useTransactionData } from '@/hooks/use-transaction-data';
+import { MediaType } from '@/types';
+import { isNull } from '@/utils/generic';
 
 import { MediaPreviewItem } from './media-prevew-item';
 

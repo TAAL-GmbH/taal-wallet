@@ -1,5 +1,5 @@
 import { ErrorCodeEnum } from 'src/types';
-import { ApiError } from '@/utils/errors/apiError';
+import { ApiError } from '@/utils/errors/api-error';
 
 type Fetcher = {
   url: string;
@@ -14,10 +14,7 @@ type Fetcher = {
 //   ? QueryFunction<T>
 //   : MutationFunction<T, P>;
 
-export const fetcher = <T, P = undefined>({
-  url,
-  fetchOptions = {},
-}: Fetcher) => {
+export const fetcher = <T, P = undefined>({ url, fetchOptions = {} }: Fetcher) => {
   return async (payload?: P): Promise<T> => {
     const method = fetchOptions?.method || 'get';
     const noBody = method === 'get' || method === 'head';

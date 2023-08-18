@@ -1,7 +1,7 @@
-import { createPage } from '@/src/utils/createPage';
-import { Options } from '@/pages/options/Options';
+import { createPage } from '@/utils/create-page';
+import { Options } from '@/pages/options/options';
 
 createPage({
-  domElement: document.querySelector('#app-container'),
+  domElement: document.querySelector('#app'),
   component: <Options />,
 });

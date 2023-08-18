@@ -1,16 +1,20 @@
 import { FC } from 'react';
 import styled from 'styled-components';
-import { db } from '@/src/db';
-import { setRootPK } from '@/src/features/pkSlice';
-import { decrypt } from '@/src/utils/crypt';
-import { createToast } from '@/src/utils/toast';
-import { Button } from '../button';
-import { Form } from '../generic/form/form';
-import { FormInput } from '../generic/form/formInput';
-import { Heading } from '../generic/heading';
-import { LockIcon } from '../svg/lockIcon';
-import { UnlockIcon } from '../svg/unlockIcon';
-import { useAppDispatch } from '@/src/hooks';
+
+import { db } from '@/db';
+import { setRootPK } from '@/features/pk-slice';
+import { decrypt } from '@/utils/crypt';
+import { createToast } from '@/utils/toast';
+import { useAppDispatch } from '@/hooks';
+
+import { Form } from '@/generic/form/form';
+import { FormInput } from '@/generic/form/form-input';
+import { Button } from '@/generic/button';
+import { SterileLayout } from '@/components/layout/sterile-layout';
+import { ShieldLockIcon } from '@/svg/shield-lock-icon';
+import { WalletLogo } from '@/svg/wallet-logo';
+import { Row } from '@/generic/row';
+import { margin } from '@/utils/inject-spacing';
 
 const defaultValues = {
   password: '',
@@ -32,7 +36,7 @@ export const Unlock: FC = () => {
       const decrypted = decrypt(privateKeyEncrypted, password);
       if (decrypted) {
         dispatch(setRootPK({ privateKeyHash: decrypted, privateKeyEncrypted }));
-        toast.success('Unlocked');
+        // toast.success('Unlocked');
       }
     } catch (err) {
       const errorMap = {
@@ -43,27 +47,44 @@ export const Unlock: FC = () => {
   };
 
   return (
-    <Wrapper>
-      <Heading icon={<LockIcon />}>Your account is locked</Heading>
+    <SterileLayout showBurgerMenu={false} center>
+      <Row>
+        <ShieldLockIcon />
+      </Row>
+      <Row>
+        <WalletLogo />
+      </Row>
 
-      <Form options={{ defaultValues, mode: 'onSubmit' }} onSubmit={onSubmit} data-test-id="">
-        <FormInput
-          name="password"
-          label="Enter password to unlock your wallet"
-          placeholder="Enter password"
-          type="password"
-          options={{
-            required: 'Password is required',
-          }}
-          autoFocus
-        />
-        <Button type="submit">
-          <UnlockIcon />
+      <Heading margin="xl 0 xxl">Unlock to continue</Heading>
+
+      <FormStyled options={{ defaultValues, mode: 'onSubmit' }} onSubmit={onSubmit}>
+        <Row>
+          <FormInput
+            name="password"
+            label="Password"
+            placeholder=""
+            type="password"
+            options={{
+              required: 'Password is required',
+            }}
+            autoFocus
+          />
+        </Row>
+
+        <Button type="submit" size="sm" variant="primary" width="100%">
           Unlock
         </Button>
-      </Form>
-    </Wrapper>
+      </FormStyled>
+    </SterileLayout>
   );
 };
 
-const Wrapper = styled.div``;
+const FormStyled = styled(Form)`
+  width: 100%;
+  ${margin`xxl 0`};
+  box-sizing: border-box;
+`;
+
+const Heading = styled(Row)`
+  ${({ theme }) => theme.typography.heading5};
+`;

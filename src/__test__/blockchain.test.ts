@@ -1,80 +1,73 @@
-jest.mock('../db/index.ts');
-jest.mock('../db/shared.ts');
+// @ts-nocheck
+jest.mock('@/db/index.ts');
+jest.mock('@/db/shared.ts');
 import { createBSVTransferTransaction, sendBSV } from '../utils/blockchain';
-import * as wocApi from '../features/wocApi';
-import { createToast } from '../utils/toast';
+import * as wocApi from '../features/woc-api';
 import { store } from '../store';
-import { initStoreSync } from '../utils/storeSync';
-import { setState } from '../features/pkSlice';
-let srcAddress = 'mqz2RSpt6cH4u1VQpRVQf8iYKMuSrZvX9W';
-let dstAddress = 'mfuva4vmYVEnjXVMapE38xaK4UTjcfnNLh';
+import { setState } from '../features/pk-slice';
+const srcAddress = 'mqz2RSpt6cH4u1VQpRVQf8iYKMuSrZvX9W';
+const dstAddress = 'mfuva4vmYVEnjXVMapE38xaK4UTjcfnNLh';
 const privateKeyHash = 'cNW8heePSKeqCbPfQJhf2tLgNN6sVrfuAPAoaqk1FJbEuZ3FUgfB';
 const network = 'testnet';
 
 describe('blockchain.js', () => {
-
-  
   beforeAll(() => {
     // initStoreSync();
     store.dispatch(
       setState({
         network: {
-          id: "testnet",
-          label: "Testnet",
-          envName: "testnet",
-          wocNetwork: "test"
+          id: 'testnet',
+          label: 'Testnet',
+          envName: 'testnet',
+          wocNetwork: 'test',
         },
         activePk: {
-          address: "my9XmnKGJu89qN6xpcqDRy9FKWhsph95fi",
-          name: "Wallet-0",
+          address: 'my9XmnKGJu89qN6xpcqDRy9FKWhsph95fi',
+          name: 'Wallet-0',
           path: "m/44'/236'/0'/0/0",
           balance: {
-            "updatedAt": 1666778958475,
-            "satoshis": 1976396
+            updatedAt: 1666778958475,
+            satoshis: 1976396,
           },
           rootPk: {
             privateKeyHash: privateKeyHash,
             privateKeyEncrypted: privateKeyHash,
-          }
-        }
+          },
+        },
       })
     );
   });
   describe('createBSVTransferTransaction', () => {
-
     test.only('should return valid result and broadcast', async () => {
-  
-      console.log(store.getState().pk)
-      const res = await wocApi.airdrop(srcAddress)
-      console.log(res)
-      return
-      const result = 
+      console.log(store.getState().pk);
+      const res = await wocApi.airdrop(srcAddress);
+      console.log(res);
+      return;
+      const result = await createBSVTransferTransaction({
+        srcAddress,
+        dstAddress,
+        privateKeyHash,
+        network,
+        satoshis: 1500000,
+      });
+    });
+
+    test('Attempt to create bsv tx with no utxo', async () => {
+      try {
         await createBSVTransferTransaction({
           srcAddress,
           dstAddress,
           privateKeyHash,
           network,
-          satoshis: 1500000,
-        })
-  });
-    
-  test('Attempt to create bsv tx with no utxo', async () => {
+          satoshis: 10000,
+        });
+        expect(true).toBeFalsy();
+      } catch (err) {
+        expect(err.toString()).toEqual('Error: No funds available');
+      }
+    });
 
-    try {
-      await createBSVTransferTransaction({
-        srcAddress,
-        dstAddress,
-        privateKeyHash,
-        network,
-        satoshis: 10000
-      })
-      expect(true).toBeFalsy()
-    } catch (err) {
-      expect(err.toString()).toEqual('Error: No funds available')
-    }   
-  })
-
-  test('should return valid result which can then be broadcast', async () => {
+    test('should return valid result which can then be broadcast', async () => {
       const tx = await createBSVTransferTransaction({
         srcAddress,
         dstAddress,
@@ -83,7 +76,7 @@ describe('blockchain.js', () => {
         satoshis: 1500,
       });
       const result = await wocApi.broadcast(tx.toString());
-      console.log(result)
+      console.log(result);
       expect(JSON.stringify(result)).toContain(
         'cd73522be888ca665ccc5218fd79f5c8217acd4ede208f6b3c77700baa0964c2'
       );

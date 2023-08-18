@@ -1,8 +1,9 @@
 import React, { FC, useState } from 'react';
-import { store } from '@/src/store';
 import styled from 'styled-components';
-import { IconButton } from '../generic/icon-button';
-import { CloseIcon } from '../svg/closeIcon';
+
+import { store } from '@/store';
+import { IconButton } from '@/generic/icon-button';
+import { CloseIcon } from '@/components/svg/close-icon';
 
 const propsToSanitize = ['privateKey', 'privateKeyHash', 'privateKeyEncrypted'];
 
@@ -55,7 +56,7 @@ const Wrapper = styled.div`
 `;
 
 const JsonWrapper = styled.div`
-  max-width: 100%;
+  max-width: 90vw;
   overflow: auto;
   border: 1px solid #ccc;
   padding: 0.5rem;
@@ -65,7 +66,7 @@ const JsonWrapper = styled.div`
   pre {
     margin: 0;
     font-size: 0.8rem;
-    color: ${({ theme }) => theme.color.grey[300]};
+    color: ${({ theme }) => theme.color.grey[600]};
   }
 `;
 

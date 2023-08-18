@@ -1,12 +1,13 @@
 import React, { FC, useEffect } from 'react';
-import { AppLogo } from '@/src/components/appLogo';
+import { AppLogo } from '@/components/app-logo';
 import styled from 'styled-components';
-import { ClientList } from './ClientList';
-import { isPopup } from '@/src/utils/generic';
+import { ClientList } from './client-list';
+import { isPopup } from '@/utils/generic';
 import { Route, Router } from 'wouter';
-import { useHashLocation } from '@/src/hooks/useHashLocation';
-import { AnchorLink } from '@/src/components/anchorLink';
-import { Debug } from '@/src/components/debug/debug';
+import { useHashLocation } from '@/hooks/use-hash-location';
+import { AnchorLink } from '@/components/anchor-link';
+import { Debug } from '@/components/debug/debug';
+import { MinimalLayout } from '@/components/layout/minimal-layout';
 
 const routes = {
   ACL: '/',
@@ -19,7 +20,7 @@ export const Options: FC = () => {
   }, []);
 
   return (
-    <Wrapper>
+    <MinimalLayout>
       <AppLogo />
 
       <Tabs>
@@ -35,15 +36,9 @@ export const Options: FC = () => {
           </Route>
         </Router>
       </section>
-
-      <Debug />
-    </Wrapper>
+    </MinimalLayout>
   );
 };
-
-const Wrapper = styled.div`
-  padding: 2rem;
-`;
 
 const Tabs = styled.ul`
   display: flex;
@@ -51,7 +46,7 @@ const Tabs = styled.ul`
   flex-direction: row;
   padding: 0;
   margin-top: 2rem;
-  border-bottom: 1px solid ${({ theme }) => theme.color.neutral[200]};
+  border-bottom: 1px solid ${({ theme }) => theme.color.grey[200]};
 
   li {
     a {

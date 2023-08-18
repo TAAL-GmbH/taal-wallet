@@ -1,3 +1,4 @@
+/** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
 const fs = require('fs');
 const { parse } = require('comment-json');
 const tsconfig = parse(fs.readFileSync('./tsconfig.json').toString());

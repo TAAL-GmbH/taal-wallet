@@ -63,3 +63,18 @@ export const getErrorMessage = (error: unknown, defaultMessage?: string | undefi
 };
 
 export const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+export const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
+
+export const formatAddress = (address: string) => `${address.slice(0, 8)}...${address.slice(-7)}`;
+
+export const randomizeArray = <T>(array: T[]) => {
+  const newArray = [...array];
+  for (let i = newArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * i);
+    const temp = newArray[i];
+    newArray[i] = newArray[j];
+    newArray[j] = temp;
+  }
+  return newArray;
+};

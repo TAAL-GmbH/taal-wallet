@@ -1,6 +1,6 @@
 import bsv from 'bsv';
 
-import { ButtonStyleProps } from '../components/button';
+import { ButtonStyleProps } from '@/components/generic/button';
 
 export enum ErrorCodeEnum {
   UNAUTHORIZED = 'unauthorized',
@@ -100,7 +100,7 @@ export type DialogData = {
   resizeWindow?: boolean;
   options: {
     label: string;
-    variant?: ButtonStyleProps['variant'];
+    variant?: ButtonStyleProps['$variant'];
     returnValue?: string;
   }[];
   response?: number;
@@ -167,4 +167,10 @@ export type ParsedTokenDetails = {
   symbol: string;
   tokenId: string;
   totalSupply: number;
+};
+
+export type InjectSpacing = {
+  $margin?: string;
+  $padding?: string;
+  $gap?: string;
 };

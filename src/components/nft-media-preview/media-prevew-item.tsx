@@ -1,12 +1,12 @@
 import { FC, SyntheticEvent } from 'react';
 import styled from 'styled-components';
 
-import { decodeBase64 } from '@/src/utils/base64';
-import { MediaType } from '@/src/types';
-import { ImageWithFallback } from '@/components/imageWithFallback';
+import { decodeBase64 } from '@/utils/base64';
+import { MediaType } from '@/types';
+import { ImageWithFallback } from '@/components/image-with-fallback';
 
 import { AttributesPreview } from './attributes-preview';
-import { Note } from '../generic/note';
+import { Note } from '@/generic/note';
 
 const createMediaContentInBase64 = ({ mimeType, contentBase64 }) =>
   contentBase64 ? `data:${mimeType};base64, ${contentBase64}` : null;
