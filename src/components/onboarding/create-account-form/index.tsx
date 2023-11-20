@@ -37,6 +37,10 @@ export const CreateAccountForm: FC<Props> = ({ className, action }) => {
     )
   );
 
+  const isDev = process.env.NODE_ENV === 'development';
+
+  const passwordMinLength = isDev ? 2 : parseInt(process.env.PASSWORD_MIN_LENGTH);
+
   const importAccount = async (formValues: typeof onboardingState) => {
     if (!(await isBackgroundPageResponding())) {
       console.error('background page is not responding');
@@ -117,7 +121,7 @@ export const CreateAccountForm: FC<Props> = ({ className, action }) => {
               options={{
                 required: 'Password is required',
                 validate: value =>
-                  value.length < process.env.PASSWORD_MIN_LENGTH
+                  value.length < passwordMinLength
                     ? `Password must be at least ${process.env.PASSWORD_MIN_LENGTH} characters length`
                     : true,
               }}

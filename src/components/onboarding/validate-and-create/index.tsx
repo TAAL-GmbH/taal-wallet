@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useEffect, useRef, useState } from 'react';
 import styled, { css } from 'styled-components';
 import toast from 'react-hot-toast';
 
@@ -25,6 +25,7 @@ type Props = {
 };
 
 export const ValidateAndCreate: FC<Props> = ({ mnemonicPhrase }) => {
+  const isAccountCreationStarted = useRef(false);
   const [mnemonic] = useState(() => {
     const wordList = mnemonicPhrase.split(' ');
     return {
@@ -104,6 +105,13 @@ export const ValidateAndCreate: FC<Props> = ({ mnemonicPhrase }) => {
     }
   };
 
+  useEffect(() => {
+    if (isSuccessful && !isAccountCreationStarted.current) {
+      isAccountCreationStarted.current = true;
+      createAccount();
+    }
+  }, [isSuccessful, createAccount]);
+
   const isDev = process?.env?.NODE_ENV === 'development';
 
   return (
@@ -126,7 +134,7 @@ export const ValidateAndCreate: FC<Props> = ({ mnemonicPhrase }) => {
               $hasError={!!errorMap[word]}
               $wasSuccess={!wordListCopy.includes(word)}
             >
-              {isDev && word}
+              {word}
             </Word>
           ))}
         </WordWrapper>
@@ -136,12 +144,9 @@ export const ValidateAndCreate: FC<Props> = ({ mnemonicPhrase }) => {
         <Button variant="transparent" onClick={() => navigateTo(routes.DISPLAY_MNEMONIC)}>
           Back
         </Button>
-        <Button variant="primary" onClick={createAccount} isDisabled={!isSuccessful}>
-          Proceed
-        </Button>
       </ButtonWrapper>
 
-      {!isSuccessful && <h3 style={{ opacity: 0.4 }}>{wordListCopy[0]}</h3>}
+      {!isSuccessful && isDev && <h3 style={{ opacity: 0.4 }}>{wordListCopy[0]}</h3>}
     </>
   );
 };

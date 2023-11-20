@@ -11,7 +11,6 @@ import { Unlock } from '@/components/unlock';
 import { WebPushSubscription } from '@/components/web-push-subscription';
 import { routes } from '@/constants/routes';
 import { useHashLocation } from '@/hooks/use-hash-location';
-import { isNull } from '@/utils/generic';
 import { Onboarding } from '@/components/onboarding';
 import { ErrorPage } from '@/components/error-page';
 import { TokenDetails } from '@/components/token-details';
@@ -22,20 +21,20 @@ import { SterileLayout } from '@/components/layout/sterile-layout';
 // import { TransferToken } from '@/components/transfer-token';
 
 type Props = {
-  isInitialized: boolean;
-  isInSync: boolean;
+  isLoading: boolean;
   hasRootKey: boolean;
   isLocked: boolean | null;
   hasActivePk: boolean;
+  hasAccounts: boolean;
   activeAccountId: string;
 };
 
 export const RouterComponent: FC<Props> = ({
-  isInitialized,
-  isInSync,
+  isLoading,
   hasRootKey,
   isLocked,
   hasActivePk,
+  hasAccounts,
   activeAccountId,
 }) => {
   const [location] = useHashLocation();
@@ -44,8 +43,7 @@ export const RouterComponent: FC<Props> = ({
     return <ErrorPage />;
   }
 
-  // isNull(hasRootKey) === true means we're still fetching the root key from db
-  if (!isInitialized || !isInSync || (isNull(hasRootKey) && isNull(isLocked))) {
+  if (isLoading) {
     return (
       <SterileLayout showBackButton={false} showBurgerMenu={false} showTopHeader={false}>
         <PageLoading />
@@ -57,7 +55,7 @@ export const RouterComponent: FC<Props> = ({
     return <ErrorPage>Invalid account</ErrorPage>;
   }
 
-  if (!hasRootKey) {
+  if (!hasAccounts) {
     if (!getLocationPath().startsWith(routes.ONBOARDING)) {
       navigateTo(routes.ONBOARDING);
       return null;

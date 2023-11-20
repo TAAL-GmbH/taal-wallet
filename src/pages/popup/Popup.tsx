@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Toaster } from 'react-hot-toast';
 
 import { useAppSelector } from '@/hooks';
@@ -9,36 +9,60 @@ import { AccountCreationStatus } from '@/components/account-creation-status';
 
 import { RouterComponent } from './router-component';
 
-// let background know we're connected
-chrome.runtime.connect();
+let portTimer: NodeJS.Timeout;
 
 const Popup = () => {
   const { isInSync, isLocked, rootPk, activePk } = useAppSelector(state => state.pk);
   const { activeAccountId } = useAppSelector(state => state.account);
   const [hasRootKey, setHasRootKey] = useState<boolean>(null);
-  // const [isTosInAgreement, setIsTosInAgreement] = useState<boolean>(false);
-  const [isInitialized, setIsInitialized] = useState<boolean>(false);
+  const [isUiInitialized, setIsUiInitialized] = useState<boolean>(false);
+  const [hasAccounts, setHasAccounts] = useState<boolean>(null);
+  const port = useRef<chrome.runtime.Port>(null);
+
+  const initPort = useCallback(() => {
+    port.current = chrome.runtime.connect();
+
+    portTimer = setInterval(() => {
+      port.current.postMessage({ payload: 'ping' });
+    });
+
+    return () => {
+      clearInterval(portTimer);
+      port.current.disconnect();
+    };
+  }, []);
 
   useEffect(() => {
     document.body.classList.add(isPopup() ? 'main-app-in-popup' : 'main-app-in-tab');
-    (async () => {
-      // TODO: remove as it's not needed anymore
-      // setIsTosInAgreement(!!(await sharedDb.getKeyVal('isTosInAgreement')));
-      setIsInitialized(true);
-    })();
+
+    initPort();
+
+    setIsUiInitialized(true);
   }, []);
 
   useEffect(() => {
     (async () => {
+      setHasAccounts((await sharedDb.getAccountList()).length > 0);
+
       const activeAccountIdFromDb = await sharedDb.getKeyVal('activeAccountId');
 
       if (!isUndefined(activeAccountIdFromDb)) {
-        setHasRootKey(!!rootPk || !!(await db.getKeyVal('rootPk.privateKeyEncrypted')));
+        setHasRootKey(!!(await db.getKeyVal('rootPk.privateKeyEncrypted')));
       } else {
         setHasRootKey(false);
       }
     })();
-  }, [isLocked, rootPk, activeAccountId]);
+  }, [rootPk, activeAccountId]);
+
+  const allRequiredProps = {
+    isUiInitialized,
+    isInSync,
+    hasAccounts,
+    hasRootKey,
+    isLocked: hasAccounts === false ? false : isLocked,
+  };
+
+  const isLoading = Object.values(allRequiredProps).some(isNull);
 
   return (
     <>
@@ -47,9 +71,9 @@ const Popup = () => {
       <AccountCreationStatus />
 
       <RouterComponent
-        isInitialized={isInitialized}
-        isInSync={isInSync}
+        isLoading={isLoading}
         hasRootKey={hasRootKey}
+        hasAccounts={hasAccounts}
         isLocked={isLocked}
         hasActivePk={!isNull(activePk)}
         activeAccountId={activeAccountId}

@@ -279,7 +279,7 @@ const light = {
   constant: {
     topNavBarHeight: '60px',
     bodyMinHeight: '700px',
-    bodyMinHeightMobile: '500px',
+    bodyMinHeightMobile: '525px',
     bodyMinWidth: '375px',
     contentMinHeightDesktop: '400px',
   },
