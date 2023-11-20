@@ -10,7 +10,7 @@ export const waitForTruthy = (testFn: TestFn, options: Options = {}): Promise<bo
   let intervalTimer: ReturnType<typeof setInterval> | undefined;
 
   return new Promise(resolve => {
-    intervalTimer = setInterval(async () => {
+    const timeoutFn = async () => {
       let result = testFn();
       if (result instanceof Promise) {
         result = await result;
@@ -21,7 +21,12 @@ export const waitForTruthy = (testFn: TestFn, options: Options = {}): Promise<bo
         clearInterval(intervalTimer);
         resolve(true);
       }
-    }, interval);
+    };
+
+    intervalTimer = setInterval(timeoutFn, interval);
+
+    // run once immediately
+    timeoutFn();
 
     timeoutTimer = setTimeout(() => {
       resolve(false);

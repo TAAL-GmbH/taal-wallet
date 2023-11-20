@@ -155,8 +155,13 @@ export const initStoreSync = async () => {
     store.dispatch(lockWallet());
   }
 
-  await waitForTruthy(() => !isUndefined(store.getState().pk.isLocked));
-  store.dispatch(setState({ isStateInitialized: true }));
+  // TODO: check if we really need to do this every time
+  const isLockedIsDefined = await waitForTruthy(() => !isUndefined(store.getState().pk.isLocked));
+  if (isLockedIsDefined) {
+    store.dispatch(setState({ isStateInitialized: true }));
+  } else {
+    console.error('isLocked is undefined');
+  }
 };
 
 export const restoreDataFromDb = async () => {

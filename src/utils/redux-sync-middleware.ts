@@ -7,6 +7,10 @@ import { waitForTruthy } from './wait-for-truthy';
 
 const bc = new BroadcastChannel('redux_sync_channel');
 
+bc.addEventListener('messageerror', err => {
+  console.error('BroadcastChannel message error', err);
+});
+
 const BACKGROUND_PAGE_PATH = 'background.js';
 
 const extensionId = chrome.runtime.id;
@@ -35,39 +39,43 @@ const initBroadcastChannel = (store: MiddlewareAPI<Dispatch<AnyAction>, RootStat
       if (data.action === 'bg:dispatch') {
         store.dispatch(data.reduxAction);
       } else if (data.action === 'bg:getState') {
-        waitForTruthy(() => store.getState().pk.isStateInitialized, { timeout: 5000 }).then(() => {
-          bc.postMessage({
-            action: 'fe:dispatch',
-            reduxAction: {
-              type: 'pk/setState',
-              payload: store.getState().pk,
-            },
-          });
+        waitForTruthy(() => store.getState().pk.isStateInitialized, { timeout: 5000 })
+          .then(() => {
+            bc.postMessage({
+              action: 'fe:dispatch',
+              reduxAction: {
+                type: 'pk/setState',
+                payload: store.getState().pk,
+              },
+            });
 
-          bc.postMessage({
-            action: 'fe:dispatch',
-            reduxAction: {
-              type: 'account/setState',
-              payload: store.getState().account,
-            },
-          });
+            bc.postMessage({
+              action: 'fe:dispatch',
+              reduxAction: {
+                type: 'account/setState',
+                payload: store.getState().account,
+              },
+            });
 
-          bc.postMessage({
-            action: 'fe:dispatch',
-            reduxAction: {
-              type: 'client/setState',
-              payload: store.getState().client,
-            },
-          });
+            bc.postMessage({
+              action: 'fe:dispatch',
+              reduxAction: {
+                type: 'client/setState',
+                payload: store.getState().client,
+              },
+            });
 
-          bc.postMessage({
-            action: 'fe:dispatch',
-            reduxAction: {
-              type: 'account/setState',
-              payload: { isInSync: true },
-            },
+            bc.postMessage({
+              action: 'fe:dispatch',
+              reduxAction: {
+                type: 'account/setState',
+                payload: { isInSync: true },
+              },
+            });
+          })
+          .catch(() => {
+            toast.error('Failed to initialize state');
           });
-        });
       }
     } else if (data.action === 'fe:dispatch' && !isBackgroundPage) {
       store.dispatch(data.reduxAction);
@@ -91,15 +99,15 @@ export const reduxSyncMiddleWare: Middleware = store => {
         return result;
       },
       { timeout: 5000 }
-    )
-      .then(() => {
+    ).then(isInitialized => {
+      if (isInitialized) {
         bc.postMessage({
           action: 'bg:getState',
         });
-      })
-      .catch(() => {
+      } else {
         toast.error('Failed to initialize state');
-      });
+      }
+    });
   }
 
   return next => (reduxAction: AnyAction) => {
