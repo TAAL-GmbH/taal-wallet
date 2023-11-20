@@ -80,6 +80,7 @@ export const MenuBox: FC<Props> = ({ onClick }) => {
                 <A
                   href={action.startsWith('http') ? action : `#${action}`}
                   target={action.startsWith('http') ? '_blank' : '_self'}
+                  onClick={onClick}
                 >
                   {icon}
                   {title}
@@ -108,7 +109,7 @@ export const MenuBox: FC<Props> = ({ onClick }) => {
       <HelpHeader>Need help or support?</HelpHeader>
       <ul>
         <li>
-          <A href="#">
+          <A href="https://discord.gg/FfgYPqNpRv" target="_blank">
             <DiscordIcon /> Discord
           </A>
         </li>
