@@ -25,6 +25,7 @@ export const AccountList: FC = () => {
   const [currentAccountName, setCurrentAccountName] = useState('');
   const accountIdToEdit = useRef('');
   const account = useAppSelector(state => state.account);
+  const { isLocked } = useAppSelector(state => state.pk);
   const dispatch = useAppDispatch();
   const { RenderModal, show, close } = useModal();
 
@@ -71,8 +72,18 @@ export const AccountList: FC = () => {
   };
 
   const updateName = (accountName: string) => {
+    if (isLocked) {
+      toast.error('Wallet is locked');
+      return;
+    }
     dispatch(updateAccountName({ accountId: accountIdToEdit.current, accountName }));
     close();
+  };
+
+  const isUniqueFn = (name: string) => {
+    return !account.accountList.find(item => item.name === name)
+      ? true
+      : 'Account with this name already exists';
   };
 
   const accountList = [...account.accountList].sort((a, b) => a.name.toLowerCase().localeCompare(b.name));
@@ -89,7 +100,12 @@ export const AccountList: FC = () => {
   return (
     <>
       <RenderModal title="Edit account" onClose={close}>
-        <RenameForm onSubmit={updateName} onClose={close} value={currentAccountName} />
+        <RenameForm
+          onSubmit={updateName}
+          onClose={close}
+          currentValue={currentAccountName}
+          isUniqueFn={isUniqueFn}
+        />
       </RenderModal>
       <MinimalLayout header={header}>
         <Ul>

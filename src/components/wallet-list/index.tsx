@@ -49,6 +49,10 @@ export const WalletList: FC = () => {
     renameModal.close();
   };
 
+  const isUniqueFn = (name: string) => {
+    return !walletList.find(item => item.name === name) ? true : 'Wallet with this name already exists';
+  };
+
   const walletList = Object.values(pk.map).sort((a, b) => a.name.localeCompare(b.name));
 
   const header = (
@@ -62,7 +66,12 @@ export const WalletList: FC = () => {
   return (
     <>
       <renameModal.RenderModal title="Edit wallet" onClose={renameModal.close}>
-        <RenameForm onSubmit={updateName} onClose={renameModal.close} value={currentWalletName} />
+        <RenameForm
+          onSubmit={updateName}
+          onClose={renameModal.close}
+          currentValue={currentWalletName}
+          isUniqueFn={isUniqueFn}
+        />
       </renameModal.RenderModal>
 
       <createWalletModal.RenderModal title="Create a new wallet" onClose={close}>

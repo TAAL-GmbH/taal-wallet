@@ -7,15 +7,16 @@ import { useForm } from '@/generic/form/use-form';
 
 type Props = {
   label?: string;
-  value: string;
+  currentValue: string;
   onClose: () => void;
   onSubmit: (name: string) => void;
+  isUniqueFn: (name: string) => true | string;
 };
 
-export const RenameForm: FC<Props> = ({ label, value, onSubmit, onClose }) => {
+export const RenameForm: FC<Props> = ({ label, currentValue, onSubmit, onClose, isUniqueFn }) => {
   const { Form } = useForm({
     defaultValues: {
-      text: value,
+      text: currentValue,
     },
     mode: 'onBlur',
   });
@@ -32,13 +33,20 @@ export const RenameForm: FC<Props> = ({ label, value, onSubmit, onClose }) => {
         placeholder="Enter new name"
         options={{
           required: true,
-          validate: value => {
-            if (value.trim() === '') {
+          validate: valueRaw => {
+            const value = valueRaw.trim();
+
+            if (value === currentValue) {
+              return true;
+            }
+
+            if (value === '') {
               return 'Please enter a name';
             }
-            if (value.trim().length < 2 || value.trim().length > 20) {
+            if (value.length < 2 || value.length > 20) {
               return 'Name must be between 2 and 20 characters';
             }
+            return isUniqueFn(value);
           },
         }}
       />

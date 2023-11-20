@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 
 import { AccountType } from '@/types';
 import { CheckIcon } from '@/components/svg/check-icon';
@@ -7,6 +7,8 @@ import { AccountIcon } from '@/components/account-icon';
 import { gap, padding } from '@/utils/inject-spacing';
 import { EditIcon } from '@/components/svg/edit-icon';
 import { Li } from '@/generic/list/li';
+import { useAppSelector } from '@/hooks/index';
+import { LockIcon } from '@/svg/lock-icon';
 
 type Props = {
   account: AccountType;
@@ -16,7 +18,9 @@ type Props = {
 };
 
 export const AccountListItem: FC<Props> = ({ account, activeAccountId, onClick, onEditClick }) => {
+  const { isLocked } = useAppSelector(state => state.pk);
   const isActive = account.id === activeAccountId;
+
   return (
     <Li role="button" key={account.id} onClick={() => onClick(account.id, isActive)} $isActive={isActive}>
       <AccountIcon accountId={account.id} />
@@ -29,9 +33,13 @@ export const AccountListItem: FC<Props> = ({ account, activeAccountId, onClick, 
         {isActive && (
           <>
             <CheckIconStyled />
-            <EditButton role="button" onClick={e => onEditClick(account, e)}>
-              <EditIcon />
-            </EditButton>
+            {isLocked ? (
+              <LockIcon />
+            ) : (
+              <EditButton role="button" onClick={e => onEditClick(account, e)}>
+                <EditIcon />
+              </EditButton>
+            )}
           </>
         )}
       </RightWrapper>
