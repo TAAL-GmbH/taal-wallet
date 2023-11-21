@@ -48,6 +48,8 @@
     "src/components/onboarding/password"
   ], 
   "exclude": [
-    "src/__test__"
+    "src/__test__",
+    "server",
+    "demo"
   ]
 }
