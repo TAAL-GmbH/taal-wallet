@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import styled from 'styled-components';
 
-import { margin, padding } from '@/src/utils/injectSpacing';
+import { margin, padding } from '@/utils/inject-spacing';
 
 type Props = {
   children: React.ReactNode;
@@ -13,7 +13,7 @@ export const Box: FC<Props> = ({ children, ...rest }) => {
 
 const Wrapper = styled.div`
   border-radius: 12px;
-  background: ${({ theme }) => theme.color.neutral[100]};
+  background: ${({ theme }) => theme.color.grey[100]};
   ${padding`md`};
 
   hr {

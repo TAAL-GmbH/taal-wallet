@@ -1,11 +1,11 @@
-jest.mock('../features/wocApi');
-jest.mock('../db/index.ts');
-jest.mock('../db/shared.ts');
+jest.mock('@/features/woc-api');
+jest.mock('@/db/index.ts');
+jest.mock('@/db/shared.ts');
 
 import { createHDPrivateKey, rebuildMnemonic } from './../utils/blockchain';
-import { AccountFactory } from '../utils/accountFactory';
-import { initStoreSync } from '../utils/storeSync';
-import * as wocApi from '../features/wocApi';
+import { AccountFactory } from '../utils/account-factory';
+import { initStoreSync } from '../utils/store-sync';
+import * as wocApi from '../features/woc-api';
 import { store } from '../store';
 
 const accountName = 'AccountName';
@@ -157,7 +157,7 @@ describe('accountFactory', () => {
     });
 
     it('should attempt to create account with blank account name', async () => {
-      let accountName = '';
+      const accountName = '';
       const result = await af.createAccount({
         accountName,
         networkId,
@@ -221,20 +221,20 @@ describe('accountFactory', () => {
   });
 });
 
-async function createAccount(af: any) {
-  const result = await af.createAccount({
-    accountName,
-    networkId,
-    password,
-    mnemonicPhrase,
-    action,
-  });
-  expect(result).toEqual(
-    expect.objectContaining({
-      success: true,
-    })
-  );
-}
+// async function createAccount(af: any) {
+//   const result = await af.createAccount({
+//     accountName,
+//     networkId,
+//     password,
+//     mnemonicPhrase,
+//     action,
+//   });
+//   expect(result).toEqual(
+//     expect.objectContaining({
+//       success: true,
+//     })
+//   );
+// }
 
 // it('should create an account with name path balance', async () => {
 //   const result = await af.createAccount({

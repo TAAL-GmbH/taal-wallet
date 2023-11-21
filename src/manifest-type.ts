@@ -14,7 +14,7 @@ export interface ManifestType {
   background?:
     | {
         service_worker: string;
-        type?: "module";
+        type?: 'module';
       }
     | undefined;
   chrome_settings_overrides?:
@@ -95,9 +95,7 @@ export interface ManifestType {
               type: string;
             }[]
           | undefined;
-        conditions?:
-          | chrome.declarativeContent.PageStateMatcherProperties[]
-          | undefined;
+        conditions?: chrome.declarativeContent.PageStateMatcherProperties[] | undefined;
       }[]
     | undefined;
   externally_connectable?:
@@ -166,10 +164,7 @@ export interface ManifestType {
         keyword: string;
       }
     | undefined;
-  optional_permissions?:
-    | chrome.runtime.ManifestPermissions[]
-    | string[]
-    | undefined;
+  optional_permissions?: chrome.runtime.ManifestPermissions[] | string[] | undefined;
   options_page?: string | undefined;
   options_ui?:
     | {
@@ -192,7 +187,7 @@ export interface ManifestType {
     | undefined;
   requirements?:
     | {
-        "3D"?:
+        '3D'?:
           | {
               features?: string[] | undefined;
             }
@@ -236,9 +231,7 @@ export interface ManifestType {
     | undefined;
   update_url?: string | undefined;
   version_name?: string | undefined;
-  web_accessible_resources?:
-    | (WebAccessibleResourceById | WebAccessibleResourceByMatch)[]
-    | undefined;
+  web_accessible_resources?: (WebAccessibleResourceById | WebAccessibleResourceByMatch)[] | undefined;
 }
 
 interface DeclarativeNetRequestResource {

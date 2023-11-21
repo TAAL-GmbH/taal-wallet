@@ -1,13 +1,13 @@
-import { AccountType, PKType } from '@/src/types';
+import { AccountType, PKType } from '@/types';
 
 type SharedState = {
   accountMap: { [accountId: string]: AccountType };
-  keyVal: Record<string, any>;
+  keyVal: Record<string, unknown>;
 };
 
 type State = {
   pkMap: Record<string, PKType>;
-  keyVal: Record<string, any>;
+  keyVal: Record<string, unknown>;
 };
 
 export const _sharedDb: SharedState = {

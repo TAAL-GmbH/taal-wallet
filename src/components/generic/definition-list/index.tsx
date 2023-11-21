@@ -1,7 +1,8 @@
 import { FC, ReactNode } from 'react';
 import styled from 'styled-components';
 
-import { injectSpacing, margin } from '@/src/utils/injectSpacing';
+import { injectSpacing, margin } from '@/utils/inject-spacing';
+import { InjectSpacing } from '@/types/index';
 
 type Props = {
   variant?: 'primary' | 'secondary';
@@ -10,10 +11,10 @@ type Props = {
 };
 
 export const DefinitionList: FC<Props> = ({ children, margin }) => {
-  return <Wrapper margin={margin}>{children}</Wrapper>;
+  return <Wrapper $margin={margin}>{children}</Wrapper>;
 };
 
-const Wrapper = styled.dl<{ margin?: string }>`
+const Wrapper = styled.dl<InjectSpacing>`
   ${injectSpacing(['margin'])};
 
   > div {

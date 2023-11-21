@@ -1,7 +1,7 @@
-import { createPage } from '@/src/utils/createPage';
-import Popup from '@/pages/popup/Popup';
+import { createPage } from '@/utils/create-page';
+import Popup from '@/pages/popup/popup';
 
 createPage({
-  domElement: document.querySelector('#app-container'),
+  domElement: document.querySelector('#app'),
   component: <Popup />,
 });

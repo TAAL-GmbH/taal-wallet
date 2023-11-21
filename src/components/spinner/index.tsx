@@ -3,23 +3,20 @@ import styled, { css } from 'styled-components';
 
 type Props = {
   className?: string;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'xs' | 'sm' | 'md' | 'lg';
   color?: string;
 };
 
 const sizes = {
+  xs: 10,
   sm: 20,
   md: 30,
   lg: 40,
 };
 
-export const Spinner: FC<Props> = ({
-  className,
-  size = 'lg',
-  color = '#fff',
-}) => {
+export const Spinner: FC<Props> = ({ className, size = 'lg', color }) => {
   return (
-    <Wrapper className={className} size={size} color={color}>
+    <Wrapper className={className} $size={size} $color={color}>
       <div></div>
       <div></div>
       <div></div>
@@ -28,8 +25,9 @@ export const Spinner: FC<Props> = ({
   );
 };
 
-const Wrapper = styled.div<Props>`
-  ${({ size: sizeEnum = 'lg', color }) => {
+const Wrapper = styled.div<{ $size: Props['size']; $color?: string }>`
+  ${({ $size: sizeEnum = 'lg', $color: colorInput, theme }) => {
+    const color = colorInput ?? theme.color.primary[400];
     const size = sizes[sizeEnum];
     const borderSize = size / 10;
 
@@ -38,6 +36,7 @@ const Wrapper = styled.div<Props>`
       position: relative;
       width: ${size}px;
       height: ${size}px;
+      overflow: hidden;
 
       & > div {
         box-sizing: border-box;

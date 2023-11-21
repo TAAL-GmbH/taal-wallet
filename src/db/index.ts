@@ -1,8 +1,8 @@
 import { openDB, DBSchema, IDBPDatabase, StoreNames, deleteDB } from 'idb';
-import { OriginType, PKType } from '../types';
-import { isBackgroundScript } from '../utils/generic';
-import { sharedDb } from './shared';
-import { clog } from '../utils/clog';
+import { OriginType, PKType } from '@/types';
+import { isBackgroundScript } from '@/utils/generic';
+import { sharedDb } from '@/db/shared';
+import { clog } from '@/utils/clog';
 
 const CURRENT_DB_VERSION = 1;
 export const ACCOUNT_DB_NAME_PREFIX = `Account`;

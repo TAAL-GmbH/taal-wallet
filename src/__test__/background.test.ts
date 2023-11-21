@@ -1,12 +1,12 @@
-jest.mock('../features/wocApi');
-jest.mock('../db/index.ts');
-jest.mock('../db/shared.ts');
+jest.mock('@/features/woc-api');
+jest.mock('@/db/index.ts');
+jest.mock('@/db/shared.ts');
 
 import { initBackground } from '../pages/background/index';
 import { mockForBackground, mockChromeStorage } from './jest.chrome-mock';
 import { WalletClient } from '../../demo/WalletClient';
-import { replacePKMap, setActivePk, setRootPK } from '../features/pkSlice';
-import { dispatchAndValidate } from '../utils/dispatchAndValidate';
+import { replacePKMap, setActivePk, setRootPK } from '../features/pk-slice';
+import { dispatchAndValidate } from '../utils/dispatch-and-validate';
 
 const address = '0x0000000000000000000000000000000000000000';
 const privateKeyHash =

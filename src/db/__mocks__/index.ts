@@ -1,4 +1,4 @@
-import { OriginType, PKType } from '@/src/types';
+import { OriginType, PKType } from '@/types';
 import { _db } from './dbState';
 import { sharedDb } from './shared';
 
@@ -27,7 +27,7 @@ class Db {
     return dbName;
   }
 
-  public async useAccount(accountId: string, create?: boolean) {
+  public async useAccount(accountId: string) {
     sharedDb.setKeyVal('activeAccountId', accountId);
   }
 
@@ -58,7 +58,7 @@ class Db {
     delete _db.pkMap[address];
   }
 
-  public async getOrigin(origin: string) {
+  public async getOrigin() {
     const result: OriginType = {
       origin: 'localhost',
       isAuthorized: true,

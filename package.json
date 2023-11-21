@@ -1,6 +1,6 @@
 {
   "name": "taal-wallet",
-  "version": "0.0.8",
+  "version": "0.1.1",
   "description": "The TAAL Wallet allows users to manage their own keys and sign transactions on the BSV network",
   "license": "MIT",
   "repository": {
@@ -12,6 +12,7 @@
     "build": "webpack --node-env production -c ./config/webpack.config.ts",
     "demo": "webpack serve -c ./config/webpack.demo.config.ts",
     "server": "cd ./server && ts-node ./index.ts",
+    "lint": "eslint --ext .ts,.tsx ./src",
     "tsc": "tsc --noEmit=true",
     "test": "jest -c ./jest.config.js"
   },
@@ -28,7 +29,6 @@
     "dayjs": "^1.11.3",
     "deep-object-diff": "^1.1.7",
     "idb": "^7.0.1",
-    "polished": "^4.2.2",
     "process": "^0.11.10",
     "qrcode.react": "^3.1.0",
     "react": "^18.0.0",
@@ -37,10 +37,10 @@
     "react-hook-form": "^7.31.3",
     "react-hot-toast": "^2.2.0",
     "react-redux": "^8.0.1",
-    "react-tooltip": "^4.2.21",
+    "react-tooltip": "^5.21.1",
     "stas-js": "^3.0.3",
     "stream-browserify": "^3.0.0",
-    "styled-components": "^5.3.5",
+    "styled-components": "^6.0.7",
     "wouter": "^2.10.0",
     "xss": "^1.0.14"
   },
@@ -63,6 +63,7 @@
     "dotenv": "^16.0.1",
     "eslint": "^8.13.0",
     "eslint-config-prettier": "^8.5.0",
+    "eslint-import-resolver-typescript": "^3.6.0",
     "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-jsx-a11y": "^6.5.1",
     "eslint-plugin-prettier": "^4.0.0",

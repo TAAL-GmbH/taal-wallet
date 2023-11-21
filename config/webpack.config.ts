@@ -1,10 +1,11 @@
 import { Configuration, ProvidePlugin, DefinePlugin } from 'webpack';
 import path from 'path';
 import CopyPluginWebpackPlugin from 'copy-webpack-plugin';
-import { MakeManifestWebpackPlugin } from '../src/utils/MakeManifestWebpackPlugin';
-import { ExtractInfoWebpackPlugin } from '../src/utils/ExtractInfoWebpackPlugin';
+
+import { MakeManifestWebpackPlugin } from '../src/utils/make-manifest-webpack-plugin';
+import { ExtractInfoWebpackPlugin } from '../src/utils/extract-info-webpack-plugin';
 import tsconfig from '../tsconfig.json';
-import { generateHtmlFiles } from './generateHtmlFiles';
+import { generateHtmlFiles } from './generate-html-files';
 import 'dotenv/config';
 
 const alias: Record<string, string> = {};

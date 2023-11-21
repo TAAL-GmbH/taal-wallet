@@ -1,4 +1,4 @@
-import light from '@/src/themes/light';
+import light from '@/themes/light';
 import 'styled-components';
 
 type Light = typeof light;

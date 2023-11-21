@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import styled from 'styled-components';
 
-import { margin, padding } from '@/src/utils/injectSpacing';
+import { margin, padding } from '@/utils/inject-spacing';
 
 type Props = {
   attributeList: {

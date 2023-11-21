@@ -1,4 +1,4 @@
-import { isUndefined } from '@/src/utils/generic';
+import { isUndefined } from '@/utils/generic';
 import { FC, InputHTMLAttributes, ReactNode } from 'react';
 import styled, { useTheme } from 'styled-components';
 

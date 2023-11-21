@@ -15,14 +15,28 @@
     "noEmit": false,
     "jsx": "react-jsx",
     "baseUrl": ".",
+    "noUncheckedIndexedAccess": true,
     "typeRoots": ["./node_modules/@types", "./src/types"],
     "paths": {
-      "@/src/*": ["src/*"],
       "@/assets/*": ["src/assets/*"],
       "@/pages/*": ["src/pages/*"],
       "@/components/*": ["src/components/*"],
+      "@/generic/*": ["src/components/generic/*"],
+      "@/svg/*": ["src/components/svg/*"],
+      "@/constants/*": ["src/constants/*"],
+      "@/constants": ["src/constants/"],
       "@/themes/*": ["src/themes/*"],
-      "@/utils/*": ["src/utils/*"]
+      "@/hooks/*": ["src/hooks/*"],
+      "@/hooks": ["src/hooks/"],
+      "@/features/*": ["src/features/*"],
+      "@/features": ["src/features/"],
+      "@/utils/*": ["src/utils/*"],
+      "@/utils": ["src/utils/"],
+      "@/store": ["src/store/"],
+      "@/db/*": ["src/db/*"],
+      "@/db": ["src/db/"],
+      "@/types/*": ["src/types/*"],
+      "@/types": ["src/types/"]
     }
   },
   "include": [
@@ -30,6 +44,12 @@
     "**/*.ts",
     "**/*.tsx",
     "**/*.js",
-    "**/*.jsx"
+    "**/*.jsx", 
+    "src/components/onboarding/password"
+  ], 
+  "exclude": [
+    "src/__test__",
+    "server",
+    "demo"
   ]
 }

@@ -5,11 +5,7 @@ type Props = {
   direction?: 'up' | 'down' | 'left' | 'right';
 };
 
-export const Chevron: FC<Props> = ({
-  className,
-  direction = 'down',
-  ...rest
-}) => {
+export const Chevron: FC<Props> = ({ className, direction = 'down', ...rest }) => {
   const degrees =
     {
       up: 180,
@@ -19,18 +15,16 @@ export const Chevron: FC<Props> = ({
 
   return (
     <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      x="0px"
-      y="0px"
-      viewBox="0 0 30 30"
       transform={`rotate(${degrees})`}
       className={className}
       {...rest}
     >
-      <path
-        d="M15,22.5c-0.1,0-0.3,0-0.4-0.1l-14-14c-0.2-0.2-0.2-0.5,0-0.7s0.5-0.2,0.7,0L15,21.3L28.6,7.6c0.2-0.2,0.5-0.2,0.7,0
-  s0.2,0.5,0,0.7l-14,14C15.3,22.5,15.1,22.5,15,22.5z"
-      ></path>
+      <path d="M4.29289 8.29289C4.68342 7.90237 5.31658 7.90237 5.70711 8.29289L12 14.5858L18.2929 8.29289C18.6834 7.90237 19.3166 7.90237 19.7071 8.29289C20.0976 8.68342 20.0976 9.31658 19.7071 9.70711L12.7071 16.7071C12.3166 17.0976 11.6834 17.0976 11.2929 16.7071L4.29289 9.70711C3.90237 9.31658 3.90237 8.68342 4.29289 8.29289Z" />
     </svg>
   );
 };

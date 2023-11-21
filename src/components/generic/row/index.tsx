@@ -1,23 +1,28 @@
 import { FC, ReactNode } from 'react';
 import styled, { css } from 'styled-components';
-import { injectSpacing } from '@/utils/injectSpacing';
+import { injectSpacing } from '@/utils/inject-spacing';
 
 type Props = {
   children: ReactNode;
   className?: string;
+  padding?: StyledProps['$padding'];
+  margin?: StyledProps['$margin'];
+  flex?: StyledProps['$flex'];
+  col?: StyledProps['$col'];
+  gap?: StyledProps['$gap'];
 };
 
 type StyledProps = {
-  margin?: string | boolean;
-  padding?: string | boolean;
-  flex?: boolean;
-  col?: number;
-  gap?: string;
+  $margin?: string;
+  $padding?: string;
+  $gap?: string;
+  $flex?: boolean;
+  $col?: number;
 };
 
 export const Row: FC<Props & StyledProps> = ({
   padding,
-  margin = 'md 0',
+  margin = 'sm 0',
   className,
   children,
   flex,
@@ -27,12 +32,12 @@ export const Row: FC<Props & StyledProps> = ({
 }) => {
   return (
     <Wrapper
-      padding={padding}
-      margin={margin}
-      flex={flex}
       className={className}
-      col={col}
-      gap={gap}
+      $padding={padding}
+      $margin={margin}
+      $flex={flex}
+      $col={col}
+      $gap={gap}
       {...rest}
     >
       {children}
@@ -41,17 +46,17 @@ export const Row: FC<Props & StyledProps> = ({
 };
 
 const Wrapper = styled.div<StyledProps>`
-  ${({ flex }) =>
-    flex &&
+  ${({ $flex }) =>
+    $flex &&
     css`
       display: flex;
     `};
 
-  ${({ col }) => {
-    if (col > 1) {
+  ${({ $col }) => {
+    if ($col > 1) {
       return css`
         display: grid;
-        grid-template-columns: repeat(${col}, 1fr);
+        grid-template-columns: repeat(${$col}, 1fr);
         ${injectSpacing(['gap'])}
       `;
     }

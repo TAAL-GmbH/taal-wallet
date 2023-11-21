@@ -1,45 +1,46 @@
 import { FC } from 'react';
-import styled from 'styled-components';
-import { useAppSelector } from '@/src/hooks';
-import { useGetHistoryQuery } from '@/src/features/wocApiSlice';
-import { HistoryIcon } from '../svg/historyIcon';
-import { Heading } from '../generic/heading';
-import { Tooltip } from '../generic/tooltip';
-import { IconButton } from '../generic/icon-button';
-import { RefreshIcon } from '../svg/refreshIcon';
-import { HistoryItemList } from './historyItemList';
-import { BackButton } from '../backButton';
-import { CurrentAccount } from '../currentAccount';
 
-type Props = {
-  className?: string;
-};
+import { useAppSelector } from '@/hooks';
+import { useGetHistoryQuery } from '@/features/woc-api-slice';
+import { Layout } from '@/components/layout/default-layout';
+import { PageLoading } from '@/components/loading-page';
+import { Ul } from '@/generic/list/ul';
 
-export const History: FC<Props> = ({ className }) => {
+import { HistoryListItem } from './history-list-item';
+import { NoHistory } from './no-history';
+
+export const History: FC = () => {
   const { activePk } = useAppSelector(state => state.pk);
-  const { data: list, isFetching, refetch } = useGetHistoryQuery({ address: activePk.address });
+  const { data: list, isFetching } = useGetHistoryQuery({ address: activePk.address });
+
+  const header = (
+    <>
+      <span />
+      <span>Transaction history</span>
+    </>
+  );
+
+  let contents: JSX.Element | null = null;
+
+  const noHistory = !isFetching && !list?.length;
+
+  if (isFetching) {
+    contents = <PageLoading />;
+  } else if (noHistory) {
+    contents = <NoHistory />;
+  } else {
+    contents = (
+      <Ul>
+        {list.map(({ tx_hash: txHash, height }) => (
+          <HistoryListItem key={txHash} txHash={txHash} height={height} />
+        ))}
+      </Ul>
+    );
+  }
 
   return (
-    <Wrapper className={className}>
-      <CurrentAccount />
-      <BackButton />
-      <Heading
-        icon={<HistoryIcon />}
-        cta={
-          <Tooltip contents="Refetch history">
-            <IconButton onClick={refetch}>
-              <RefreshIcon />
-            </IconButton>
-          </Tooltip>
-        }
-      >
-        Your wallet's history
-      </Heading>
-      <HistoryItemList list={list} isFetching={isFetching} />
-    </Wrapper>
+    <Layout header={header} wideContent vcenter={noHistory}>
+      {contents}
+    </Layout>
   );
 };
-
-const Wrapper = styled.div`
-  //
-`;

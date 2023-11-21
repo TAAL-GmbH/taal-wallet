@@ -2,15 +2,15 @@ import bsv from 'bsv';
 import 'bsv/message';
 import BN from 'bn.js';
 
-import { db } from '@/src/db';
-import { getBalance, getUnspent } from '@/src/features/wocApi';
-import { store } from '@/src/store';
-import { derivePk, mergeSplit, restorePK } from '@/src/utils/blockchain';
-import { createDialog } from '@/src/utils/createDialog';
-import { waitForTruthy } from '@/src/utils/waitForTruthy';
-import { isNull } from '@/src/utils/generic';
-import { SignPreimageData } from '@/src/types';
-import { clog } from '@/src/utils/clog';
+import { db } from '@/db';
+import { getBalance, getUnspent } from '@/features/woc-api';
+import { store } from '@/store';
+import { derivePk, mergeSplit, restorePK } from '@/utils/blockchain';
+import { createDialog } from '@/utils/create-dialog';
+import { waitForTruthy } from '@/utils/wait-for-truthy';
+import { isNull } from '@/utils/generic';
+import { SignPreimageData } from '@/types';
+import { clog } from '@/utils/clog';
 
 type Options = {
   port: chrome.runtime.Port;
@@ -527,5 +527,9 @@ export class Client {
     this._unsubscribeRedux();
 
     this._clearTimers();
+  }
+
+  public getOrigin() {
+    return this._origin;
   }
 }

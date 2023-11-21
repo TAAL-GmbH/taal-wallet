@@ -6,6 +6,7 @@
 // Definitions extended by: David Case <https://github.com/shruggr>
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 
+// eslint-disable-next-line
 /// <reference types="bn.js" />
 
 declare module 'bsv' {
@@ -229,7 +230,7 @@ declare module 'bsv' {
 
     class Point {
       static fromX(odd: boolean, x: crypto.BN | string): Point;
-      static getG(): any;
+      static getG(): unknown;
       static getN(): crypto.BN;
       getX(): crypto.BN;
       getY(): crypto.BN;
@@ -292,7 +293,7 @@ declare module 'bsv' {
       readonly script: Script;
       output?: Output;
       constructor(params: object);
-      isValidSignature(tx: Transaction, sig: any): boolean;
+      isValidSignature(tx: Transaction, sig: unknown): boolean;
       setScript(script: Script): this;
     }
 
@@ -355,7 +356,7 @@ declare module 'bsv' {
     nid: string;
     nLockTime: number;
 
-    constructor(serialized?: any);
+    constructor(serialized?: unknown);
 
     from(utxos: Transaction.IUnspentOutput | Transaction.IUnspentOutput[]): this;
     to(address: Address[] | Address | string, amount: number): this;
@@ -385,12 +386,12 @@ declare module 'bsv' {
     serialize(opts?: boolean | object): string;
     uncheckedSerialize(): string;
 
-    toObject(): any;
+    toObject(): unknown;
     toBuffer(): Buffer;
 
     isFullySigned(): boolean;
 
-    getSerializationError(opts?: object): any;
+    getSerializationError(opts?: object): unknown;
 
     _getUnspentValue(): number;
     _estimateFee(): number;
@@ -398,7 +399,7 @@ declare module 'bsv' {
   }
 
   export class ECIES {
-    constructor(opts?: any, algorithm?: string);
+    constructor(opts?: unknown, algorithm?: string);
 
     privateKey(privateKey: PrivateKey): ECIES;
     publicKey(publicKey: PublicKey): ECIES;
@@ -433,7 +434,7 @@ declare module 'bsv' {
     toJSON(): object;
     toWIF(): string;
     toHex(): string;
-    toBigNumber(): any; //BN;
+    toBigNumber(): unknown; //BN;
     toBuffer(): Buffer;
     inspect(): string;
 
@@ -442,7 +443,7 @@ declare module 'bsv' {
     static fromRandom(netowrk?: string): PrivateKey;
     static fromBuffer(buf: Buffer, network: Networks.Type): PrivateKey;
     static fromHex(hex: string, network: Networks.Type): PrivateKey;
-    static getValidationError(data: string): any | null;
+    static getValidationError(data: string): unknown | null;
     static isValid(data: string): boolean;
   }
 
@@ -468,7 +469,7 @@ declare module 'bsv' {
     //static fromX(odd: boolean, x: Point): PublicKey;
     static fromString(str: string): PublicKey;
     static fromHex(hex: string): PublicKey;
-    static getValidationError(data: string): any | null;
+    static getValidationError(data: string): unknown | null;
     static isValid(data: string): boolean;
   }
 
@@ -542,7 +543,7 @@ declare module 'bsv' {
     static fromHex(hex: string): HDPrivateKey;
     static isValidPath(arg: string | number, hardened: boolean): boolean;
     static isValidSerialized(data: string | Buffer, network?: string | Networks.Type): boolean;
-    static getSerializedError(data: string | Buffer, network?: string | Networks.Type): any | null;
+    static getSerializedError(data: string | Buffer, network?: string | Networks.Type): unknown | null;
   }
 
   export class HDPublicKey {
@@ -572,7 +573,7 @@ declare module 'bsv' {
     static fromHDPrivateKey(hdPrivateKey: HDPrivateKey): HDPublicKey;
     static isValidPath(arg: string | number): boolean;
     static isValidSerialized(data: string | Buffer, network?: string | Networks.Type): boolean;
-    static getSerializedError(data: string | Buffer, network?: string | Networks.Type): any | null;
+    static getSerializedError(data: string | Buffer, network?: string | Networks.Type): unknown | null;
   }
 
   export namespace Script {
@@ -620,11 +621,11 @@ declare module 'bsv' {
 
     namespace Interpreter {
       interface InterpretState {
-        step: any;
-        mainstack: any;
-        altstack: any;
+        step: unknown;
+        mainstack: unknown;
+        altstack: unknown;
       }
-      type StepListenerFunction = (step: any, stack: any[], altstack: any[]) => void;
+      type StepListenerFunction = (step: unknown, stack: unknown[], altstack: unknown[]) => void;
     }
 
     export class Interpreter {
@@ -647,7 +648,7 @@ declare module 'bsv' {
         outputScript: Script,
         txn: Transaction,
         nin: number,
-        flags: any,
+        flags: unknown,
         satoshisBN: crypto.BN
       ) => boolean;
     }
@@ -693,8 +694,8 @@ declare module 'bsv' {
 
     isStandard(): boolean;
 
-    prepend(obj: any): this;
-    add(obj: any): this;
+    prepend(obj: unknown): this;
+    add(obj: unknown): this;
 
     hasCodeseparators(): boolean;
     removeCodeseparators(): this;
@@ -711,7 +712,7 @@ declare module 'bsv' {
 
   export interface Util {
     readonly buffer: {
-      reverse(a: any): any;
+      reverse(a: unknown): unknown;
     };
   }
 
@@ -728,7 +729,7 @@ declare module 'bsv' {
     const testnet: Network;
     const defaultNetwork: Network;
 
-    function add(data: any): Network;
+    function add(data: unknown): Network;
     function remove(network: Networks.Type): void;
     function get(args: string | number | Networks.Type, keys: string | string[]): Network;
   }

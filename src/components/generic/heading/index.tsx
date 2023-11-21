@@ -1,45 +1,70 @@
 import { FC, ReactNode } from 'react';
 import styled from 'styled-components';
 
+import { InjectSpacing } from '@/types';
+import { injectSpacing } from '@/utils/inject-spacing';
+
 type Props = {
   children: ReactNode;
   icon?: ReactNode;
   cta?: ReactNode;
+  level?: number;
   className?: string;
+  margin?: string;
+  center?: boolean;
 };
 
-export const Heading: FC<Props> = ({ className, children, icon, cta }) => {
+export const Heading: FC<Props> = ({
+  className,
+  children,
+  icon,
+  cta,
+  level = 3,
+  margin = 'md 0 sm',
+  center = false,
+}) => {
+  const headingTag = `h${level}` as keyof JSX.IntrinsicElements;
   return (
-    <Wrapper className={className}>
+    <Wrapper className={className} $margin={margin} $center={center}>
       {icon && <IconWrapper>{icon}</IconWrapper>}
-      <h1>{children}</h1>
-      {cta && <CtaWrapper>{cta}</CtaWrapper>}
+      <HeadingStyled as={headingTag} $level={level}>
+        {children}
+      </HeadingStyled>
+      {cta && <span>{cta}</span>}
     </Wrapper>
   );
 };
 
-const Wrapper = styled.div`
+const HeadingStyled = styled.h1<{
+  $level?: number;
+  as: keyof JSX.IntrinsicElements;
+  $center?: boolean;
+}>`
+  ${({ theme, $level }) => `${theme.typography[`heading${$level}`]}`};
+  margin: 0;
+
+  ${({ $center }) => $center && 'text-align: center;'}
+`;
+
+const Wrapper = styled.div<InjectSpacing & { $center?: boolean }>`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin: 1rem 0 0.5rem 0.2rem;
-
-  h1 {
-    margin: 0.6rem 0 0;
-    flex-grow: 1;
-  }
+  ${({ theme }) => theme.typography.body1};
+  ${({ $center }) => $center && 'justify-content: center;'}
 
   button {
-    margin-top: 0.4rem;
     max-height: 1.4rem;
     max-width: 1.4rem;
     border-radius: 50%;
-    background-color: ${({ theme }) => theme.color.neutral[800]};
+    background-color: ${({ theme }) => theme.color.accent[600]};
 
     svg {
       fill: #fff;
     }
   }
+
+  ${injectSpacing(['margin', 'padding'])}
 `;
 
 const IconWrapper = styled.div`
@@ -58,5 +83,3 @@ const IconWrapper = styled.div`
     fill: #fff;
   }
 `;
-
-const CtaWrapper = styled.div``;

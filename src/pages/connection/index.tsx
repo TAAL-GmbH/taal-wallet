@@ -1,5 +1,5 @@
-import { createPage } from '@/src/utils/createPage';
-import { Connection } from '@/pages/connection/Connection';
+import { createPage } from '@/utils/create-page';
+import { Connection } from '@/pages/connection/connection';
 
 createPage({
   domElement: document.querySelector('#app-container'),

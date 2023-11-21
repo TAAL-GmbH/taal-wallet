@@ -1,5 +1,5 @@
 import { ComponentProps, FC } from 'react';
-import { useForm } from './useForm';
+import { useForm } from './use-form';
 
 type UseFormReturnType = ReturnType<typeof useForm>;
 type Props = ComponentProps<UseFormReturnType['Form']>;

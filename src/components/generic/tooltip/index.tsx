@@ -1,21 +1,22 @@
-import React, { cloneElement, FC, ReactNode } from 'react';
-import ReactTooltip from 'react-tooltip';
+import { FC, ReactElement, isValidElement, useId } from 'react';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 
 type Props = {
-  children: ReactNode;
-  contents?: string | ReactNode;
+  children: ReactElement;
+  contents: string;
+  className?: string;
 };
 
-export const Tooltip: FC<Props> = ({ children, contents }) => {
+export const Tooltip: FC<Props> = ({ children, contents, className }) => {
+  const uid = `tooltip-${useId()}`;
+
   return (
-    React.isValidElement(children) && (
+    isValidElement(children) && (
       <>
-        <ReactTooltip place="top" effect="solid">
-          {contents}
-        </ReactTooltip>
-        {cloneElement(children, {
-          'data-tip': true,
-        })}
+        <ReactTooltip id={uid} content={contents} />
+        <span className={className} data-tooltip-id={uid}>
+          {children}
+        </span>
       </>
     )
   );
