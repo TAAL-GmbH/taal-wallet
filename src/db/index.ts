@@ -17,9 +17,6 @@ type KeyVal = {
   'active.PkAddress': string | null;
   'derivationPath.lastIndex': number;
   'rootPk.privateKeyEncrypted': string | null;
-  'network.id': string | null;
-  'account.name': string | null;
-  'account.passwordHash': string | null;
 };
 
 interface TaalAccountDB extends DBSchema {
@@ -57,14 +54,20 @@ class Db {
   private async _openDB() {
     if (!this._dbPromise) {
       this._dbPromise = openDB<TaalAccountDB>(this._activeDbName, CURRENT_DB_VERSION, {
-        upgrade(db) {
-          db.createObjectStore(storeNames.KEY_VAL);
-          db.createObjectStore(storeNames.ORIGIN, { keyPath: 'origin' });
+        upgrade(db, oldVersion, newVersion /*, transaction */) {
+          console.log(`DB upgrade from ${oldVersion} to ${newVersion}`);
 
-          const pkStore = db.createObjectStore(storeNames.PK, {
-            keyPath: 'address',
-          });
-          pkStore.createIndex('by-path', 'path');
+          /**
+           * initial run
+           */
+          if (oldVersion < 1) {
+            db.createObjectStore(storeNames.KEY_VAL);
+            db.createObjectStore(storeNames.ORIGIN, { keyPath: 'origin' });
+            const pkStore = db.createObjectStore(storeNames.PK, {
+              keyPath: 'address',
+            });
+            pkStore.createIndex('by-path', 'path');
+          }
         },
       });
     }

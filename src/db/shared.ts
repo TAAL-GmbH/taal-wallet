@@ -2,7 +2,7 @@ import { openDB, DBSchema, IDBPDatabase } from 'idb';
 
 import { AccountType } from '@/types';
 
-const CURRENT_DB_VERSION = 1;
+const CURRENT_DB_VERSION = 2;
 
 const DB_NAME = `Shared`;
 
@@ -42,12 +42,48 @@ class SharedDb {
     return (
       this._db ||
       openDB<TaalSharedDB>(DB_NAME, CURRENT_DB_VERSION, {
-        upgrade(db) {
-          db.createObjectStore(storeNames.KEY_VAL);
-          const accountListStore = db.createObjectStore(storeNames.ACCOUNT_LIST, {
-            keyPath: 'id',
-          });
-          accountListStore.createIndex('by-name', 'name');
+        async upgrade(db, oldVersion, newVersion, transaction) {
+          console.log(`sharedDB upgrade from ${oldVersion} to ${newVersion}`);
+
+          /**
+           * initial run
+           */
+          if (oldVersion < 1) {
+            db.createObjectStore(storeNames.KEY_VAL);
+            const accountListStore = db.createObjectStore(storeNames.ACCOUNT_LIST, {
+              keyPath: 'id',
+            });
+            accountListStore.createIndex('by-name', 'name');
+          }
+
+          /**
+           * 0.1.2
+           * - added `account.hasPassphrase`
+           * - removing default passphrase
+           */
+          if (oldVersion < 2) {
+            const store = transaction.objectStore(storeNames.ACCOUNT_LIST);
+            const accountList = await store.getAll();
+
+            await Promise.all(
+              accountList.map(account => {
+                if ('hasPassphrase' in account === false) {
+                  account.hasPassphrase = true;
+                  return store.put(account);
+                }
+              })
+            );
+            chrome.runtime.reload();
+
+            // store.getAll().then(accountList => {
+            //   accountList.forEach(account => {
+            //     if ('hasPassphrase' in account === false) {
+            //       account.hasPassphrase = true;
+            //       store.put(account);
+            //     }
+            //   });
+            // });
+          }
         },
       })
     );

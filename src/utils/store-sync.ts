@@ -12,6 +12,8 @@ import { ROOT_PK_HASH_KEY } from '@/constants';
 import { sessionStorage } from '@/utils/chrome-storage';
 import { waitForTruthy } from '@/utils/wait-for-truthy';
 
+const isProd = process.env.NODE_ENV === 'production';
+
 type DiffType = {
   updated: RootState['pk'] & RootState['account'];
   deleted: RootState['pk'] & RootState['account'];
@@ -115,17 +117,16 @@ export const initStoreSync = async () => {
       }
     }
 
-    if (updated.network?.id) {
-      db.setKeyVal('network.id', updated.network.id);
-    }
-
     if (updated.rootPk?.privateKeyEncrypted) {
       db.setKeyVal('rootPk.privateKeyEncrypted', updated.rootPk.privateKeyEncrypted);
     }
 
     if (!isUndefined(updated.isLocked)) {
+      const fileNameSuffix = isProd ? '' : '-dev';
       chrome.action.setIcon({
-        path: updated.isLocked ? '/taal-round-locked4-128x128.png' : '/taal-round-128x128.png',
+        path: updated.isLocked
+          ? `/taal-round-locked4${fileNameSuffix}-128x128.png`
+          : `/taal-round${fileNameSuffix}-128x128.png`,
       });
     }
 
@@ -165,13 +166,14 @@ export const initStoreSync = async () => {
 };
 
 export const restoreDataFromDb = async () => {
-  const [networkId, pkMap, activePkAddress, accountList, activeAccountId] = await Promise.all([
-    db.getKeyVal('network.id'),
+  const [pkMap, activePkAddress, accountList, activeAccountId] = await Promise.all([
     db.getPkMap(),
     db.getKeyVal('active.PkAddress'),
     sharedDb.getAccountList(),
     sharedDb.getKeyVal('activeAccountId'),
   ]);
+
+  const networkId = accountList.find(account => account.id === activeAccountId)?.networkId;
 
   store.dispatch(setAccountList(accountList));
   store.dispatch(setActiveAccountId(activeAccountId || accountList[0]?.id));

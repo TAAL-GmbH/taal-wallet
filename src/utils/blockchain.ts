@@ -393,19 +393,19 @@ export const sendBSV = async ({
 export const createHDPrivateKey = ({
   mnemonic,
   networkId,
-  password,
+  passphrase,
 }: {
   mnemonic: Mnemonic;
   networkId: string;
-  password: string;
+  passphrase?: string;
 }) => {
   const network = networkList.find(item => item.id === networkId);
 
-  const mSeed = mnemonic.toSeed(password);
+  const mSeed = mnemonic.toSeed(passphrase);
   const rootKey = bsv.HDPrivateKey.fromSeed(mSeed, network.envName);
 
   // another way of doing the same thing
-  // const hDPrivateKey2 = mnemonic.toHDPrivateKey(password, network);
+  // const hDPrivateKey2 = mnemonic.toHDPrivateKey(passphrase, network);
   // var copy_of_child_0_1_2h = hDPrivateKey2.deriveChild("m/0/1/2'");
 
   // const child_0_1_2h = rootPrivateKey

@@ -9,6 +9,7 @@ import { EditIcon } from '@/components/svg/edit-icon';
 import { Li } from '@/generic/list/li';
 import { useAppSelector } from '@/hooks/index';
 import { LockIcon } from '@/svg/lock-icon';
+import { Tooltip } from '@/generic/tooltip';
 
 type Props = {
   account: AccountType;
@@ -25,7 +26,14 @@ export const AccountListItem: FC<Props> = ({ account, activeAccountId, onClick, 
     <Li role="button" key={account.id} onClick={() => onClick(account.id, isActive)} $isActive={isActive}>
       <AccountIcon accountId={account.id} />
       <Details>
-        <Name>{account.name}</Name>
+        <Name>
+          {account.name}
+          {account.hasPassphrase && (
+            <Tooltip contents="Protected with passphrase">
+              <LockIcon />
+            </Tooltip>
+          )}
+        </Name>
         <Info>{account.networkId}</Info>
       </Details>
 
@@ -55,7 +63,16 @@ const Details = styled.div`
 const Name = styled.div`
   color: ${({ theme }) => theme.color.primary[600]};
   ${({ theme }) => theme.typography.heading6};
+  display: flex;
+  gap: 2px;
+
+  svg {
+    height: 14px;
+    position: relative;
+    top: 2px;
+  }
 `;
+
 const Info = styled.div`
   display: flex;
   flex-direction: column;

@@ -16,7 +16,7 @@ const manifest: ManifestType = {
   },
   action: {
     default_popup: 'src/pages/popup/index.html',
-    default_icon: 'taal-round-34x34.png',
+    default_icon: isProd ? 'taal-round-34x34.png' : 'taal-round-dev-34x34.png',
   },
   icons: {
     '128': 'taal-round-128x128.png',

@@ -28,6 +28,7 @@ const EMPTY_WALLETS_SLOT_COUNT = 20;
 type AccountData = {
   accountId: string;
   accountName: string;
+  hasPassphrase: boolean;
   networkId: string;
   privateKeyHash: string;
   privateKeyEncrypted: string;
@@ -106,7 +107,7 @@ export class AccountFactory {
     try {
       const { pkInstance: rootKey } = createHDPrivateKey({
         networkId,
-        password,
+        passphrase: undefined,
         mnemonic: rebuildMnemonic(mnemonicPhrase.trim()),
       });
 
@@ -142,6 +143,7 @@ export class AccountFactory {
       const isDataWritten = await this.storeAccountData({
         accountId,
         accountName,
+        hasPassphrase: false,
         networkId,
         privateKeyHash: rootKey.toString(),
         privateKeyEncrypted: encrypt(rootKey.toString(), password),
@@ -190,6 +192,7 @@ export class AccountFactory {
   private async storeAccountData({
     accountId,
     accountName,
+    hasPassphrase,
     networkId,
     privateKeyHash,
     privateKeyEncrypted,
@@ -200,6 +203,7 @@ export class AccountFactory {
     await sharedDb.insertAccount({
       id: accountId,
       name: accountName,
+      hasPassphrase,
       networkId,
     });
 
@@ -286,19 +290,6 @@ export class AccountFactory {
     // let's wait for network to be set in db
     await delay(this.timeoutMultiplier * 500);
 
-    const isValidNetworkIdInDb = await waitForTruthy(
-      async () => (await db.getKeyVal('network.id')) === networkId
-    );
-
-    if (isValidNetworkIdInDb) {
-      logEvent({
-        type: 'success',
-        message: 'network.id written to db',
-      });
-    } else {
-      throw new Error('Failed to write network.id to db');
-    }
-
     // this does not write to db
     const isActiveAccountIdDispatched = await dispatchAndValidate(
       setActiveAccountId(accountId),
@@ -314,6 +305,7 @@ export class AccountFactory {
       addAccount({
         id: accountId,
         name: accountName,
+        hasPassphrase,
         networkId,
       }),
       s => !!s.account.accountMap[accountId]

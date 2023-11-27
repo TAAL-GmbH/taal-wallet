@@ -20,15 +20,15 @@ export const useBlockchain = () => {
 
     const toast = showToast && createToast('Fetching balance...');
     if (!activePk?.address) {
-      toast?.error('Please select an address');
+      toast && toast.error('Please select an address');
       return;
     }
     const result = await wocApi.getBalance([activePk.address]).catch(err => {
-      toast?.error(err);
+      toast && toast.error(err);
       return null;
     });
     if (!isNull(result) && showToast) {
-      toast?.success('Balance fetched successfully');
+      toast && toast.success('Balance fetched successfully');
     }
   };
 

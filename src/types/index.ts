@@ -55,6 +55,7 @@ export type AccountType = {
   id: string;
   name: string;
   networkId: string;
+  hasPassphrase: boolean;
 };
 
 export type PKType = {

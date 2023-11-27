@@ -57,6 +57,11 @@ const createWalletLockAlarm = async () => {
   chrome.alarms.create(alarms.WALLET_LOCK, { delayInMinutes: walletLockPeriod });
 };
 
+chrome.runtime.onUpdateAvailable.addListener(x => {
+  console.log('update available', x);
+  chrome.runtime.reload();
+});
+
 // internal long-lived connection handling
 chrome.runtime.onConnect.addListener(async internalPort => {
   // add alarm on popup window close

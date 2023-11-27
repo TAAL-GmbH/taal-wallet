@@ -17,6 +17,7 @@ const Popup = () => {
   const [hasRootKey, setHasRootKey] = useState<boolean>(null);
   const [isUiInitialized, setIsUiInitialized] = useState<boolean>(false);
   const [hasAccounts, setHasAccounts] = useState<boolean>(null);
+  const isLoadingRef = useRef<boolean>(true);
   const port = useRef<chrome.runtime.Port>(null);
 
   const initPort = useCallback(() => {
@@ -38,6 +39,13 @@ const Popup = () => {
     initPort();
 
     setIsUiInitialized(true);
+
+    setTimeout(() => {
+      if (isLoadingRef.current) {
+        // this could happen after extension update
+        chrome.runtime.reload();
+      }
+    }, 5000);
   }, []);
 
   useEffect(() => {
@@ -62,7 +70,7 @@ const Popup = () => {
     isLocked: hasAccounts === false ? false : isLocked,
   };
 
-  const isLoading = Object.values(allRequiredProps).some(isNull);
+  isLoadingRef.current = Object.values(allRequiredProps).some(isNull);
 
   return (
     <>
@@ -71,7 +79,7 @@ const Popup = () => {
       <AccountCreationStatus />
 
       <RouterComponent
-        isLoading={isLoading}
+        isLoading={isLoadingRef.current}
         hasRootKey={hasRootKey}
         hasAccounts={hasAccounts}
         isLocked={isLocked}
