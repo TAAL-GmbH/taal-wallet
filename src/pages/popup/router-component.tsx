@@ -18,24 +18,25 @@ import { WalletList } from '@/components/wallet-list';
 import { AccountList } from '@/components/account-list';
 import { getLocationPath, navigateTo } from '@/utils/navigation';
 import { SterileLayout } from '@/components/layout/sterile-layout';
+import { BlockingNotification } from '@/components/blocking-notification';
 // import { TransferToken } from '@/components/transfer-token';
 
 type Props = {
   isLoading: boolean;
   hasRootKey: boolean;
   isLocked: boolean | null;
-  hasActivePk: boolean;
   hasAccounts: boolean;
   activeAccountId: string;
+  shouldNotify: boolean;
 };
 
 export const RouterComponent: FC<Props> = ({
   isLoading,
   hasRootKey,
   isLocked,
-  hasActivePk,
   hasAccounts,
   activeAccountId,
+  shouldNotify,
 }) => {
   const [location] = useHashLocation();
 
@@ -89,14 +90,8 @@ export const RouterComponent: FC<Props> = ({
     );
   }
 
-  if (!hasActivePk) {
-    return (
-      <Router hook={useHashLocation}>
-        <Route path={`${routes.ACCOUNT_LIST}`}>
-          <AccountList />
-        </Route>
-      </Router>
-    );
+  if (shouldNotify) {
+    return <BlockingNotification />;
   }
 
   return (

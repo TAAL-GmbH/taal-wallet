@@ -17,6 +17,7 @@ type KeyVal = {
   'active.PkAddress': string | null;
   'derivationPath.lastIndex': number;
   'rootPk.privateKeyEncrypted': string | null;
+  'isNotified.toBackupPassphrase': boolean | null;
 };
 
 interface TaalAccountDB extends DBSchema {

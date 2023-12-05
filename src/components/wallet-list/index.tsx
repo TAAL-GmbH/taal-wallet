@@ -28,7 +28,7 @@ export const WalletList: FC = () => {
   const createWalletModal = useModal();
 
   const selectWallet = (address: string) => {
-    if (pk.activePk.address !== address) {
+    if (pk.activePk?.address !== address) {
       dispatch(setActivePk(address));
     }
     history.back();
@@ -81,7 +81,7 @@ export const WalletList: FC = () => {
       <MinimalLayout header={header}>
         <Ul>
           {walletList.map(item => {
-            const isActive = pk.activePk.address === item.address;
+            const isActive = pk.activePk?.address === item.address;
             return (
               <LiStyled
                 role="button"
@@ -100,7 +100,7 @@ export const WalletList: FC = () => {
                   </Info>
                 </Details>
                 <RightWrapper>
-                  {pk.activePk.address === item.address && <CheckIcon />}
+                  {pk.activePk?.address === item.address && <CheckIcon />}
                   <EditButton role="button" onClick={e => showEditModal(item, e)}>
                     <EditIcon />
                   </EditButton>

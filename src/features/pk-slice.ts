@@ -6,6 +6,8 @@ import { PKMap, PKType, RootPKType } from '@/types';
 import { isBackgroundScript } from '@/utils/generic';
 import { sessionStorage } from '@/utils/chrome-storage';
 
+const IsNotifiedKeys = <const>['toBackupPassphrase'];
+
 type State = {
   activePk: PKType | null;
   rootPk: RootPKType | null;
@@ -15,6 +17,7 @@ type State = {
   isLocked: boolean | null;
   isSendBsvLocked: boolean;
   isStateInitialized: boolean;
+  isNotified: Record<typeof IsNotifiedKeys[number], boolean | null>;
 };
 
 const initialState: State = {
@@ -26,6 +29,9 @@ const initialState: State = {
   isLocked: null, // setting to null as it must be initialized in storeSync
   isSendBsvLocked: false,
   isStateInitialized: false,
+  isNotified: {
+    toBackupPassphrase: null,
+  },
 };
 
 const setStateBalance = (state: State, address: string, satoshis: number) => {
@@ -122,6 +128,12 @@ const pkSlice = createSlice({
     setIsSendBsvLocked(state, action: PayloadAction<boolean>) {
       state.isSendBsvLocked = action.payload;
     },
+    setIsNotified(state, action: PayloadAction<typeof state.isNotified>) {
+      state.isNotified = {
+        ...state.isNotified,
+        ...action.payload,
+      };
+    },
   },
 });
 
@@ -140,6 +152,7 @@ export const {
   setBalance,
   setBatchBalance,
   setIsSendBsvLocked,
+  setIsNotified,
 } = pkSlice.actions;
 
 export const pkActions = pkSlice.actions;

@@ -1,13 +1,14 @@
 import bsv from 'bsv';
 
 import { store } from '@/store';
-import { initStoreSync, restoreDataFromDb } from '@/utils/store-sync';
+import { initStoreSync } from '@/utils/store-sync';
 import { alarms, TAAL_ICON_URL } from '@/constants';
 import { db } from '@/db';
 import { clearState, lockWallet } from '@/features/pk-slice';
 import { sharedDb } from '@/db/shared';
 import { AccountFactory } from '@/utils/account-factory';
 import { dispatchAndValidate } from '@/utils/dispatch-and-validate';
+import { restoreDataFromDb } from '@/utils/restore-from-db';
 
 import { Client } from './client';
 import { onPushMessage } from './push-message-handler';

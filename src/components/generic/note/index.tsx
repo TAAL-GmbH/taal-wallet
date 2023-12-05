@@ -139,8 +139,8 @@ const Wrapper = styled.div<WrapperProps>`
     `};
 
   > svg {
-    width: 2rem;
-    height: 2rem;
+    width: 24px;
+    height: 24px;
     flex-shrink: 0;
   }
 

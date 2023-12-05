@@ -5,12 +5,12 @@ import { RootState, store } from '@/store';
 import { lockWallet, setRootPK, setState } from '@/features/pk-slice';
 import { isNull, isString, isUndefined } from '@/utils/generic';
 import { PKType } from '@/types';
-import { networkList } from '@/constants/network-list';
 import { sharedDb } from '@/db/shared';
-import { setAccountList, setActiveAccountId } from '@/features/account-slice';
+
 import { ROOT_PK_HASH_KEY } from '@/constants';
 import { sessionStorage } from '@/utils/chrome-storage';
 import { waitForTruthy } from '@/utils/wait-for-truthy';
+import { restoreDataFromDb } from './restore-from-db';
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -163,27 +163,4 @@ export const initStoreSync = async () => {
   } else {
     console.error('isLocked is undefined');
   }
-};
-
-export const restoreDataFromDb = async () => {
-  const [pkMap, activePkAddress, accountList, activeAccountId] = await Promise.all([
-    db.getPkMap(),
-    db.getKeyVal('active.PkAddress'),
-    sharedDb.getAccountList(),
-    sharedDb.getKeyVal('activeAccountId'),
-  ]);
-
-  const networkId = accountList.find(account => account.id === activeAccountId)?.networkId;
-
-  store.dispatch(setAccountList(accountList));
-  store.dispatch(setActiveAccountId(activeAccountId || accountList[0]?.id));
-
-  store.dispatch(
-    setState({
-      network: networkList.find(network => network.id === networkId),
-      activePk: activePkAddress ? pkMap[activePkAddress] : null,
-      map: pkMap,
-      rootPk: null,
-    })
-  );
 };

@@ -6,17 +6,19 @@ import { db } from '@/db';
 import { isNull, isPopup, isUndefined } from '@/utils/generic';
 import { sharedDb } from '@/db/shared';
 import { AccountCreationStatus } from '@/components/account-creation-status';
+import { getNotifications } from '@/utils/get-notifications';
 
 import { RouterComponent } from './router-component';
 
 let portTimer: NodeJS.Timeout;
 
 const Popup = () => {
-  const { isInSync, isLocked, rootPk, activePk } = useAppSelector(state => state.pk);
+  const { isInSync, isLocked, rootPk } = useAppSelector(state => state.pk);
   const { activeAccountId } = useAppSelector(state => state.account);
   const [hasRootKey, setHasRootKey] = useState<boolean>(null);
   const [isUiInitialized, setIsUiInitialized] = useState<boolean>(false);
   const [hasAccounts, setHasAccounts] = useState<boolean>(null);
+  const [shouldNotify, setShouldNotify] = useState<boolean>(false);
   const isLoadingRef = useRef<boolean>(true);
   const port = useRef<chrome.runtime.Port>(null);
 
@@ -43,7 +45,16 @@ const Popup = () => {
     setTimeout(() => {
       if (isLoadingRef.current) {
         // this could happen after extension update
-        chrome.runtime.reload();
+        (async () => {
+          const activeAccountIdFromDb = await sharedDb.getKeyVal('activeAccountId');
+          if (isUndefined(activeAccountIdFromDb)) {
+            const accountList = await sharedDb.getAccountList();
+            if (accountList.length > 0) {
+              await sharedDb.setKeyVal('activeAccountId', accountList[0].id);
+              chrome.runtime.reload();
+            }
+          }
+        })();
       }
     }, 5000);
   }, []);
@@ -59,6 +70,10 @@ const Popup = () => {
       } else {
         setHasRootKey(false);
       }
+
+      if (activeAccountId) {
+        setShouldNotify((await getNotifications()) !== null);
+      }
     })();
   }, [rootPk, activeAccountId]);
 
@@ -68,6 +83,7 @@ const Popup = () => {
     hasAccounts,
     hasRootKey,
     isLocked: hasAccounts === false ? false : isLocked,
+    shouldNotify,
   };
 
   isLoadingRef.current = Object.values(allRequiredProps).some(isNull);
@@ -83,8 +99,8 @@ const Popup = () => {
         hasRootKey={hasRootKey}
         hasAccounts={hasAccounts}
         isLocked={isLocked}
-        hasActivePk={!isNull(activePk)}
         activeAccountId={activeAccountId}
+        shouldNotify={shouldNotify}
       />
 
       {/* <Debug

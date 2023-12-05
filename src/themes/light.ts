@@ -281,7 +281,7 @@ const light = {
     bodyMinHeight: '700px',
     bodyMinHeightMobile: '525px',
     bodyMinWidth: '375px',
-    contentMinHeightDesktop: '400px',
+    contentMinHeightDesktop: '450px',
   },
 };
 

@@ -36,3 +36,7 @@ export const Center = styled.div`
 export const VCenter = styled(Center)`
   justify-content: center;
 `;
+
+export const SpaceGrabber = styled.div`
+  flex: auto;
+`;
