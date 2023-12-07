@@ -1,5 +1,17 @@
 import bsv from 'bsv';
 
+export type WalletError = {
+  reason: string;
+};
+
+type UTXO = {
+  address?: string;
+  scriptPubKey: string;
+  txid: string;
+  vout: number;
+  satoshis: number;
+};
+
 type Options = {
   name: string;
   extensionId?: string;
@@ -29,11 +41,11 @@ type Unspent = {
 const defaultExtensionId = 'engokokaoeppkmchbkjeoeimiffobcke';
 
 class WalletCommunicator {
-  private _extensionId: string;
-  private _name: string;
+  private readonly _extensionId: string;
+  private readonly _name: string;
   private _port: chrome.runtime.Port;
   private _connected = false;
-  private _requestMap: Record<number, RequestObject<any>> = {};
+  private _requestMap: Record<number, RequestObject<unknown>> = {};
   private _subscriptions: Record<string, ((payload: unknown) => void)[]> = {};
 
   constructor({ name, extensionId = defaultExtensionId }: Options) {
@@ -161,7 +173,7 @@ class WalletCommunicator {
     this._port.postMessage(msg);
   }
 
-  public request<T>({ action, payload, timeout = 5000 }: MessagePayload & { timeout?: number }) {
+  public request<T>({ action, payload, timeout = 5000 }: MessagePayload) {
     const requestId = Date.now() + Math.random();
     const requestObject = {
       requestId,
@@ -186,7 +198,7 @@ class WalletCommunicator {
     return this._connected;
   }
 
-  public on(eventName: string, cb: (args: any) => void) {
+  public on(eventName: string, cb: (args: unknown) => void) {
     this._subscriptions[eventName] = this._subscriptions[eventName] || [];
     this._subscriptions[eventName].push(cb);
   }
@@ -196,22 +208,22 @@ class WalletCommunicator {
       `Don't use ${cmd} with TAAL Wallet client as it will cause the TAAL Wallet to disconnect`;
 
     (proxiedAlert => {
-      window.alert = () => {
+      window.alert = (...args) => {
         console.error(getMessage('alert'));
-        return proxiedAlert.apply(this, arguments);
+        return proxiedAlert.apply(this, args);
       };
     })(window.alert);
 
     (proxiedConfirm => {
-      window.confirm = () => {
+      window.confirm = (...args) => {
         console.error(getMessage('confirm'));
-        return proxiedConfirm.apply(this, arguments);
+        return proxiedConfirm.apply(this, args);
       };
     })(window.confirm);
     (proxiedPropmpt => {
-      window.prompt = () => {
+      window.prompt = (...args) => {
         console.error(getMessage('prompt'));
-        return proxiedPropmpt.apply(this, arguments);
+        return proxiedPropmpt.apply(this, args);
       };
     })(window.prompt);
   }
@@ -225,6 +237,12 @@ export class WalletClient extends WalletCommunicator {
   public getAddress() {
     return this.request<string | null>({
       action: 'getAddress',
+    });
+  }
+
+  public getNetwork() {
+    return this.request<string | null>({
+      action: 'getNetwork',
     });
   }
 
@@ -256,6 +274,7 @@ export class WalletClient extends WalletCommunicator {
     return this.request<string>({
       action: 'signTx',
       payload: tx,
+      timeout: 120000,
     });
   }
 
@@ -263,13 +282,23 @@ export class WalletClient extends WalletCommunicator {
     return this.request<string>({
       action: 'signMessage',
       payload: tx,
+      timeout: 120000,
+    });
+  }
+
+  public signPreimage(payload: { tx: string; sighash: number; script: string; i: number; satoshis: number }) {
+    return this.request<string>({
+      action: 'signPreimage',
+      payload,
+      timeout: 120000,
     });
   }
 
   public mergeSplit({ satoshis, minChange = 0 }: { satoshis: number; minChange?: number }) {
-    return this.request<string>({
+    return this.request<UTXO[]>({
       action: 'mergeSplit',
       payload: { satoshis, minChange },
+      timeout: 15000,
     });
   }
 }

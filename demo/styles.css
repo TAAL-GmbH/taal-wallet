@@ -98,3 +98,7 @@ label input[type=text] {
 .hide-empty:empty {
   display: none;
 }
+
+* {
+  box-sizing: border-box;
+}
