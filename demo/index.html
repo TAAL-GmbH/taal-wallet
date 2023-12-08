@@ -44,9 +44,21 @@
     <div class="c-only">
       <hr />
       <h2>Transaction</h2>
-      <pre><code id="transaction">Click button to create and sign Transaction</code></pre>
-      <pre id="signResult" title="Transaction signature"></pre>
       <button id="btn-create-tx">Create Tx</button>
+    </div>
+
+    <div class="c-only">
+      <hr />
+      <h2>Unsigned Transaction</h2>
+      <textarea
+        id="txInput"
+        placeholder="Input your transaction here"
+        rows="5"
+        style="width: 100%"
+      ></textarea>
+      <h2>Signed Transaction</h2>
+      <pre id="signResult" title="Transaction signature"></pre>
+      <button id="btn-sign-tx">Sign Tx</button>
     </div>
 
     <div class="c-only">

@@ -9,7 +9,7 @@ const config: Configuration = {
     static: {
       directory: publicDir,
     },
-    port: 8080,
+    port: 4040,
     open: true,
   },
   entry: path.resolve(__dirname, '..', 'demo', 'index.ts'),
