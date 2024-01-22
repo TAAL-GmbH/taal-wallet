@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import type { FC } from 'react';
 import styled from 'styled-components';
 
 import { WalletLogo } from '@/components/svg/wallet-logo';
@@ -16,7 +16,7 @@ export const OnboardingHeading: FC<Props> = ({ heading, progress }) => {
     <Wrapper>
       <WalletLogoStyled />
       <ProgressBar progress={progress} margin="xl 0 0" />
-      <Heading level={4} margin="0">
+      <Heading level={3} margin="0">
         {heading}
       </Heading>
     </Wrapper>

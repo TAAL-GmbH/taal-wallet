@@ -37,7 +37,7 @@ export const OnboardingLanding: FC<Props> = ({ isInitial }) => {
         </div>
       </Option>
 
-      <Option href={`#${routes.ONBOARDING_IMPORT}`}>
+      <Option href={`#${routes.RECOVER_ACCOUNT_STEP1}`}>
         <KeyIcon />
         <div>
           <strong>Import or recover wallet</strong>
