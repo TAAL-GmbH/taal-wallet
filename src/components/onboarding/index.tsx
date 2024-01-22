@@ -9,6 +9,7 @@ import { useAppSelector } from '@/hooks';
 import { getLocationPath, navigateTo } from '@/utils/navigation';
 import { TosAgreement } from '@/components/tos-agreement';
 import { Spinner } from '@/components/spinner';
+import { RecoverAccountPage } from '@/components/onboarding/recover-account-form';
 
 import { OnboardingLanding } from './onboarding-landing';
 import { BackupTips } from './backup-tips';
@@ -30,6 +31,10 @@ export const Onboarding: FC<Props> = ({ isInitial }) => {
     routes.ONBOARDING,
     routes.CREATE_ACCOUNT,
     routes.ONBOARDING_IMPORT,
+    routes.RECOVER_ACCOUNT_STEP1,
+    routes.RECOVER_ACCOUNT_STEP2,
+    routes.RECOVER_ACCOUNT_STEP2_HIDDEN,
+    routes.RECOVER_ACCOUNT_STEP3,
   ];
 
   if (!nonStateValidatedRoutes.includes(locationPath)) {
@@ -62,6 +67,19 @@ export const Onboarding: FC<Props> = ({ isInitial }) => {
 
           <Route path={routes.ONBOARDING_IMPORT}>
             <CreateAccountForm action="importExisting" />
+          </Route>
+
+          <Route path={routes.RECOVER_ACCOUNT_STEP1}>
+            <RecoverAccountPage step={1} />
+          </Route>
+          <Route path={routes.RECOVER_ACCOUNT_STEP2}>
+            <RecoverAccountPage step={2} walletType="standard" />
+          </Route>
+          <Route path={routes.RECOVER_ACCOUNT_STEP2_HIDDEN}>
+            <RecoverAccountPage step={2} walletType="hidden" />
+          </Route>
+          <Route path={routes.RECOVER_ACCOUNT_STEP3}>
+            <RecoverAccountPage step={3} />
           </Route>
 
           <Route>

@@ -17,11 +17,17 @@ export const FormTextArea: FC<Props> = ({ name, options = {}, rows = 3, ...rest 
   const { register } = useFormContext();
   return (
     <FormInput name={name} {...rest}>
-      <TextArea rows={rows} $inputSize={rest.size} {...register(name, options)} />
+      <TextArea
+        rows={rows}
+        placeholder={rest.placeholder}
+        $inputSize={rest.size}
+        {...register(name, options)}
+      />
     </FormInput>
   );
 };
 
 const TextArea = styled.textarea<StyledInput>`
   ${sharedInput}
+  height: unset;
 `;
