@@ -16,7 +16,7 @@ import { appendPKList, clearState, setActivePk, setNetwork, setRootPK, setState 
 import { getHistory } from '@/features/woc-api';
 import { store } from '@/store';
 import { PKType } from '@/types';
-import { delay, isNull } from '@/utils/generic';
+import { delay, getErrorMessage, isNull } from '@/utils/generic';
 import { initStoreSync } from '@/utils/store-sync';
 import { createHDPrivateKey, derivePk, rebuildMnemonic } from '@/utils/blockchain';
 import { encrypt } from '@/utils/crypt';
@@ -40,6 +40,7 @@ type CreateAccountOptions = {
   password: string;
   mnemonicPhrase: string;
   action: 'importExisting' | 'createNew';
+  passphrase?: string;
 };
 
 export type CreateAccountReturnType =
@@ -71,7 +72,7 @@ export class AccountFactory {
   }
 
   public createAccount = async (values: CreateAccountOptions): Promise<CreateAccountReturnType> => {
-    const { networkId, password, mnemonicPhrase, action } = values;
+    const { networkId, password, mnemonicPhrase, action, passphrase } = values;
     const accountName = values.accountName.trim();
 
     store.dispatch(setIsCreating(true));
@@ -107,7 +108,7 @@ export class AccountFactory {
     try {
       const { pkInstance: rootKey } = createHDPrivateKey({
         networkId,
-        passphrase: undefined,
+        passphrase,
         mnemonic: rebuildMnemonic(mnemonicPhrase.trim()),
       });
 
@@ -143,7 +144,7 @@ export class AccountFactory {
       const isDataWritten = await this.storeAccountData({
         accountId,
         accountName,
-        hasPassphrase: false,
+        hasPassphrase: !!passphrase,
         networkId,
         privateKeyHash: rootKey.toString(),
         privateKeyEncrypted: encrypt(rootKey.toString(), password),
@@ -170,9 +171,10 @@ export class AccountFactory {
         throw new Error('Failed to create account');
       }
     } catch (err) {
+      const message = getErrorMessage(err);
       logEvent({
         type: 'error',
-        message: err.message,
+        message,
         showToUser: true,
       });
       console.error('onboardingForm', err);
@@ -183,7 +185,7 @@ export class AccountFactory {
       return {
         success: false,
         error: {
-          message: err.message,
+          message,
         },
       };
     }
@@ -198,6 +200,10 @@ export class AccountFactory {
     privateKeyEncrypted,
   }: AccountData) {
     const network = networkList.find(item => item.id === networkId);
+
+    if (!network) {
+      throw new Error('Network not found');
+    }
     const lastAddress = this.walletList[this.walletList.length - 1]?.address;
 
     await sharedDb.insertAccount({
@@ -319,7 +325,10 @@ export class AccountFactory {
 
     const isValidAccountInDb = await waitForTruthy(async () => {
       const accountFromDb = await sharedDb.getAccount(accountId);
-      return accountFromDb && accountFromDb.name === accountName && accountFromDb.networkId === networkId;
+      return (
+        (accountFromDb && accountFromDb.name === accountName && accountFromDb.networkId === networkId) ||
+        false
+      );
     });
 
     if (isValidAccountInDb) {
@@ -344,7 +353,9 @@ export class AccountFactory {
     }
 
     // this writes active.PkAddress to db
-    await dispatchAndValidate(setActivePk(lastAddress), s => s.pk.activePk.address === lastAddress);
+
+    lastAddress &&
+      (await dispatchAndValidate(setActivePk(lastAddress), s => s.pk.activePk.address === lastAddress));
 
     // wait for PkAddress to be set in db
     await delay(this.timeoutMultiplier * 200);
