@@ -1,4 +1,7 @@
 {
+  "editor.formatOnSave": false,
+  "eslint.enable": true,
+  "eslint.experimental.useFlatConfig": false,
   "cSpell.words": [
     "satoshis"
   ]
