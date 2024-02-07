@@ -1,4 +1,4 @@
-import { InjectSpacing } from '@/types/index';
+import { InjectSpacing } from '@/types';
 import { gap, injectSpacing } from '@/utils/inject-spacing';
 import styled from 'styled-components';
 

@@ -68,6 +68,7 @@ class SharedDb {
             await Promise.all(
               accountList.map(account => {
                 if ('hasPassphrase' in account === false) {
+                  //@ts-expect-error hasPassphrase is not in AccountType
                   account.hasPassphrase = true;
                   return store.put(account);
                 }

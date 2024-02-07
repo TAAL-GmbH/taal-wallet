@@ -7,7 +7,7 @@ import { AbstractIcon02 } from '@/svg/abstract-icon-02';
 import { Arrow2 } from '@/components/svg/arrow2';
 import { injectSpacing } from '@/utils/inject-spacing';
 import { useAppSelector } from '@/hooks';
-import { InjectSpacing } from '@/types/index';
+import { InjectSpacing } from '@/types';
 
 type Props = {
   recipientList: ReturnType<typeof parseRecipientListFromTx>;

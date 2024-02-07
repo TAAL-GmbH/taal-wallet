@@ -2,7 +2,7 @@ import { FC, HTMLAttributes, ReactNode } from 'react';
 import styled from 'styled-components';
 
 import { injectSpacing } from '@/utils/inject-spacing';
-import { InjectSpacing } from '@/types/index';
+import { InjectSpacing } from '@/types';
 
 type Props = {
   children: ReactNode;
