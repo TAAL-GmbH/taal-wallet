@@ -70,16 +70,16 @@ export const Onboarding: FC<Props> = ({ isInitial }) => {
           </Route>
 
           <Route path={routes.RECOVER_ACCOUNT_STEP1}>
-            <RecoverAccountPage step={"selectRecoveryScheme"} />
+            <RecoverAccountPage step={"step_1_selectRecoveryScheme"} />
           </Route>
           <Route path={routes.RECOVER_ACCOUNT_STEP2}>
-            <RecoverAccountPage step="setNewAccountPassword" walletType="standard" />
+            <RecoverAccountPage step="step_2_validateRecoveryUserInput" walletType="standard" />
           </Route>
           <Route path={routes.RECOVER_ACCOUNT_STEP2_HIDDEN}>
-            <RecoverAccountPage step="setNewAccountPassword" walletType="hidden" />
+            <RecoverAccountPage step="step_2_validateRecoveryUserInput" walletType="hidden" />
           </Route>
           <Route path={routes.RECOVER_ACCOUNT_STEP3}>
-            <RecoverAccountPage step="validateRecoveryUserInput" />
+            <RecoverAccountPage step="step_3_setNewAccountPassword" />
           </Route>
 
           <Route>
