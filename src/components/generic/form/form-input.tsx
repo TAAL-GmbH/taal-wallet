@@ -19,7 +19,6 @@ import {
   StyledInput,
 } from './form-styled';
 import { isUndefined } from '@/utils/generic';
-import type { OnboardingState } from '@/features/onboarding-slice.js';
 
 type Props = {
   children?: ReactElement;
