@@ -1,6 +1,6 @@
 import { FC, ReactNode, useEffect, useMemo, useRef } from 'react';
 import styled, { css } from 'styled-components';
-import { useForm as useReactHookForm, FormProvider, UseFormProps, WatchObserver } from 'react-hook-form';
+import { useForm as useReactHookForm, FormProvider, UseFormProps, WatchObserver, FieldValues } from 'react-hook-form';
 
 type Props = {
   children: ReactNode;
@@ -16,9 +16,9 @@ type StyledProps = {
   hasDarkBg?: boolean;
 };
 
-export const useForm = (options?: UseFormProps) => {
+export const useForm = <T extends FieldValues, C>(options?: UseFormProps<T, C>) => {
   const methodsRef = useRef(
-    useReactHookForm<typeof options.defaultValues>({
+    useReactHookForm({
       criteriaMode: 'all',
       mode: 'all',
       ...options,
