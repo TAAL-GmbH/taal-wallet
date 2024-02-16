@@ -33,7 +33,7 @@ export const Unlock: FC = () => {
     }
 
     try {
-      const decrypted = decrypt(privateKeyEncrypted, password);
+      const decrypted = await decrypt(privateKeyEncrypted, password);
       if (decrypted) {
         dispatch(setRootPK({ privateKeyHash: decrypted, privateKeyEncrypted }));
         // toast.success('Unlocked');
@@ -42,7 +42,7 @@ export const Unlock: FC = () => {
       const errorMap = {
         'unable to decrypt data': 'Incorrect password',
       };
-      toast.error(errorMap[err.message] || err.message);
+      toast.error(errorMap[err.message] || err.message || 'Wrong password');
     }
   };
 

@@ -146,7 +146,7 @@ export class AccountFactory {
         hasPassphrase: false,
         networkId,
         privateKeyHash: rootKey.toString(),
-        privateKeyEncrypted: encrypt(rootKey.toString(), password),
+        privateKeyEncrypted: await encrypt(rootKey.toString(), password),
       });
 
       if (isDataWritten) {

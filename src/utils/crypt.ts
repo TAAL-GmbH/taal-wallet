@@ -1,22 +1,30 @@
-import crypto from 'crypto';
-
-const algorithm = 'aes-256-cbc';
 const iv = Buffer.from('f98c2b14c2d893e7ae9bdf1da4170fc3', 'hex');
 
-export const sha256 = (str: string) => crypto.createHash('sha256').update(str).digest();
-
-export const encrypt = (str: string, password: string) => {
-  const key = sha256(password);
-  const cipher = crypto.createCipheriv(algorithm, Buffer.from(key), iv);
-  const encrypted = cipher.update(str);
-  const encryptedWithCipher = Buffer.concat([encrypted, cipher.final()]);
-  return encryptedWithCipher.toString('hex');
+export const sha256 = async (str: string) => {
+  const buffer = new TextEncoder().encode(str);
+  return window.crypto.subtle.digest('SHA-256', buffer);
 };
 
-export const decrypt = (str: string, password: string) => {
-  const key = sha256(password);
-  const encryptedBuf = Buffer.from(str, 'hex');
-  const decipher = crypto.createDecipheriv(algorithm, Buffer.from(key), iv);
-  const decrypted = decipher.update(encryptedBuf);
-  return Buffer.concat([decrypted, decipher.final()]).toString();
+export const encrypt = async (str: string, password: string) => {
+  const hash = await sha256(password);
+  const key = new Uint8Array(hash.slice(0, 32)); // Truncate to 256 bits (32 bytes)
+  const encodedStr = new TextEncoder().encode(str);
+  const keyBuffer = await window.crypto.subtle.importKey('raw', key, 'AES-CBC', false, ['encrypt']);
+  const encryptedBuffer = await window.crypto.subtle.encrypt({ name: 'AES-CBC', iv }, keyBuffer, encodedStr);
+  return Array.from(new Uint8Array(encryptedBuffer))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+};
+
+export const decrypt = async (encryptedHex: string, password: string) => {
+  const hash = await sha256(password);
+  const key = new Uint8Array(hash.slice(0, 32)); // Truncate to 256 bits (32 bytes)
+  const encryptedBytes = Uint8Array.from(Buffer.from(encryptedHex, 'hex'));
+  const keyBuffer = await window.crypto.subtle.importKey('raw', key, 'AES-CBC', false, ['decrypt']);
+  const decryptedBuffer = await window.crypto.subtle.decrypt(
+    { name: 'AES-CBC', iv },
+    keyBuffer,
+    encryptedBytes
+  );
+  return new TextDecoder().decode(decryptedBuffer);
 };
