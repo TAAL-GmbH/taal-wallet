@@ -4,5 +4,6 @@
   "eslint.experimental.useFlatConfig": false,
   "cSpell.words": [
     "satoshis"
-  ]
+  ],
+  "typescript.tsdk": "node_modules/typescript/lib"
 }
