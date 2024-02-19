@@ -4,6 +4,7 @@ import { FormInput } from "@/components/generic/form/form-input";
 import { Row } from "@/components/generic/row";
 import { FC } from "react";
 import { routes } from '@/constants/routes';
+import type { OnboardingState } from '@/features/onboarding-slice';
 
 export const SetAccountPassword: FC = (props: { passwordMinLength: number }) => {
 
@@ -34,7 +35,7 @@ export const SetAccountPassword: FC = (props: { passwordMinLength: number }) => 
           type="password"
           options={{
             required: 'Please confirm password',
-            validateWithValues(value, values) {
+            validateWithValues(value, values: OnboardingState) {
               return value === values?.password || "Passwords don't match";
             },
           }}
