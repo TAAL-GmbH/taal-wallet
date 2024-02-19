@@ -1,14 +1,14 @@
 import { FC, ReactNode, useEffect, useMemo, useRef } from 'react';
 import styled, { css } from 'styled-components';
-import { useForm as useReactHookForm, FormProvider, UseFormProps, WatchObserver, FieldValues } from 'react-hook-form';
+import { useForm as useReactHookForm, FormProvider, UseFormProps, WatchObserver, FieldValues, SubmitHandler } from 'react-hook-form';
 
-type Props = {
+type Props<T extends FieldValues, C> = {
   children: ReactNode;
   className?: string;
-  onSubmit: (arg0: unknown) => void;
-  onChange?: WatchObserver<{ [x: string]: unknown }>;
+  onSubmit: SubmitHandler<T>;
+  onChange?: WatchObserver<T>;
   hasDarkBg?: boolean;
-  options?: UseFormProps;
+  options?: UseFormProps<T, C>;
   isDisabled?: boolean;
 };
 
@@ -27,9 +27,9 @@ export const useForm = <T extends FieldValues, C>(options?: UseFormProps<T, C>) 
 
   const { watch } = methodsRef.current;
 
-  const Form = useMemo<FC<Props>>(
+  const Form = useMemo<FC<Props<T, C>>>(
     () =>
-      function FormComponent({ className, children, onSubmit, onChange, hasDarkBg, isDisabled }: Props) {
+      function FormComponent({ className, children, onSubmit, onChange, hasDarkBg, isDisabled }: Props<T, C>) {
         useEffect(() => {
           if (typeof onChange === 'function') {
             const subscription = watch(onChange);
