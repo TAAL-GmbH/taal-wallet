@@ -1,7 +1,7 @@
 import { FC, ReactNode } from 'react';
 import styled from 'styled-components';
 
-import { InjectSpacing } from '@/types/index';
+import { InjectSpacing } from '@/types';
 import { injectSpacing } from '@/utils/inject-spacing';
 
 type Props = {

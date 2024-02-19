@@ -1,22 +1,35 @@
 {
   "compilerOptions": {
     "target": "esnext",
+    "incremental": true,
+    "resolvePackageJsonImports": false,
+    "resolvePackageJsonExports": false,
+    "assumeChangesOnlyAffectDirectDependencies": true,
+    "disableReferencedProjectLoad": true,
+    "disableSolutionSearching": true,
+    "disableSourceOfProjectReferenceRedirect": true,
+    "preserveWatchOutput": true,
     "lib": ["esnext", "dom", "WebWorker"],
     "allowJs": false,
     "skipLibCheck": true,
+    "moduleDetection": "force",
+    "skipDefaultLibCheck": true,
     "esModuleInterop": true,
+    "isolatedModules": true,
     "allowSyntheticDefaultImports": true,
     "strict": false,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
     "resolveJsonModule": true,
     "noEmit": false,
     "jsx": "react-jsx",
+    "outDir": "./dist",
     "baseUrl": ".",
     "noUncheckedIndexedAccess": true,
-    "typeRoots": ["./node_modules/@types", "./src/types"],
+    "types": [],
+    "typeRoots": [],
     "paths": {
       "@/assets/*": ["src/assets/*"],
       "@/pages/*": ["src/pages/*"],
@@ -35,21 +48,20 @@
       "@/store": ["src/store/"],
       "@/db/*": ["src/db/*"],
       "@/db": ["src/db/"],
-      "@/types/*": ["src/types/*"],
-      "@/types": ["src/types/"]
+      "@/types": ["src/types/index.ts"]
     }
   },
-  "include": [
-    "./src/types/typeRoot/*.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    "**/*.js",
-    "**/*.jsx", 
-    "src/components/onboarding/password"
-  ], 
+  "files": ["./node_modules/@types/chrome/index.d.ts"],
+  "include": ["src"],
   "exclude": [
-    "src/__test__",
+    "**/__test__/**",
+    "**/__mocks__/**",
     "server",
-    "demo"
+    "demo",
+    "src/pages/background",
+    "node_modules",
+    "dist",
+    "dist-dev",
+    "dist-prop"
   ]
 }

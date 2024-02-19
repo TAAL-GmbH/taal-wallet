@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { injectSpacing, padding } from '@/utils/inject-spacing';
 import { Note } from '@/generic/note';
-import { InjectSpacing } from '@/types/index';
+import { InjectSpacing } from '@/types';
 
 type Item = {
   title: string;

@@ -2,7 +2,7 @@ import { FC, ReactNode } from 'react';
 import styled from 'styled-components';
 
 import { injectSpacing, margin } from '@/utils/inject-spacing';
-import { InjectSpacing } from '@/types/index';
+import { InjectSpacing } from '@/types';
 
 type Props = {
   variant?: 'primary' | 'secondary';

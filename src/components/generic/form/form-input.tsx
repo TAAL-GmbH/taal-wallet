@@ -1,4 +1,4 @@
-import { FC, InputHTMLAttributes, ReactElement, ReactNode, useState } from 'react';
+import { FC, FunctionComponent, InputHTMLAttributes, ReactElement, ReactNode, useState } from 'react';
 import styled from 'styled-components';
 import { RegisterOptions, useFormContext } from 'react-hook-form';
 
@@ -28,7 +28,7 @@ type Props = {
   placeholder?: string;
   className?: string;
   options?: RegisterOptions & {
-    validateWithValues?: (arg0: unknown, arg1: unknown) => boolean | string;
+    validateWithValues?: (value: unknown, state: unknown) => boolean | string;
   };
   showError?: boolean;
   // showPlaceholder?: boolean;
@@ -144,7 +144,7 @@ export const FormInput: FC<Props & StyledProps> = ({
       {showError && <FormInputError name={name} errors={errors} />}
     </FormFieldWrapper>
   );
-};
+}
 
 const Input = styled.input<StyledInput & { $ctaCount?: number }>`
   ${sharedInput}

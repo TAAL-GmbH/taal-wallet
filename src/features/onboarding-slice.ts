@@ -3,7 +3,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { networkList } from '@/constants/network-list';
 
 export type OnboardingState = {
-  networkId: typeof networkList[0] | null;
+  networkId: typeof networkList[number] | null;
   accountName: string;
   password: string;
   password2: string;
