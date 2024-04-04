@@ -58,7 +58,6 @@
     "**/__mocks__/**",
     "server",
     "demo",
-    "src/pages/background",
     "node_modules",
     "dist",
     "dist-dev",
