@@ -11,9 +11,9 @@ export const networkList = [
     envName: 'mainnet',
     wocNetwork: 'main',
   },
-];
+] as const;
 
 export const networkMap = networkList.reduce((acc, network) => {
   acc[network.id] = network;
   return acc;
-}, {} as { [id: string]: typeof networkList[0] });
+}, {} as Record<typeof networkList[number]["id"], typeof networkList[number]>);

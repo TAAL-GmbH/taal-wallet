@@ -12,7 +12,7 @@ type State = {
   activePk: PKType | null;
   rootPk: RootPKType | null;
   map: PKMap;
-  network: typeof networkList[0] | null;
+  network: typeof networkList[number] | null;
   isInSync: boolean;
   isLocked: boolean | null;
   isSendBsvLocked: boolean;
@@ -100,7 +100,7 @@ const pkSlice = createSlice({
       state.isLocked = false;
       sessionStorage.set({ [ROOT_PK_HASH_KEY]: action.payload.privateKeyHash });
     },
-    setNetwork(state, action: PayloadAction<typeof networkList[0]>) {
+    setNetwork(state, action: PayloadAction<typeof networkList[number]>) {
       state.network = action.payload;
     },
     setActivePk(state, action: PayloadAction<string | null>) {

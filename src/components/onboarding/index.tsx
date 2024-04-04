@@ -1,14 +1,15 @@
 import { FC, useState } from 'react';
 import { Route, Router, Switch } from 'wouter';
+import { useHashLocation } from 'wouter/use-hash-location';
 
 import { SterileLayout } from '@/components/layout/sterile-layout';
 import { routes } from '@/constants/routes';
-import { useHashLocation } from '@/hooks/use-hash-location';
 import { CreateAccountForm } from '@/components/onboarding/create-account-form';
 import { useAppSelector } from '@/hooks';
 import { getLocationPath, navigateTo } from '@/utils/navigation';
 import { TosAgreement } from '@/components/tos-agreement';
 import { Spinner } from '@/components/spinner';
+import { AccountRecovery } from '@/components/onboarding/account-recovery';
 
 import { OnboardingLanding } from './onboarding-landing';
 import { BackupTips } from './backup-tips';
@@ -32,7 +33,8 @@ export const Onboarding: FC<Props> = ({ isInitial }) => {
     routes.ONBOARDING_IMPORT,
   ];
 
-  if (!nonStateValidatedRoutes.includes(locationPath)) {
+  // run validation only for account creation steps and not for recovery
+  if (!locationPath.startsWith(routes.RECOVER_ACCOUNT) && !nonStateValidatedRoutes.includes(locationPath)) {
     const isValidState = Object.values(onboardingState).every(item => !!item);
     if (!isValidState) {
       navigateTo(routes.ONBOARDING);
@@ -42,10 +44,10 @@ export const Onboarding: FC<Props> = ({ isInitial }) => {
 
   return (
     <SterileLayout showTopHeader={false} showBackButton={!isInitial} center>
-      <Router base="onboarding" hook={useHashLocation}>
+      <Router hook={useHashLocation}>
         <Switch>
           <Route path={routes.CREATE_ACCOUNT}>
-            <CreateAccountForm action="createNew" />
+            <CreateAccountForm />
           </Route>
           <Route path={routes.TOS}>
             <TosAgreement />
@@ -61,7 +63,11 @@ export const Onboarding: FC<Props> = ({ isInitial }) => {
           </Route>
 
           <Route path={routes.ONBOARDING_IMPORT}>
-            <CreateAccountForm action="importExisting" />
+            <CreateAccountForm />
+          </Route>
+
+          <Route path={`${routes.RECOVER_ACCOUNT}/:stepName?/:extra?`}>
+            <AccountRecovery />
           </Route>
 
           <Route>
