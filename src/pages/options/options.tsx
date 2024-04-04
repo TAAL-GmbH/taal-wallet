@@ -1,12 +1,12 @@
-import React, { FC, useEffect } from 'react';
-import { AppLogo } from '@/components/app-logo';
+import { FC, useEffect } from 'react';
 import styled from 'styled-components';
+import { Route, Router } from 'wouter';
+import { useHashLocation } from 'wouter/use-hash-location';
+
+import { AppLogo } from '@/components/app-logo';
 import { ClientList } from './client-list';
 import { isPopup } from '@/utils/generic';
-import { Route, Router } from 'wouter';
-import { useHashLocation } from '@/hooks/use-hash-location';
 import { AnchorLink } from '@/components/anchor-link';
-import { Debug } from '@/components/debug/debug';
 import { MinimalLayout } from '@/components/layout/minimal-layout';
 
 const routes = {

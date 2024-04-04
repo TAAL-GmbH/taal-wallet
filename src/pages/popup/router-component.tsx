@@ -1,5 +1,6 @@
 import { FC } from 'react';
 import { Route, Router, Switch } from 'wouter';
+import { useHashLocation } from 'wouter/use-hash-location';
 
 import { History } from '@/components/history';
 import { Home } from '@/components/home';
@@ -10,7 +11,6 @@ import { Tokens } from '@/components/tokens';
 import { Unlock } from '@/components/unlock';
 import { WebPushSubscription } from '@/components/web-push-subscription';
 import { routes } from '@/constants/routes';
-import { useHashLocation } from '@/hooks/use-hash-location';
 import { Onboarding } from '@/components/onboarding';
 import { ErrorPage } from '@/components/error-page';
 import { TokenDetails } from '@/components/token-details';
@@ -124,7 +124,7 @@ export const RouterComponent: FC<Props> = ({
         <Route path={routes.WEB_PUSH}>
           <WebPushSubscription />
         </Route>
-        <Route path={`${routes.ONBOARDING}/:any*`}>
+        <Route path={routes.ONBOARDING} nest>
           <Onboarding />
         </Route>
         <Route path={`${routes.TOKENS}/:tokenId/:symbol`}>

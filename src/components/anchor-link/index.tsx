@@ -1,7 +1,6 @@
 import { FC, ReactNode } from 'react';
 import styled from 'styled-components';
-
-import { useHashLocation } from '@/hooks/use-hash-location';
+import { useHashLocation } from 'wouter/use-hash-location';
 
 type Props = {
   children: ReactNode;

@@ -1,34 +1,27 @@
-import { FormInput } from "@/components/generic/form/form-input";
-import { FormSelect } from "@/components/generic/form/form-select";
-import { FormTextArea } from "@/components/generic/form/form-text-area";
-import { Row } from "@/components/generic/row";
-import { networkList } from "@/constants/network-list";
-import { useAppSelector } from "@/hooks/index";
-import { isValidMnemonic } from "@/utils/blockchain";
-import { FC, useState } from "react";
+import { FC, useState } from 'react';
 import styled from 'styled-components';
-import type { Props } from "./index";
 
+import { FormInput } from '@/components/generic/form/form-input';
+import { FormSelect } from '@/components/generic/form/form-select';
+import { FormTextArea } from '@/components/generic/form/form-text-area';
+import { Row } from '@/components/generic/row';
+import { networkList } from '@/constants/network-list';
+import { useAppSelector } from '@/hooks/index';
+import { isValidMnemonic } from '@/utils/blockchain';
+import { margin } from '@/utils/inject-spacing';
 
-const FormHint = styled.div`
-  color: ${({ theme }) => theme.color.primary[600]}
-  font-family: Inter;
-  font-size: 12px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 18px;
-`;
-const isDev = process.env.NODE_ENV === 'development';
+type Props = {
+  isWalletHidden?: boolean;
+};
 
-
-export const ValidateRecoveryInput: FC<{ walletType: Props["walletType"] }> = (props) => {
+export const ValidateRecoveryInput: FC<Props> = ({ isWalletHidden }) => {
   const accountList = useAppSelector(state => state.account.accountList);
   const [networkListOptions] = useState(
     [{ label: 'Select network', value: '' }].concat(
       networkList.map(({ label, id }) => ({ label, value: id }))
     )
   );
-  const passwordMinLength = isDev ? 2 : parseInt(process.env.PASSWORD_MIN_LENGTH);
+
   return (
     <>
       <Row>
@@ -62,7 +55,7 @@ export const ValidateRecoveryInput: FC<{ walletType: Props["walletType"] }> = (p
       <Row>
         <FormTextArea
           label="Enter your recovery phrase"
-          placeholder="word #1, word #2, word #3, word #4, word #5,word #6, word #7, word #8, word #9, word #10, word #11, word #12"
+          placeholder={Array.from({ length: 12 }, (_, i) => `word #${i + 1}`).join(' ')}
           name="mnemonicPhrase"
           rows={4}
           options={{
@@ -77,9 +70,11 @@ export const ValidateRecoveryInput: FC<{ walletType: Props["walletType"] }> = (p
           }}
           required
         />
+
         <FormHint>Paste or type your phrase in the right sequence</FormHint>
       </Row>
-      {props.walletType === 'hidden' && (
+
+      {isWalletHidden && (
         <Row>
           <FormInput
             label="Passphrase"
@@ -88,10 +83,6 @@ export const ValidateRecoveryInput: FC<{ walletType: Props["walletType"] }> = (p
             type="password"
             options={{
               required: 'Passphrase is required',
-              validate: value =>
-                value.length < passwordMinLength
-                  ? `Passphrase must be at least ${passwordMinLength} characters length`
-                  : true,
             }}
             required
           />
@@ -99,6 +90,9 @@ export const ValidateRecoveryInput: FC<{ walletType: Props["walletType"] }> = (p
       )}
     </>
   );
-}
+};
 
-
+const FormHint = styled.div`
+  ${({ theme }) => theme.typography.body4};
+  ${margin`0 0 lg`}
+`;

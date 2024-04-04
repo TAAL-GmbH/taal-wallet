@@ -41,7 +41,7 @@
     "stas-js": "^3.0.3",
     "stream-browserify": "^3.0.0",
     "styled-components": "^6.0.7",
-    "wouter": "^2.10.0",
+    "wouter": "^3.1.0",
     "xss": "^1.0.14"
   },
   "devDependencies": {
