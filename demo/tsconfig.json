@@ -3,6 +3,5 @@
   "compilerOptions": {
     "strictNullChecks": false,
     "strict": false
-  },
-  "include": [".", "../node_modules/@types"]
+  }
 }
